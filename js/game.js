@@ -1,36 +1,46 @@
 // Основная игровая логика
 
-// Глобальные переменные
-let scene, camera, renderer;
-let player, ground, currentWeapon;
-let obstacles = [];
-let bullets = [];
-let score = 0;
-let highScore = parseInt(localStorage.getItem('cubeGameHighScore')) || 0;
-let level = 1;
-let lives = 3;
-let ammo = 80;
-let maxAmmo = 80;
-let coins = parseInt(localStorage.getItem('cubeGameCoins')) || 0;
-let gameActive = true;
-let playerVelocityY = 0;
-let isJumping = false;
-let keys = {};
-let selectedSkin = null;
-let selectedWeapon = 'pistol';
-let unlockedWeapons = JSON.parse(localStorage.getItem('cubeGameUnlockedWeapons')) || ['pistol', 'rifle'];
-let maxLevelReached = parseInt(localStorage.getItem('cubeGameMaxLevel')) || 1;
-let animationId = null;
-let decorations = [];
-let canShoot = true;
-let shootCooldown = 300;
-let isBurstFiring = false;
-let burstCount = 0;
-let burstMax = 3;
-let cameraMode = 'firstPerson';
-let obstacleSpeed = 0.05;
-let spawnRate = 0.01;
-const gravity = -0.015;
+// Глобальные переменные (используем var для совместимости с inline скриптом)
+var scene, camera, renderer;
+var player, ground, currentWeapon;
+var obstacles = [];
+var bullets = [];
+var score = 0;
+var highScore = parseInt(localStorage.getItem('cubeGameHighScore')) || 0;
+var level = 1;
+var lives = 3;
+var ammo = 80;
+var maxAmmo = 80;
+var coins = parseInt(localStorage.getItem('cubeGameCoins')) || 0;
+var gameActive = true;
+var playerVelocityY = 0;
+var isJumping = false;
+var keys = {};
+var selectedSkin = null;
+var selectedWeapon = 'pistol';
+var unlockedWeapons = JSON.parse(localStorage.getItem('cubeGameUnlockedWeapons')) || ['pistol', 'rifle'];
+var maxLevelReached = parseInt(localStorage.getItem('cubeGameMaxLevel')) || 1;
+var animationId = null;
+var decorations = [];
+var canShoot = true;
+var shootCooldown = 300;
+var isBurstFiring = false;
+var burstCount = 0;
+var burstMax = 3;
+var cameraMode = 'firstPerson';
+var obstacleSpeed = 0.02;
+var spawnRate = 0.03;
+var gravity = -0.015;
+var playerSpeed = 0.1;
+var bulletSpeed = 0.5;
+var cameraLookTarget;
+var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
+var ownedWeapons = ['pistol', 'rifle'];
+var turrets = [];
+var hasTurret = false;
+var hasFireTurret = false;
+var hasLaserTurret = false;
+var hasRocketTurret = false;
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);

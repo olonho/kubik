@@ -252,5 +252,134 @@ function createWeapon(type) {
     else if (type === 'rifle') return createRifle();
     else if (type === 'laser') return createLaserGun();
     else if (type === 'gravity') return createGravityGun();
+    else if (type === 'machinegun') return createMachinegun();
+    else if (type === 'shotgun') return createShotgun();
+    else if (type === 'sniper') return createSniper();
+    else if (type === 'rocket') return createRocket();
+    else if (type === 'crossbow') return createCrossbow();
+    else if (type === 'plasma') return createPlasma();
     return createPistol();
+}
+
+function createShotgun() {
+    const sgGroup = new THREE.Group();
+    
+    const barrelGeometry = new THREE.CylinderGeometry(0.045, 0.045, 0.6, 8);
+    const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+    
+    const barrel1 = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel1.rotation.z = Math.PI / 2;
+    barrel1.position.z = 0.03;
+    barrel1.castShadow = true;
+    sgGroup.add(barrel1);
+    
+    const barrel2 = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel2.rotation.z = Math.PI / 2;
+    barrel2.position.z = -0.03;
+    barrel2.castShadow = true;
+    sgGroup.add(barrel2);
+    
+    const bodyGeometry = new THREE.BoxGeometry(0.35, 0.12, 0.14);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x3a3a3a });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.set(-0.15, 0, 0);
+    body.castShadow = true;
+    sgGroup.add(body);
+    
+    const stockGeometry = new THREE.BoxGeometry(0.3, 0.12, 0.1);
+    const stockMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const stock = new THREE.Mesh(stockGeometry, stockMaterial);
+    stock.position.set(-0.4, -0.01, 0);
+    stock.castShadow = true;
+    sgGroup.add(stock);
+    
+    const gripGeometry = new THREE.BoxGeometry(0.07, 0.14, 0.07);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.1, -0.11, 0);
+    grip.castShadow = true;
+    sgGroup.add(grip);
+    
+    const boltGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.05);
+    const boltMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+    const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
+    bolt.position.set(-0.15, 0.08, 0);
+    bolt.castShadow = true;
+    sgGroup.add(bolt);
+    
+    sgGroup.scale.set(1.9, 1.9, 1.9);
+    return sgGroup;
+}
+
+function createSniper() {
+    const group = new THREE.Group();
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.0, 8), new THREE.MeshPhongMaterial({ color: 0x1a1a1a }));
+    barrel.rotation.z = Math.PI / 2;
+    group.add(barrel);
+    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+    scope.position.set(0.1, 0.1, 0);
+    group.add(scope);
+    group.scale.set(2.0, 2.0, 2.0);
+    return group;
+}
+
+function createRocket() {
+    const group = new THREE.Group();
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8), new THREE.MeshPhongMaterial({ color: 0x4a4a4a }));
+    tube.rotation.z = Math.PI / 2;
+    group.add(tube);
+    const grip = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), new THREE.MeshPhongMaterial({ color: 0x654321 }));
+    grip.position.set(-0.2, -0.12, 0);
+    group.add(grip);
+    group.scale.set(2.2, 2.2, 2.2);
+    return group;
+}
+
+function createCrossbow() {
+    const group = new THREE.Group();
+    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.08), new THREE.MeshPhongMaterial({ color: 0x8B4513 }));
+    group.add(stock);
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.02, 8, 16, Math.PI), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+    bow.rotation.z = -Math.PI / 2;
+    bow.position.set(0.25, 0, 0);
+    group.add(bow);
+    group.scale.set(1.7, 1.7, 1.7);
+    return group;
+}
+
+function createPlasma() {
+    const group = new THREE.Group();
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshPhongMaterial({ color: 0xFF00FF, emissive: 0xFF00FF, emissiveIntensity: 0.8 }));
+    group.add(core);
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 8, 16), new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 0.5 }));
+    group.add(ring1);
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8), new THREE.MeshPhongMaterial({ color: 0x666666 }));
+    handle.position.set(-0.2, -0.08, 0);
+    group.add(handle);
+    group.scale.set(1.9, 1.9, 1.9);
+    return group;
+}
+
+function createMachinegun() {
+    const mgGroup = new THREE.Group();
+    const barrelGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8);
+    const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+    const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.castShadow = true;
+    mgGroup.add(barrel);
+    const bodyGeometry = new THREE.BoxGeometry(0.4, 0.1, 0.12);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.set(-0.1, 0, 0);
+    body.castShadow = true;
+    mgGroup.add(body);
+    const magazineGeometry = new THREE.BoxGeometry(0.15, 0.25, 0.1);
+    const magazineMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+    const magazine = new THREE.Mesh(magazineGeometry, magazineMaterial);
+    magazine.position.set(-0.05, -0.17, 0);
+    magazine.castShadow = true;
+    mgGroup.add(magazine);
+    mgGroup.scale.set(1.8, 1.8, 1.8);
+    return mgGroup;
 }
