@@ -28,7 +28,7 @@ var isBurstFiring = false;
 var burstCount = 0;
 var burstMax = 3;
 var cameraMode = 'firstPerson';
-var obstacleSpeed = 0.02;
+var obstacleSpeed = 0.025;
 var spawnRate = 0.03;
 var gravity = -0.015;
 var playerSpeed = 0.1;
@@ -79,7 +79,7 @@ function updateLevel() {
     const newLevel = Math.floor(score / 50) + 1;
     if (newLevel > level) {
         level = newLevel;
-        obstacleSpeed = 0.05 + (level - 1) * 0.01;
+        obstacleSpeed = 0.025 + (level - 1) * 0.005;
         spawnRate = 0.01 + (level - 1) * 0.008;
         
         if (level % 5 === 0) {
@@ -301,7 +301,7 @@ function restartGame() {
     level = 1;
     lives = 3;
     ammo = maxAmmo;
-    obstacleSpeed = 0.05;
+    obstacleSpeed = 0.025;
     spawnRate = 0.01;
     canShoot = true;
     isBurstFiring = false;
@@ -327,7 +327,7 @@ function returnToSkinMenu() {
     level = 1;
     lives = 3;
     ammo = maxAmmo;
-    obstacleSpeed = 0.05;
+    obstacleSpeed = 0.025;
     spawnRate = 0.01;
     playerVelocityY = 0;
     isJumping = false;

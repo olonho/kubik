@@ -241,6 +241,8 @@
 
         #leftBtn { bottom: 90px; left: 20px; }
         #rightBtn { bottom: 90px; left: 110px; }
+        #upBtn { bottom: 170px; left: 65px; }
+        #downBtn { bottom: 10px; left: 20px; }
         #jumpBtn { bottom: 20px; left: 65px; width: 80px; height: 80px; font-size: 36px; }
         #shootBtn { bottom: 90px; right: 20px; background-color: rgba(255, 100, 100, 0.4); border-color: rgba(255, 100, 100, 0.9); width: 80px; height: 80px; font-size: 36px; }
         #shootBtn:active { background-color: rgba(255, 100, 100, 0.7); }
@@ -460,6 +462,45 @@
             </button>
         </div>
 
+
+        <hr style="border: 2px solid gold; margin: 30px 0;">
+        <h3 style="color: gold; font-size: 36px; margin-bottom: 20px;">💎 ПРЕМИУМ ОРУЖИЕ 💎</h3>
+        
+        <div style="background-color: rgba(255, 100, 0, 0.15); padding: 30px; border-radius: 15px; margin: 20px 0; border: 3px solid #FF6347;">
+            <div style="color: white; font-size: 32px; margin-bottom: 15px;">🔫🔥 МИНИГАН</div>
+            <div style="color: #FFD700; font-size: 20px; margin-bottom: 10px;">Супер скорострельность • 200 патронов</div>
+            <div style="color: #FFA500; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Цена: 500 💰</div>
+            <button class="buyWeaponBtn" data-weapon="minigun" data-price="500" style="padding: 15px 40px; background-color: #FF6347; border: none; border-radius: 10px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                Купить Миниган
+            </button>
+        </div>
+
+        <div style="background-color: rgba(0, 255, 255, 0.15); padding: 30px; border-radius: 15px; margin: 20px 0; border: 3px solid #00CED1;">
+            <div style="color: white; font-size: 32px; margin-bottom: 15px;">⚡💎 РЕЛЬСОТРОН</div>
+            <div style="color: #FFD700; font-size: 20px; margin-bottom: 10px;">Мгновенный урон • Пробивает всё • 20 патронов</div>
+            <div style="color: #FFA500; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Цена: 800 💰</div>
+            <button class="buyWeaponBtn" data-weapon="railgun" data-price="800" style="padding: 15px 40px; background-color: #00CED1; border: none; border-radius: 10px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                Купить Рельсотрон
+            </button>
+        </div>
+
+        <div style="background-color: rgba(255, 0, 255, 0.15); padding: 30px; border-radius: 15px; margin: 20px 0; border: 3px solid #FF00FF;">
+            <div style="color: white; font-size: 32px; margin-bottom: 15px;">💜⚛️ ПЛАЗМЕННАЯ ПУШКА</div>
+            <div style="color: #FFD700; font-size: 20px; margin-bottom: 10px;">Энергетические шары • 50 патронов</div>
+            <div style="color: #FFA500; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Цена: 1000 💰</div>
+            <button class="buyWeaponBtn" data-weapon="plasmacannon" data-price="1000" style="padding: 15px 40px; background-color: #FF00FF; border: none; border-radius: 10px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                Купить Плазменную Пушку
+            </button>
+        </div>
+
+        <div style="background-color: rgba(0, 255, 0, 0.2); padding: 30px; border-radius: 15px; margin: 20px 0; border: 5px solid #00FF00; box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);">
+            <div style="color: #00FF00; font-size: 36px; margin-bottom: 15px; text-shadow: 0 0 10px #00FF00;">💚💥 BFG-9000</div>
+            <div style="color: #FFD700; font-size: 22px; margin-bottom: 10px;">ЛЕГЕНДАРНОЕ • Массовое уничтожение • 10 патронов</div>
+            <div style="color: #FF4500; font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 5px #FF4500;">Цена: 2000 💰</div>
+            <button class="buyWeaponBtn" data-weapon="bfg" data-price="2000" style="padding: 20px 50px; background-color: #00FF00; border: none; border-radius: 10px; color: black; font-size: 24px; font-weight: bold; cursor: pointer; transition: transform 0.2s; box-shadow: 0 0 20px #00FF00;">
+                💎 КУПИТЬ BFG-9000 💎
+            </button>
+        </div>
         <button id="closeShopBtn" style="margin-top: 20px; padding: 12px 30px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 20px; font-weight: bold; cursor: pointer;">
             Закрыть магазин
         </button>
@@ -1918,10 +1959,6 @@
             const coolingMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
             const cooling = new THREE.Mesh(coolingGeometry, coolingMaterial);
             cooling.rotation.z = Math.PI / 2;
-                minigun: { name: '🔫🔥 Миниган', cooldown: 50, ammo: 200 },
-                railgun: { name: '⚡💎 Рельсотрон', cooldown: 800, ammo: 20 },
-                bfg: { name: '💚💥 BFG-9000', cooldown: 2000, ammo: 10 },
-                plasmacannon: { name: '💜⚛️ Плазменная Пушка', cooldown: 200, ammo: 50 },
             cooling.position.set(0.1, 0, 0);
             cooling.castShadow = true;
             mgGroup.add(cooling);
@@ -2497,10 +2534,25 @@
                 }
             }
             // Возврат в нейтральное положение в режиме третьего лица
-            if (cameraMode === 'thirdPerson' && !keys['ArrowLeft'] && !keys['ArrowRight']) {
+            if (cameraMode === 'thirdPerson' && !keys['ArrowLeft'] && !keys['ArrowRight'] && !keys['ArrowUp'] && !keys['ArrowDown']) {
                 player.rotation.y = -Math.PI / 2; // Смотрит вперед
             }
 
+            // Движение вперёд-назад (в пределах базы)
+            if (keys['ArrowUp'] && player.position.z > -40) {
+                player.position.z -= playerSpeed;
+                // В режиме от третьего лица поворачиваем персонажа
+                if (cameraMode === 'thirdPerson') {
+                    player.rotation.y = -Math.PI / 2; // Смотрит вперед
+                }
+            }
+            if (keys['ArrowDown'] && player.position.z < 5) {
+                player.position.z += playerSpeed;
+                // В режиме от третьего лица поворачиваем персонажа
+                if (cameraMode === 'thirdPerson') {
+                    player.rotation.y = Math.PI / 2; // Смотрит назад
+                }
+            }
 
             // Прыжок на пробел
             if (keys['Space'] && !isJumping) {
@@ -3064,7 +3116,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.05;
+            obstacleSpeed = 0.025;
             spawnRate = 0.01;
             playerVelocityY = 0;
             isJumping = false;
@@ -3328,6 +3380,15 @@
         document.getElementById('closeShopBtn').addEventListener('click', closeShop);
         document.getElementById('buyAmmoBtn').addEventListener('click', () => buyAmmo(40, 50));
         document.getElementById('buyAmmoBigBtn').addEventListener('click', () => buyAmmo(100, 100));
+
+        // Event listeners для покупки оружия
+        document.querySelectorAll('.buyWeaponBtn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const weaponType = e.target.getAttribute('data-weapon');
+                const price = parseInt(e.target.getAttribute('data-price'));
+                buyWeapon(weaponType, price);
+            });
+        });
         // document.getElementById('closeShop').addEventListener('click', () => {
         //     closeShop();
         //     gameActive = true;
@@ -3401,6 +3462,8 @@
     <div id="mobileControls">
         <button class="control-button" id="leftBtn">←</button>
         <button class="control-button" id="rightBtn">→</button>
+        <button class="control-button" id="upBtn">↑</button>
+        <button class="control-button" id="downBtn">↓</button>
         <button class="control-button" id="jumpBtn">⬆</button>
         <button class="control-button" id="shootBtn">🔥</button>
         <button class="control-button" id="weapon1Btn">🔫</button>
@@ -3428,6 +3491,24 @@
         document.getElementById('rightBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
             keys['ArrowRight'] = false;
+        });
+
+        document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowUp'] = true;
+        });
+        document.getElementById('upBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowUp'] = false;
+        });
+
+        document.getElementById('downBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowDown'] = true;
+        });
+        document.getElementById('downBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowDown'] = false;
         });
 
         document.getElementById('jumpBtn').addEventListener('touchstart', (e) => {

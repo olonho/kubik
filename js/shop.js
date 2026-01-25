@@ -38,3 +38,26 @@ function buyAmmo(amount, cost) {
         showShopMessage('❌ Недостаточно монет! Нужно еще: ' + need + ' 💰', false);
     }
 }
+
+function buyWeapon(weaponType, cost) {
+    if (coins >= cost) {
+        coins -= cost;
+        localStorage.setItem('cubeGameCoins', coins);
+        
+        // Добавляем оружие в список разблокированных
+        if (!unlockedWeapons.includes(weaponType)) {
+            unlockedWeapons.push(weaponType);
+            localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
+        }
+        
+        // Переключаемся на купленное оружие
+        changeWeapon(weaponType);
+        
+        updateCoinsDisplay();
+        document.getElementById('shopCoins').textContent = coins;
+        showShopMessage('✅ Оружие куплено! Нажмите закрыть магазин.', true);
+    } else {
+        const need = cost - coins;
+        showShopMessage('❌ Недостаточно монет! Нужно еще: ' + need + ' 💰', false);
+    }
+}
