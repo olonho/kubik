@@ -16,17 +16,28 @@
             left: 20px;
             color: white;
             font-size: 24px;
+            font-weight: bold;
             z-index: 100;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(50, 50, 50, 0.6));
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
         }
         #instructions {
             position: absolute;
-            top: 60px;
+            top: 90px;
             left: 20px;
-            color: white;
-            font-size: 16px;
+            color: #f0f0f0;
+            font-size: 14px;
             z-index: 100;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.8), rgba(60, 60, 60, 0.7));
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(100, 200, 255, 0.4);
+            box-shadow: 0 3px 12px rgba(0, 100, 200, 0.3);
+            backdrop-filter: blur(3px);
         }
         #gameOver {
             position: absolute;
@@ -146,6 +157,50 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+        #weaponDisplay {
+            position: absolute;
+            top: 155px;
+            left: 20px;
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(60, 40, 0, 0.8), rgba(100, 70, 0, 0.7));
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 3px 12px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(3px);
+        }
+        #ammoDisplay {
+            position: absolute;
+            top: 195px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(40, 40, 40, 0.8), rgba(70, 70, 70, 0.7));
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 100, 0.5);
+            box-shadow: 0 3px 12px rgba(255, 255, 0, 0.3);
+            backdrop-filter: blur(3px);
+        }
+        #cameraMode {
+            position: absolute;
+            top: 235px;
+            left: 20px;
+            color: #87ceeb;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 100;
+            background: linear-gradient(135deg, rgba(0, 50, 100, 0.8), rgba(0, 80, 150, 0.7));
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(135, 206, 235, 0.5);
+            box-shadow: 0 3px 12px rgba(100, 150, 255, 0.3);
+            backdrop-filter: blur(3px);
+        }
 
         /* Мобильные элементы управления */
         #mobileControls {
@@ -194,9 +249,95 @@
         #cameraModeBtn { top: 150px; right: 20px; width: 60px; height: 60px; font-size: 24px; background-color: rgba(100, 150, 255, 0.4); border-color: rgba(100, 150, 255, 0.9); }
         #cameraModeBtn:active { background-color: rgba(100, 150, 255, 0.7); }
 
+        #shopMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 200;
+            max-height: 80vh;
+            overflow-y: auto;
+            min-width: 600px;
+        }
+        #shopMenu h2 {
+            color: white;
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+        #shopMenu h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        .shop-items {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .shop-item {
+            background: linear-gradient(135deg, rgba(50, 50, 50, 0.8), rgba(30, 30, 30, 0.8));
+            border: 3px solid #4CAF50;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 140px;
+            position: relative;
+        }
+        .shop-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+        }
+        .shop-item.owned {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(80, 80, 30, 0.8), rgba(60, 60, 10, 0.8));
+        }
+        .shop-item.owned::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .shop-item-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .shop-item-name {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .shop-item-price {
+            color: #FFD700;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .shop-item-desc {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        #coinsDisplay {
+            background: linear-gradient(135deg, rgba(80, 60, 0, 0.8), rgba(120, 90, 0, 0.7));
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 215, 0, 0.6);
+            box-shadow: 0 3px 12px rgba(255, 215, 0, 0.4);
+            backdrop-filter: blur(3px);
+        }
         @media (max-width: 768px) {
             #mobileControls { display: block; }
             #instructions { font-size: 12px; top: 50px; }
+            #shopMenu { min-width: 90%; padding: 20px; }
         }
     </style>
 </head>
@@ -241,21 +382,42 @@
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
     <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | ENTER: Сменить вид</div>
-    <div id="weaponDisplay" style="display: none; position: absolute; top: 90px; left: 20px; color: white; font-size: 18px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100;">
+    <div id="weaponDisplay" style="display: none;">
         Оружие: 🔫 Пистолет
     </div>
-    <div id="ammoDisplay" style="display: none; position: absolute; top: 120px; left: 20px; color: yellow; font-size: 22px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100;">
+    <div id="ammoDisplay" style="display: none;">
         Патроны: 80 / 80
     </div>
-    <div id="cameraMode" style="display: none; position: absolute; top: 150px; left: 20px; color: white; font-size: 16px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100;">
+    <div id="cameraMode" style="display: none;">
         Вид: От первого лица
+    </div>
+    <div id="coinsDisplay" style="display: none; position: absolute; top: 275px; left: 20px; color: #FFD700; font-size: 20px; font-weight: bold; z-index: 100;">
+        💰 Монеты: 0
     </div>
     <div id="gameOver">
         <div>Игра окончена!</div>
         <div style="font-size: 24px; margin-top: 10px;">Ваш счёт: <span id="finalScore">0</span></div>
         <div style="font-size: 20px; margin-top: 5px;">Уровень: <span id="finalLevel">1</span></div>
+        <div style="font-size: 22px; margin-top: 5px; color: gold;">🏆 Рекорд: <span id="finalHighScore">0</span></div>
         <button id="restart">Начать заново</button>
         <button id="changeSkin" style="margin-left: 10px; background-color: #FF9800;">Сменить персонажа</button>
+    </div>
+
+    <div id="shopMenu" style="display: none;">
+        <h2>Магазин</h2>
+        <div style="color: #FFD700; font-size: 28px; margin-bottom: 20px;">💰 Монеты: <span id="shopCoins">0</span></div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #4CAF50;">Персонажи</h3>
+            <div id="shopSkins" class="shop-items"></div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #FF9800;">Оружие</h3>
+            <div id="shopWeapons" class="shop-items"></div>
+        </div>
+
+        <button id="closeShop" style="background-color: #2196F3; font-size: 20px; padding: 10px 30px; margin-top: 20px;">Продолжить игру</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -265,6 +427,7 @@
         let obstacles = [];
         let bullets = [];
         let score = 0;
+        let highScore = parseInt(localStorage.getItem('cubeGameHighScore')) || 0;
         let level = 1;
         let lives = 3;
         let ammo = 80;
@@ -284,12 +447,117 @@
         let burstMax = 3;
         let playerDirection = 0;
         let cameraMode = 'firstPerson'; // 'firstPerson' или 'thirdPerson'
+        let cameraLookTarget = new THREE.Vector3(0, 0.7, -10); // Цель взгляда камеры
+        let coins = 0; // Монеты игрока
+        let ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval']; // Купленные скины
+        let ownedWeapons = ['pistol', 'rifle']; // Купленное оружие
         const gravity = -0.02;
         const jumpPower = 0.4;
         const playerSpeed = 0.15;
         const bulletSpeed = 0.5;
-        let obstacleSpeed = 0.4;
+        let obstacleSpeed = 0.05;
         let spawnRate = 0.01;
+
+        // Магазин предметов
+        const shopItems = {
+            skins: [
+                { id: 'dragon', name: 'Дракон', icon: '🐉', price: 100 },
+                { id: 'unicorn', name: 'Единорог', icon: '🦄', price: 150 },
+                { id: 'tiger', name: 'Тигр', icon: '🐯', price: 120 },
+                { id: 'alien', name: 'Инопланетянин', icon: '👽', price: 200 },
+                { id: 'ninja', name: 'Ниндзя', icon: '🥷', price: 180 },
+                { id: 'wizard', name: 'Волшебник', icon: '🧙', price: 250 }
+            ],
+            weapons: [
+                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Автоматическая стрельба' },
+                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Выстрел на 360°' }
+            ]
+        };
+
+        function openShop() {
+            document.getElementById('shopMenu').style.display = 'block';
+            document.getElementById('score').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('weaponDisplay').style.display = 'none';
+            document.getElementById('ammoDisplay').style.display = 'none';
+            document.getElementById('cameraMode').style.display = 'none';
+            document.getElementById('coinsDisplay').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'none';
+            updateShopDisplay();
+        }
+
+        function closeShop() {
+            document.getElementById('shopMenu').style.display = 'none';
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('instructions').style.display = 'block';
+            document.getElementById('weaponDisplay').style.display = 'block';
+            document.getElementById('ammoDisplay').style.display = 'block';
+            document.getElementById('cameraMode').style.display = 'block';
+            document.getElementById('coinsDisplay').style.display = 'block';
+            if (cameraMode === 'firstPerson') {
+                document.getElementById('crosshair').style.display = 'block';
+            }
+        }
+
+        function updateShopDisplay() {
+            document.getElementById('shopCoins').textContent = coins;
+
+            // Отображаем скины
+            const skinsContainer = document.getElementById('shopSkins');
+            skinsContainer.innerHTML = '';
+            shopItems.skins.forEach(item => {
+                const owned = ownedSkins.includes(item.id);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
+                itemDiv.innerHTML = `
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">${owned ? 'Куплено' : '💰 ' + item.price}</div>
+                `;
+                if (!owned) {
+                    itemDiv.onclick = () => buyItem('skin', item);
+                }
+                skinsContainer.appendChild(itemDiv);
+            });
+
+            // Отображаем оружие
+            const weaponsContainer = document.getElementById('shopWeapons');
+            weaponsContainer.innerHTML = '';
+            shopItems.weapons.forEach(item => {
+                const owned = ownedWeapons.includes(item.id);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
+                itemDiv.innerHTML = `
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-desc">${item.description}</div>
+                    <div class="shop-item-price">${owned ? 'Куплено' : '💰 ' + item.price}</div>
+                `;
+                if (!owned) {
+                    itemDiv.onclick = () => buyItem('weapon', item);
+                }
+                weaponsContainer.appendChild(itemDiv);
+            });
+        }
+
+        function buyItem(type, item) {
+            if (coins >= item.price) {
+                coins -= item.price;
+                if (type === 'skin') {
+                    ownedSkins.push(item.id);
+                } else if (type === 'weapon') {
+                    ownedWeapons.push(item.id);
+                }
+                updateShopDisplay();
+                updateCoinsDisplay();
+            } else {
+                alert('Недостаточно монет! Нужно: ' + item.price + ', у вас: ' + coins);
+            }
+        }
+
+        function updateCoinsDisplay() {
+            document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
+        }
 
         function selectSkin(skin) {
             selectedSkin = skin;
@@ -299,7 +567,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.4;
+            obstacleSpeed = 0.05;
             spawnRate = 0.01;
             playerVelocityY = 0;
             isJumping = false;
@@ -311,6 +579,8 @@
             document.getElementById('instructions').style.display = 'block';
             document.getElementById('crosshair').style.display = 'block';
             document.getElementById('cameraMode').style.display = 'block';
+            document.getElementById('coinsDisplay').style.display = 'block';
+            updateCoinsDisplay();
             init();
         }
 
@@ -1277,11 +1547,118 @@
             return rifleGroup;
         }
 
+        function createMachinegun() {
+            const mgGroup = new THREE.Group();
+
+            // Толстый ствол
+            const barrelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.castShadow = true;
+            mgGroup.add(barrel);
+
+            // Кожух охлаждения
+            const coolingGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.4, 12);
+            const coolingMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+            const cooling = new THREE.Mesh(coolingGeometry, coolingMaterial);
+            cooling.rotation.z = Math.PI / 2;
+            cooling.position.set(0.1, 0, 0);
+            cooling.castShadow = true;
+            mgGroup.add(cooling);
+
+            // Массивный корпус
+            const bodyGeometry = new THREE.BoxGeometry(0.5, 0.12, 0.15);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.set(-0.15, 0, 0);
+            body.castShadow = true;
+            mgGroup.add(body);
+
+            // Магазин (барабан)
+            const magGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16);
+            const magMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+            const mag = new THREE.Mesh(magGeometry, magMaterial);
+            mag.position.set(-0.1, -0.1, 0);
+            mag.castShadow = true;
+            mgGroup.add(mag);
+
+            // Рукоятка
+            const gripGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.08);
+            const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+            const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+            grip.position.set(-0.2, -0.12, 0);
+            grip.castShadow = true;
+            mgGroup.add(grip);
+
+            mgGroup.scale.set(2.0, 2.0, 2.0);
+            return mgGroup;
+        }
+
+        function createShotgun() {
+            const sgGroup = new THREE.Group();
+
+            // Двуствольный ствол (2 цилиндра)
+            const barrelGeometry = new THREE.CylinderGeometry(0.045, 0.045, 0.6, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+
+            const barrel1 = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel1.rotation.z = Math.PI / 2;
+            barrel1.position.z = 0.03;
+            barrel1.castShadow = true;
+            sgGroup.add(barrel1);
+
+            const barrel2 = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel2.rotation.z = Math.PI / 2;
+            barrel2.position.z = -0.03;
+            barrel2.castShadow = true;
+            sgGroup.add(barrel2);
+
+            // Корпус
+            const bodyGeometry = new THREE.BoxGeometry(0.35, 0.12, 0.14);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x3a3a3a });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.set(-0.15, 0, 0);
+            body.castShadow = true;
+            sgGroup.add(body);
+
+            // Приклад
+            const stockGeometry = new THREE.BoxGeometry(0.3, 0.12, 0.1);
+            const stockMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const stock = new THREE.Mesh(stockGeometry, stockMaterial);
+            stock.position.set(-0.4, -0.01, 0);
+            stock.castShadow = true;
+            sgGroup.add(stock);
+
+            // Рукоятка
+            const gripGeometry = new THREE.BoxGeometry(0.07, 0.14, 0.07);
+            const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+            const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+            grip.position.set(-0.1, -0.11, 0);
+            grip.castShadow = true;
+            sgGroup.add(grip);
+
+            // Затвор
+            const boltGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.05);
+            const boltMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            const bolt = new THREE.Mesh(boltGeometry, boltMaterial);
+            bolt.position.set(-0.15, 0.08, 0);
+            bolt.castShadow = true;
+            sgGroup.add(bolt);
+
+            sgGroup.scale.set(1.9, 1.9, 1.9);
+            return sgGroup;
+        }
+
         function createWeapon(type) {
             if (type === 'pistol') {
                 return createPistol();
             } else if (type === 'rifle') {
                 return createRifle();
+            } else if (type === 'machinegun') {
+                return createMachinegun();
+            } else if (type === 'shotgun') {
+                return createShotgun();
             }
             return createPistol();
         }
@@ -1310,6 +1687,12 @@
             } else if (weaponType === 'rifle') {
                 document.getElementById('weaponDisplay').textContent = 'Оружие: 🎯 Винтовка (очереди по 3)';
                 shootCooldown = 800;
+            } else if (weaponType === 'machinegun') {
+                document.getElementById('weaponDisplay').textContent = 'Оружие: 🔫💨 Пулемёт (авто)';
+                shootCooldown = 100;
+            } else if (weaponType === 'shotgun') {
+                document.getElementById('weaponDisplay').textContent = 'Оружие: 💥🔫 Дробовик (360°)';
+                shootCooldown = 600;
             }
         }
 
@@ -1317,7 +1700,7 @@
             const obstacleGroup = new THREE.Group();
 
             // Кубик на земле
-            const size = 0.6;
+            const size = 0.8;
             const geometry = new THREE.BoxGeometry(size, size, size);
             const yPos = size / 2; // Кубик лежит на земле
 
@@ -1396,6 +1779,12 @@
             if (keys['Digit2']) {
                 changeWeapon('rifle');
             }
+            if (keys['Digit3'] && ownedWeapons.includes('machinegun')) {
+                changeWeapon('machinegun');
+            }
+            if (keys['Digit4'] && ownedWeapons.includes('shotgun')) {
+                changeWeapon('shotgun');
+            }
 
             // Переключение режима камеры на ENTER
             if (keys['Enter']) {
@@ -1416,6 +1805,20 @@
                 if (selectedWeapon === 'rifle') {
                     // Винтовка стреляет очередью из 3 выстрелов
                     shootBurst();
+                } else if (selectedWeapon === 'machinegun') {
+                    // Пулемёт стреляет автоматически пока удерживается клавиша
+                    shoot();
+                    canShoot = false;
+                    setTimeout(() => {
+                        canShoot = true;
+                    }, shootCooldown);
+                } else if (selectedWeapon === 'shotgun') {
+                    // Дробовик стреляет во все стороны
+                    shootShotgun();
+                    canShoot = false;
+                    setTimeout(() => {
+                        canShoot = true;
+                    }, shootCooldown);
                 } else {
                     // Пистолет стреляет одиночным выстрелом
                     shoot();
@@ -1445,11 +1848,11 @@
             ammo--;
             updateAmmoDisplay();
 
-            const bulletGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+            const bulletGeometry = new THREE.SphereGeometry(0.25, 12, 12);
             const bulletMaterial = new THREE.MeshPhongMaterial({
-                color: 0xFFFF00,
-                emissive: 0xFFFF00,
-                emissiveIntensity: 0.5
+                color: 0xFF4500,
+                emissive: 0xFF4500,
+                emissiveIntensity: 0.8
             });
             const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
 
@@ -1497,6 +1900,51 @@
             }, 100); // 100мс между выстрелами в очереди
         }
 
+        function shootShotgun() {
+            // Дробовик стреляет 8 пулями по кругу (360 градусов)
+            if (ammo <= 0) {
+                return;
+            }
+
+            const pelletsCount = 8;
+            const ammoUsed = Math.min(pelletsCount, ammo);
+
+            for (let i = 0; i < ammoUsed; i++) {
+                ammo--;
+
+                const bulletGeometry = new THREE.SphereGeometry(0.2, 12, 12);
+                const bulletMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xFF6600,
+                    emissive: 0xFF4500,
+                    emissiveIntensity: 0.8
+                });
+                const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+
+                // Пуля вылетает из позиции игрока
+                if (cameraMode === 'firstPerson') {
+                    bullet.position.copy(camera.position);
+                } else {
+                    bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
+                }
+
+                // Направление - круг на 360 градусов
+                const angle = (i / pelletsCount) * Math.PI * 2;
+                const direction = new THREE.Vector3(
+                    Math.sin(angle),
+                    0,
+                    Math.cos(angle)
+                );
+                direction.normalize();
+                bullet.userData.direction = direction;
+
+                bullet.castShadow = true;
+                scene.add(bullet);
+                bullets.push(bullet);
+            }
+
+            updateAmmoDisplay();
+        }
+
         function updateAmmoDisplay() {
             const ammoColor = ammo < 10 ? 'red' : (ammo < 30 ? 'orange' : 'yellow');
             document.getElementById('ammoDisplay').innerHTML = `<span style="color: ${ammoColor}">Патроны: ${ammo} / ${maxAmmo}</span>`;
@@ -1525,7 +1973,7 @@
                     cube.getWorldPosition(cubeWorldPos);
 
                     const distance = bullet.position.distanceTo(cubeWorldPos);
-                    if (distance < 0.8) {
+                    if (distance < 1.5) {
                         // Попадание!
                         scene.remove(obstacleGroup);
                         obstacles.splice(j, 1);
@@ -1549,7 +1997,7 @@
 
         function updateScoreDisplay() {
             const heartsDisplay = '❤️'.repeat(lives);
-            document.getElementById('score').textContent = 'Счёт: ' + score + ' | Уровень: ' + level + ' | Жизни: ' + heartsDisplay;
+            document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | Уровень: ' + level + ' | Жизни: ' + heartsDisplay;
         }
 
         function loseLife() {
@@ -1571,8 +2019,12 @@
             const newLevel = Math.floor(score / 50) + 1;
             if (newLevel > level) {
                 level = newLevel;
-                obstacleSpeed = 0.4 + (level - 1) * 0.1;
+                obstacleSpeed = 0.05 + (level - 1) * 0.01;
                 spawnRate = 0.01 + (level - 1) * 0.008;
+
+                // Даём 50 монет за новый уровень
+                coins += 50;
+                updateCoinsDisplay();
 
                 // Восстанавливаем патроны при переходе на новый уровень
                 ammo = maxAmmo;
@@ -1584,6 +2036,12 @@
                 setTimeout(() => {
                     scene.background = new THREE.Color(0x87ceeb);
                 }, 300);
+
+                // Открываем магазин
+                gameActive = false;
+                setTimeout(() => {
+                    openShop();
+                }, 500);
             }
         }
 
@@ -1628,14 +2086,25 @@
             const cubeWorldPos = new THREE.Vector3();
             cube.getWorldPosition(cubeWorldPos);
 
+            // Обновляем рекорд
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cubeGameHighScore', highScore);
+            }
             const distance = obj1.position.distanceTo(cubeWorldPos);
             return distance < 1.2;
         }
 
         function gameOver() {
             gameActive = false;
+            // Обновляем рекорд
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('cubeGameHighScore', highScore);
+            }
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalLevel').textContent = level;
+            document.getElementById('finalHighScore').textContent = highScore;
             document.getElementById('gameOver').style.display = 'block';
             document.getElementById('crosshair').style.display = 'none';
             document.getElementById('cameraMode').style.display = 'none';
@@ -1650,7 +2119,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.4;
+            obstacleSpeed = 0.05;
             spawnRate = 0.01;
             canShoot = true;
             isBurstFiring = false;
@@ -1684,7 +2153,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.4;
+            obstacleSpeed = 0.05;
             spawnRate = 0.01;
             playerVelocityY = 0;
             isJumping = false;
@@ -1707,7 +2176,7 @@
 
         function findNearestObstacle() {
             let nearest = null;
-            let minDistance = Infinity;
+            let bestScore = Infinity;
 
             obstacles.forEach(obstacleGroup => {
                 const cube = obstacleGroup.userData.cube;
@@ -1719,8 +2188,23 @@
                 // Рассматриваем только кубики впереди игрока
                 if (cubeWorldPos.z < player.position.z) {
                     const distance = player.position.distanceTo(cubeWorldPos);
-                    if (distance < minDistance) {
-                        minDistance = distance;
+
+                    // Вектор направления от игрока к кубику
+                    const directionToCube = new THREE.Vector3()
+                        .subVectors(cubeWorldPos, player.position)
+                        .normalize();
+
+                    // Направление взгляда (вперед по -Z)
+                    const forward = new THREE.Vector3(0, 0, -1);
+
+                    // Угловое отклонение (чем меньше, тем лучше)
+                    const angle = Math.acos(directionToCube.dot(forward));
+
+                    // Комбинированная оценка: расстояние + угол (приоритет центральным целям)
+                    const score = distance + angle * 5;
+
+                    if (score < bestScore) {
+                        bestScore = score;
                         nearest = cubeWorldPos;
                     }
                 }
@@ -1738,14 +2222,19 @@
                 camera.position.y = player.position.y + 0.7;
                 camera.position.z = player.position.z;
 
-                // Автоприцеливание на ближайший кубик
+                // Автоприцеливание на ближайший кубик с плавным переходом
                 const nearestCube = findNearestObstacle();
+                let targetLook;
                 if (nearestCube) {
-                    camera.lookAt(nearestCube);
+                    targetLook = nearestCube.clone();
                 } else {
                     // Если кубиков нет, смотрим вперед
-                    camera.lookAt(player.position.x, player.position.y + 0.7, player.position.z - 10);
+                    targetLook = new THREE.Vector3(player.position.x, player.position.y + 0.7, player.position.z - 10);
                 }
+
+                // Плавное следование за целью (lerp)
+                cameraLookTarget.lerp(targetLook, 0.15);
+                camera.lookAt(cameraLookTarget);
             } else {
                 // Вид от третьего лица - камера позади и выше игрока
                 camera.position.x = player.position.x;
@@ -1784,6 +2273,10 @@
         document.addEventListener('keyup', (e) => keys[e.code] = false);
         document.getElementById('restart').addEventListener('click', restartGame);
         document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
+        document.getElementById('closeShop').addEventListener('click', () => {
+            closeShop();
+            gameActive = true;
+        });
 
         // init() будет вызван после выбора скина
     </script>
