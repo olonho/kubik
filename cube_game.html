@@ -150,7 +150,10 @@
     </div>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
-    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | У вас 3 жизни!</div>
+    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка</div>
+    <div id="weaponDisplay" style="display: none; position: absolute; top: 90px; left: 20px; color: white; font-size: 18px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100;">
+        Оружие: 🔫 Пистолет
+    </div>
     <div id="gameOver">
         <div>Игра окончена!</div>
         <div style="font-size: 24px; margin-top: 10px;">Ваш счёт: <span id="finalScore">0</span></div>
@@ -162,8 +165,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene, camera, renderer;
-        let player, ground;
+        let player, ground, currentWeapon;
         let obstacles = [];
+        let bullets = [];
         let score = 0;
         let level = 1;
         let lives = 3;
@@ -172,14 +176,32 @@
         let isJumping = false;
         let keys = {};
         let selectedSkin = null;
+        let selectedWeapon = 'pistol';
+        let animationId = null;
+        let decorations = [];
+        let canShoot = true;
+        let shootCooldown = 300;
+        let playerDirection = 0;
         const gravity = -0.02;
         const jumpPower = 0.4;
         const playerSpeed = 0.15;
+        const bulletSpeed = 0.5;
         let obstacleSpeed = 0.1;
         let spawnRate = 0.005;
 
         function selectSkin(skin) {
             selectedSkin = skin;
+
+            // Сбрасываем параметры игры
+            score = 0;
+            level = 1;
+            lives = 3;
+            obstacleSpeed = 0.1;
+            spawnRate = 0.005;
+            playerVelocityY = 0;
+            isJumping = false;
+            gameActive = true;
+
             document.getElementById('skinMenu').style.display = 'none';
             document.getElementById('score').style.display = 'block';
             document.getElementById('instructions').style.display = 'block';
@@ -187,6 +209,17 @@
         }
 
         function init() {
+            // Останавливаем старую анимацию если есть
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            // Очищаем массивы
+            obstacles = [];
+            decorations = [];
+            bullets = [];
+
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
 
@@ -218,6 +251,7 @@
             scene.add(ground);
 
             // Добавляем деревья по краям
+            decorations = [];
             createTrees();
 
             // Создаём персонажа на основе выбранного скина
@@ -250,14 +284,19 @@
                     player = createDog();
             }
             player.position.set(0, 0.5, 0);
+
             scene.add(player);
 
-            window.addEventListener('resize', onWindowResize);
-            document.addEventListener('keydown', (e) => keys[e.code] = true);
-            document.addEventListener('keyup', (e) => keys[e.code] = false);
-            document.getElementById('restart').addEventListener('click', restartGame);
-            document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
+            // Добавляем оружие к персонажу
+            currentWeapon = createWeapon(selectedWeapon);
+            currentWeapon.position.set(0.6, 0.3, 0);
+            currentWeapon.rotation.y = -Math.PI / 2;
+            player.add(currentWeapon);
 
+            // Показываем UI оружия
+            document.getElementById('weaponDisplay').style.display = 'block';
+
+            // Запускаем анимацию
             animate();
         }
 
@@ -267,12 +306,14 @@
                 const tree = createTree();
                 tree.position.set(-5.5, 0, -i * 7 - 5);
                 scene.add(tree);
+                decorations.push(tree);
             }
             // Деревья справа
             for (let i = 0; i < 15; i++) {
                 const tree = createTree();
                 tree.position.set(5.5, 0, -i * 7 - 5);
                 scene.add(tree);
+                decorations.push(tree);
             }
 
             // Добавляем камни
@@ -281,6 +322,7 @@
                 const side = Math.random() > 0.5 ? -6 : 6;
                 rock.position.set(side, 0, -i * 12 - 10);
                 scene.add(rock);
+                decorations.push(rock);
             }
 
             // Добавляем облака
@@ -288,6 +330,7 @@
                 const cloud = createCloud();
                 cloud.position.set((Math.random() - 0.5) * 20, 8 + Math.random() * 4, -i * 10 - 20);
                 scene.add(cloud);
+                decorations.push(cloud);
             }
         }
 
@@ -1015,6 +1058,143 @@
             return robotGroup;
         }
 
+        function createPistol() {
+            const pistolGroup = new THREE.Group();
+
+            // Ствол
+            const barrelGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.35, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.castShadow = true;
+            pistolGroup.add(barrel);
+
+            // Затвор
+            const slideGeometry = new THREE.BoxGeometry(0.25, 0.06, 0.06);
+            const slideMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+            const slide = new THREE.Mesh(slideGeometry, slideMaterial);
+            slide.position.set(0, 0.03, 0);
+            slide.castShadow = true;
+            pistolGroup.add(slide);
+
+            // Рукоятка
+            const gripGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.08);
+            const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+            grip.position.set(-0.08, -0.08, 0);
+            grip.castShadow = true;
+            pistolGroup.add(grip);
+
+            // Мушка
+            const sightGeometry = new THREE.BoxGeometry(0.02, 0.04, 0.02);
+            const sightMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00 });
+            const sight = new THREE.Mesh(sightGeometry, sightMaterial);
+            sight.position.set(0.15, 0.06, 0);
+            pistolGroup.add(sight);
+
+            return pistolGroup;
+        }
+
+        function createRifle() {
+            const rifleGroup = new THREE.Group();
+
+            // Длинный ствол
+            const barrelGeometry = new THREE.CylinderGeometry(0.035, 0.035, 0.7, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x222222 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.castShadow = true;
+            rifleGroup.add(barrel);
+
+            // Корпус
+            const bodyGeometry = new THREE.BoxGeometry(0.35, 0.08, 0.1);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.set(-0.1, 0, 0);
+            body.castShadow = true;
+            rifleGroup.add(body);
+
+            // Приклад
+            const stockGeometry = new THREE.BoxGeometry(0.25, 0.1, 0.08);
+            const stockMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+            const stock = new THREE.Mesh(stockGeometry, stockMaterial);
+            stock.position.set(-0.35, -0.02, 0);
+            stock.castShadow = true;
+            rifleGroup.add(stock);
+
+            // Рукоятка
+            const gripGeometry = new THREE.BoxGeometry(0.06, 0.12, 0.06);
+            const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+            const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+            grip.position.set(-0.05, -0.09, 0);
+            grip.castShadow = true;
+            rifleGroup.add(grip);
+
+            // Оптический прицел
+            const scopeBodyGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 8);
+            const scopeBodyMaterial = new THREE.MeshPhongMaterial({ color: 0x111111 });
+            const scopeBody = new THREE.Mesh(scopeBodyGeometry, scopeBodyMaterial);
+            scopeBody.position.set(0.1, 0.08, 0);
+            scopeBody.castShadow = true;
+            rifleGroup.add(scopeBody);
+
+            // Линзы прицела
+            const lensGeometry = new THREE.CircleGeometry(0.035, 16);
+            const lensMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4444FF,
+                emissive: 0x0000FF,
+                emissiveIntensity: 0.3
+            });
+            const lensFront = new THREE.Mesh(lensGeometry, lensMaterial);
+            lensFront.position.set(0.175, 0.08, 0);
+            lensFront.rotation.y = Math.PI / 2;
+            rifleGroup.add(lensFront);
+
+            // Мушка
+            const sightGeometry = new THREE.BoxGeometry(0.02, 0.05, 0.02);
+            const sightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+            const sight = new THREE.Mesh(sightGeometry, sightMaterial);
+            sight.position.set(0.3, 0.04, 0);
+            rifleGroup.add(sight);
+
+            return rifleGroup;
+        }
+
+        function createWeapon(type) {
+            if (type === 'pistol') {
+                return createPistol();
+            } else if (type === 'rifle') {
+                return createRifle();
+            }
+            return createPistol();
+        }
+
+        function changeWeapon(weaponType) {
+            if (selectedWeapon === weaponType) return;
+
+            selectedWeapon = weaponType;
+
+            // Удаляем старое оружие
+            if (currentWeapon) {
+                player.remove(currentWeapon);
+            }
+
+            // Создаем и добавляем новое оружие
+            currentWeapon = createWeapon(weaponType);
+            currentWeapon.position.set(0.6, 0.3, 0);
+            currentWeapon.rotation.y = -Math.PI / 2;
+            player.add(currentWeapon);
+
+            // Обновляем UI и параметры стрельбы
+            if (weaponType === 'pistol') {
+                document.getElementById('weaponDisplay').textContent = 'Оружие: 🔫 Пистолет';
+                shootCooldown = 300;
+            } else if (weaponType === 'rifle') {
+                document.getElementById('weaponDisplay').textContent = 'Оружие: 🎯 Винтовка';
+                shootCooldown = 500;
+            }
+        }
+
         function createObstacle() {
             const obstacleGroup = new THREE.Group();
 
@@ -1071,21 +1251,43 @@
         function updatePlayer() {
             if (!gameActive) return;
 
+            // Движение и поворот
             if (keys['ArrowLeft'] && player.position.x > -4) {
                 player.position.x -= playerSpeed;
-                player.rotation.y = Math.PI / 4; // Поворот влево
+                playerDirection = -1;
+                player.rotation.y = Math.PI / 2; // Поворот полностью влево
             }
             if (keys['ArrowRight'] && player.position.x < 4) {
                 player.position.x += playerSpeed;
-                player.rotation.y = -Math.PI / 4; // Поворот вправо
+                playerDirection = 1;
+                player.rotation.y = -Math.PI / 2; // Поворот полностью вправо
             }
-            // Возврат в нейтральное положение
+            // Возврат в нейтральное положение (лицом вперед)
             if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
+                playerDirection = 0;
                 player.rotation.y = 0;
             }
+
             if (keys['Space'] && !isJumping) {
                 playerVelocityY = jumpPower;
                 isJumping = true;
+            }
+
+            // Смена оружия
+            if (keys['Digit1']) {
+                changeWeapon('pistol');
+            }
+            if (keys['Digit2']) {
+                changeWeapon('rifle');
+            }
+
+            // Стрельба на клавишу W
+            if ((keys['KeyW'] || keys['KeyW'.toLowerCase()]) && canShoot) {
+                shoot();
+                canShoot = false;
+                setTimeout(() => {
+                    canShoot = true;
+                }, shootCooldown);
             }
 
             playerVelocityY += gravity;
@@ -1095,6 +1297,58 @@
                 player.position.y = 0.5;
                 playerVelocityY = 0;
                 isJumping = false;
+            }
+        }
+
+        function shoot() {
+            const bulletGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+            const bulletMaterial = new THREE.MeshPhongMaterial({
+                color: 0xFFFF00,
+                emissive: 0xFFFF00,
+                emissiveIntensity: 0.5
+            });
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+            bullet.position.set(player.position.x, player.position.y, player.position.z - 1);
+            bullet.castShadow = true;
+            scene.add(bullet);
+            bullets.push(bullet);
+        }
+
+        function updateBullets() {
+            if (!gameActive) return;
+
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                bullet.position.z -= bulletSpeed;
+
+                // Проверяем столкновение с препятствиями
+                for (let j = obstacles.length - 1; j >= 0; j--) {
+                    const obstacleGroup = obstacles[j];
+                    const cube = obstacleGroup.userData.cube;
+                    if (!cube) continue;
+
+                    const cubeWorldPos = new THREE.Vector3();
+                    cube.getWorldPosition(cubeWorldPos);
+
+                    const distance = bullet.position.distanceTo(cubeWorldPos);
+                    if (distance < 0.8) {
+                        // Попадание!
+                        scene.remove(obstacleGroup);
+                        obstacles.splice(j, 1);
+                        scene.remove(bullet);
+                        bullets.splice(i, 1);
+                        score += 10;
+                        updateLevel();
+                        updateScoreDisplay();
+                        break;
+                    }
+                }
+
+                // Удаляем пули, которые улетели далеко
+                if (bullet.position.z < -60) {
+                    scene.remove(bullet);
+                    bullets.splice(i, 1);
+                }
             }
         }
 
@@ -1189,11 +1443,14 @@
         function restartGame() {
             obstacles.forEach(obstacle => scene.remove(obstacle));
             obstacles = [];
+            bullets.forEach(bullet => scene.remove(bullet));
+            bullets = [];
             score = 0;
             level = 1;
             lives = 3;
             obstacleSpeed = 0.1;
             spawnRate = 0.005;
+            canShoot = true;
             updateScoreDisplay();
             document.getElementById('gameOver').style.display = 'none';
             player.position.set(0, 0.5, 0);
@@ -1203,18 +1460,60 @@
             gameActive = true;
         }
 
+        function returnToSkinMenu() {
+            // Останавливаем анимацию
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            // Останавливаем игру
+            gameActive = false;
+
+            // Сбрасываем параметры игры
+            score = 0;
+            level = 1;
+            lives = 3;
+            obstacleSpeed = 0.1;
+            spawnRate = 0.005;
+            playerVelocityY = 0;
+            isJumping = false;
+            canShoot = true;
+            selectedSkin = null;
+
+            // Показываем меню выбора скина
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('score').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('skinMenu').style.display = 'block';
+        }
+
         function animate() {
-            requestAnimationFrame(animate);
-            updatePlayer();
-            updateObstacles();
-            renderer.render(scene, camera);
+            animationId = requestAnimationFrame(animate);
+            if (gameActive) {
+                updatePlayer();
+                updateObstacles();
+                updateBullets();
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
         }
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (renderer) {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
         }
+
+        // Инициализируем event listeners один раз при загрузке страницы
+        window.addEventListener('resize', onWindowResize);
+        document.addEventListener('keydown', (e) => keys[e.code] = true);
+        document.addEventListener('keyup', (e) => keys[e.code] = false);
+        document.getElementById('restart').addEventListener('click', restartGame);
+        document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
 
         // init() будет вызван после выбора скина
     </script>
