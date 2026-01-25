@@ -420,7 +420,10 @@
         💰 Патроны
     </button>
     <button id="openItemsShopBtn" style="display: none; position: absolute; top: 250px; left: 20px; padding: 10px 20px; background-color: rgba(100, 150, 255, 0.9); border: 3px solid #6699ff; border-radius: 10px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
-        🛒 Магазин
+        👤 Персонажи
+    </button>
+    <button id="openWeaponsShopBtn" style="display: none; position: absolute; top: 290px; left: 20px; padding: 10px 20px; background-color: rgba(255, 100, 50, 0.9); border: 3px solid #ff6633; border-radius: 10px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+        🔫 Магазин оружия
     </button>
     <div id="gameOver">
         <div>Игра окончена!</div>
@@ -473,28 +476,46 @@
                 <p style="color: gold; font-size: 32px; font-weight: bold;">+300 монет! 💰</p>
             </div>
 
-            <h2 style="color: gold; font-size: 42px; text-align: center; margin-bottom: 10px;">🛒 Магазин</h2>
+            <h2 style="color: gold; font-size: 42px; text-align: center; margin-bottom: 10px;">👤 Магазин персонажей</h2>
             <div style="color: white; font-size: 24px; text-align: center; margin-bottom: 30px;">
                 💰 Ваши монеты: <span id="shopCoins" style="color: gold; font-weight: bold;">0</span>
             </div>
 
-            <!-- Турель -->
-            <h3 style="color: #ff5555; font-size: 32px; margin: 30px 0 20px 0; text-align: center;">⚡ Боевая Турель ⚡</h3>
-            <div id="shopTurret" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
-
             <!-- Скины -->
-            <h3 style="color: white; font-size: 32px; margin: 30px 0 20px 0; text-align: center;">👤 Персонажи</h3>
             <div id="shopSkins" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
-
-            <!-- Оружие -->
-            <h3 style="color: white; font-size: 32px; margin: 30px 0 20px 0; text-align: center;">🔫 Оружие</h3>
-            <div id="shopWeapons" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
 
             <div style="text-align: center; margin-top: 40px;">
                 <button id="continueBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
                     Продолжить игру
                 </button>
                 <button id="exitShopBtn" style="padding: 15px 40px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
+                    Выйти в меню
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Магазин оружия -->
+    <div id="weaponsShopMenu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 400; overflow-y: auto;">
+        <div style="max-width: 1400px; margin: 50px auto; padding: 40px;">
+            <h2 style="color: #ff6633; font-size: 48px; text-align: center; margin-bottom: 10px;">🔫 Магазин оружия 🔫</h2>
+            <div style="color: white; font-size: 24px; text-align: center; margin-bottom: 30px;">
+                💰 Ваши монеты: <span id="weaponsShopCoins" style="color: gold; font-weight: bold;">0</span>
+            </div>
+
+            <!-- Оружие -->
+            <h3 style="color: #ffaa66; font-size: 36px; margin: 30px 0 20px 0; text-align: center;">⚔️ Арсенал ⚔️</h3>
+            <div id="weaponsShopWeapons" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 50px;"></div>
+
+            <!-- Турели -->
+            <h3 style="color: #ff5555; font-size: 36px; margin: 40px 0 20px 0; text-align: center;">⚡ Боевые Турели ⚡</h3>
+            <div id="weaponsShopTurrets" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="continueWeaponsShopBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
+                    Продолжить игру
+                </button>
+                <button id="exitWeaponsShopBtn" style="padding: 15px 40px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
                     Выйти в меню
                 </button>
             </div>
@@ -564,10 +585,19 @@
                 { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Авто, 80 патронов', ammo: 80 },
                 { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Дробь, 25 патронов', ammo: 25 },
                 { id: 'sniper', name: 'Снайперка', icon: '🎯🔭', price: 400, description: 'Мощно, 15 патронов', ammo: 15 },
-                { id: 'laser', name: 'Лазер', icon: '⚡🔫', price: 500, description: 'Быстро, 120 патронов', ammo: 120 },
-                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Взрыв, 12 патронов', ammo: 12 },
                 { id: 'crossbow', name: 'Арбалет', icon: '🏹', price: 200, description: 'Стрелы, 40 патронов', ammo: 40 },
-                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 60 патронов', ammo: 60 }
+                { id: 'flamethrower', name: 'Огнемёт', icon: '🔥🔫', price: 550, description: 'Огонь, 50 патронов', ammo: 50 },
+                { id: 'railgun', name: 'Рельсотрон', icon: '⚡🎯', price: 800, description: 'Мощь, 10 патронов', ammo: 10 },
+                { id: 'minigun', name: 'Минигун', icon: '🔫⚙️', price: 900, description: 'Скорострел, 200 патронов', ammo: 200 },
+                { id: 'grenade', name: 'Гранатомёт', icon: '💣🔫', price: 650, description: 'Взрывы, 15 патронов', ammo: 15 },
+                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 60 патронов', ammo: 60 },
+                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Ракеты, 12 патронов', ammo: 12 }
+            ],
+            turrets: [
+                { id: 'basic', name: 'Базовая турель', icon: '🔫⚙️', price: 1000, description: 'Автоматическая защита' },
+                { id: 'fire', name: 'Огневая турель', icon: '🔥💥', price: 1500, description: 'Огненные снаряды' },
+                { id: 'laser', name: 'Лазерная турель', icon: '⚡🔷', price: 2000, description: 'Быстрая лазерная стрельба' },
+                { id: 'rocket', name: 'Ракетная турель', icon: '🚀💣', price: 2500, description: 'Мощные ракеты' }
             ]
         };
 
@@ -598,109 +628,22 @@
 
             // Отображаем скины
             const skinsContainer = document.getElementById('shopSkins');
-            skinsContainer.innerHTML = '';
-            shopItems.skins.forEach(item => {
-                const owned = ownedSkins.includes(item.id);
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
-                itemDiv.innerHTML = `
-                    <div class="shop-item-icon">${item.icon}</div>
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-price">${owned ? 'Куплено' : '💰 ' + item.price}</div>
-                `;
-                if (!owned) {
-                    itemDiv.onclick = () => buyItem('skin', item);
-                }
-                skinsContainer.appendChild(itemDiv);
-            });
-
-            // Отображаем оружие
-            const weaponsContainer = document.getElementById('shopWeapons');
-            weaponsContainer.innerHTML = '';
-            shopItems.weapons.forEach(item => {
-                const owned = ownedWeapons.includes(item.id);
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
-                itemDiv.innerHTML = `
-                    <div class="shop-item-icon">${item.icon}</div>
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-desc">${item.description}</div>
-                    <div class="shop-item-price">${owned ? 'Куплено' : '💰 ' + item.price}</div>
-                `;
-                if (!owned) {
-                    itemDiv.onclick = () => buyItem('weapon', item);
-                }
-                weaponsContainer.appendChild(itemDiv);
-            });
-
-            // Отображаем турели
-            const turretContainer = document.getElementById('shopTurret');
-            if (turretContainer) {
-                turretContainer.innerHTML = '';
-
-                // Обычная турель
-                const turretItem = document.createElement('div');
-                turretItem.className = 'shop-item' + (hasTurret ? ' owned' : '');
-                turretItem.style.backgroundColor = 'rgba(100, 100, 100, 0.2)';
-                turretItem.style.border = '3px solid rgba(150, 150, 150, 0.5)';
-                turretItem.innerHTML = `
-                    <div class="shop-item-icon" style="font-size: 48px;">🔫⚡</div>
-                    <div class="shop-item-name" style="color: #aaaaaa; font-size: 20px;">Боевая Турель</div>
-                    <div class="shop-item-desc" style="color: #cccccc;">Быстрая стрельба</div>
-                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${hasTurret ? '✓ Установлена' : '💰 1000'}</div>
-                `;
-                if (!hasTurret) {
-                    turretItem.onclick = () => buyTurret('basic');
-                }
-                turretContainer.appendChild(turretItem);
-
-                // Огневая турель
-                const fireTurretItem = document.createElement('div');
-                fireTurretItem.className = 'shop-item' + (hasFireTurret ? ' owned' : '');
-                fireTurretItem.style.backgroundColor = 'rgba(255, 100, 0, 0.2)';
-                fireTurretItem.style.border = '3px solid rgba(255, 100, 0, 0.5)';
-                fireTurretItem.innerHTML = `
-                    <div class="shop-item-icon" style="font-size: 48px;">🔥💥</div>
-                    <div class="shop-item-name" style="color: #ff6600; font-size: 20px;">Огневая Турель</div>
-                    <div class="shop-item-desc" style="color: #ffaa88;">Огненные шары!</div>
-                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${hasFireTurret ? '✓ Установлена' : '💰 1500'}</div>
-                `;
-                if (!hasFireTurret) {
-                    fireTurretItem.onclick = () => buyTurret('fire');
-                }
-                turretContainer.appendChild(fireTurretItem);
-
-                // Лазерная турель
-                const laserTurretItem = document.createElement('div');
-                laserTurretItem.className = 'shop-item' + (hasLaserTurret ? ' owned' : '');
-                laserTurretItem.style.backgroundColor = 'rgba(0, 200, 255, 0.2)';
-                laserTurretItem.style.border = '3px solid rgba(0, 200, 255, 0.5)';
-                laserTurretItem.innerHTML = `
-                    <div class="shop-item-icon" style="font-size: 48px;">⚡🔷</div>
-                    <div class="shop-item-name" style="color: #00ccff; font-size: 20px;">Лазерная Турель</div>
-                    <div class="shop-item-desc" style="color: #aaeeff;">Супер быстрая!</div>
-                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${hasLaserTurret ? '✓ Установлена' : '💰 2000'}</div>
-                `;
-                if (!hasLaserTurret) {
-                    laserTurretItem.onclick = () => buyTurret('laser');
-                }
-                turretContainer.appendChild(laserTurretItem);
-
-                // Ракетная турель
-                const rocketTurretItem = document.createElement('div');
-                rocketTurretItem.className = 'shop-item' + (hasRocketTurret ? ' owned' : '');
-                rocketTurretItem.style.backgroundColor = 'rgba(150, 0, 200, 0.2)';
-                rocketTurretItem.style.border = '3px solid rgba(150, 0, 200, 0.5)';
-                rocketTurretItem.innerHTML = `
-                    <div class="shop-item-icon" style="font-size: 48px;">🚀💣</div>
-                    <div class="shop-item-name" style="color: #aa00ff; font-size: 20px;">Ракетная Турель</div>
-                    <div class="shop-item-desc" style="color: #ddaaff;">Мощные ракеты!</div>
-                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${hasRocketTurret ? '✓ Установлена' : '💰 2500'}</div>
-                `;
-                if (!hasRocketTurret) {
-                    rocketTurretItem.onclick = () => buyTurret('rocket');
-                }
-                turretContainer.appendChild(rocketTurretItem);
+            if (skinsContainer) {
+                skinsContainer.innerHTML = '';
+                shopItems.skins.forEach(item => {
+                    const owned = ownedSkins.includes(item.id);
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
+                    itemDiv.innerHTML = `
+                        <div class="shop-item-icon">${item.icon}</div>
+                        <div class="shop-item-name">${item.name}</div>
+                        <div class="shop-item-price">${owned ? 'Куплено' : '💰 ' + item.price}</div>
+                    `;
+                    if (!owned) {
+                        itemDiv.onclick = () => buyItem('skin', item);
+                    }
+                    skinsContainer.appendChild(itemDiv);
+                });
             }
         }
 
@@ -762,6 +705,121 @@
             document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
         }
 
+        // Функции для магазина оружия
+        function openWeaponsShop() {
+            gameActive = false;
+            document.getElementById('weaponsShopMenu').style.display = 'block';
+            document.getElementById('score').style.display = 'none';
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('weaponDisplay').style.display = 'none';
+            document.getElementById('ammoDisplay').style.display = 'none';
+            document.getElementById('cameraMode').style.display = 'none';
+            document.getElementById('coinsDisplay').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'none';
+            updateWeaponsShopDisplay();
+        }
+
+        function updateWeaponsShopDisplay() {
+            document.getElementById('weaponsShopCoins').textContent = coins;
+
+            // Отображаем оружие
+            const weaponsContainer = document.getElementById('weaponsShopWeapons');
+            weaponsContainer.innerHTML = '';
+            shopItems.weapons.forEach(item => {
+                const owned = ownedWeapons.includes(item.id);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item' + (owned ? ' owned' : '');
+                itemDiv.innerHTML = `
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-desc">${item.description}</div>
+                    <div class="shop-item-price">${owned ? '✓ Куплено' : '💰 ' + item.price}</div>
+                `;
+                if (!owned) {
+                    itemDiv.onclick = () => buyWeaponFromShop(item);
+                }
+                weaponsContainer.appendChild(itemDiv);
+            });
+
+            // Отображаем турели
+            const turretsContainer = document.getElementById('weaponsShopTurrets');
+            turretsContainer.innerHTML = '';
+
+            const turretColors = {
+                basic: { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)', name: '#aaaaaa', desc: '#cccccc' },
+                fire: { bg: 'rgba(255, 100, 0, 0.2)', border: 'rgba(255, 100, 0, 0.5)', name: '#ff6600', desc: '#ffaa88' },
+                laser: { bg: 'rgba(0, 200, 255, 0.2)', border: 'rgba(0, 200, 255, 0.5)', name: '#00ccff', desc: '#aaeeff' },
+                rocket: { bg: 'rgba(150, 0, 200, 0.2)', border: 'rgba(150, 0, 200, 0.5)', name: '#aa00ff', desc: '#ddaaff' }
+            };
+
+            shopItems.turrets.forEach(item => {
+                const ownedVars = { basic: hasTurret, fire: hasFireTurret, laser: hasLaserTurret, rocket: hasRocketTurret };
+                const owned = ownedVars[item.id];
+                const colors = turretColors[item.id];
+
+                const turretItem = document.createElement('div');
+                turretItem.className = 'shop-item' + (owned ? ' owned' : '');
+                turretItem.style.backgroundColor = colors.bg;
+                turretItem.style.border = '3px solid ' + colors.border;
+                turretItem.innerHTML = `
+                    <div class="shop-item-icon" style="font-size: 48px;">${item.icon}</div>
+                    <div class="shop-item-name" style="color: ${colors.name}; font-size: 20px;">${item.name}</div>
+                    <div class="shop-item-desc" style="color: ${colors.desc};">${item.description}</div>
+                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${owned ? '✓ Установлена' : '💰 ' + item.price}</div>
+                `;
+                if (!owned) {
+                    turretItem.onclick = () => buyTurretFromShop(item.id);
+                }
+                turretsContainer.appendChild(turretItem);
+            });
+        }
+
+        function buyWeaponFromShop(item) {
+            if (coins >= item.price) {
+                coins -= item.price;
+                ownedWeapons.push(item.id);
+                updateWeaponsShopDisplay();
+                updateCoinsDisplay();
+                localStorage.setItem('cubeGameCoins', coins);
+            } else {
+                alert('Недостаточно монет! Нужно: ' + item.price + ', у вас: ' + coins);
+            }
+        }
+
+        function buyTurretFromShop(type) {
+            const turret = shopItems.turrets.find(t => t.id === type);
+            if (!turret) return;
+
+            if (coins >= turret.price) {
+                coins -= turret.price;
+
+                switch(type) {
+                    case 'basic':
+                        hasTurret = true;
+                        createTurret();
+                        break;
+                    case 'fire':
+                        hasFireTurret = true;
+                        createFireTurret();
+                        break;
+                    case 'laser':
+                        hasLaserTurret = true;
+                        createLaserTurret();
+                        break;
+                    case 'rocket':
+                        hasRocketTurret = true;
+                        createRocketTurret();
+                        break;
+                }
+
+                updateWeaponsShopDisplay();
+                updateCoinsDisplay();
+                localStorage.setItem('cubeGameCoins', coins);
+            } else {
+                alert('Недостаточно монет! Нужно: ' + turret.price + ', у вас: ' + coins);
+            }
+        }
+
         function selectSkin(skin) {
             selectedSkin = skin;
 
@@ -785,6 +843,7 @@
             document.getElementById('coinsDisplay').style.display = 'block';
             document.getElementById('openShopBtn').style.display = 'block';
             document.getElementById('openItemsShopBtn').style.display = 'block';
+            document.getElementById('openWeaponsShopBtn').style.display = 'block';
             updateCoinsDisplay();
             init();
         }
@@ -855,116 +914,6 @@
             }
             if (hasLaserTurret) {
                 createLaserTurret();
-            }
-            if (hasRocketTurret) {
-                createRocketTurret();
-            }
-
-            // Создаём персонажа на основе выбранного скина
-            switch(selectedSkin) {
-                case 'dog':
-                    player = createDog();
-                    break;
-                case 'cat':
-                    player = createCat();
-                    break;
-                case 'fox':
-                    player = createFox();
-                    break;
-                case 'panda':
-                    player = createPanda();
-                    break;
-                case 'rabbit':
-                    player = createRabbit();
-                    break;
-                case 'robot':
-                    player = createRobot();
-                    break;
-                case 'cube':
-                    player = createCube();
-                    break;
-                case 'oval':
-                    player = createOval();
-                    break;
-                default:
-                    player = createDog();
-            }
-            player.position.set(0, 0.5, 0);
-            // Поворачиваем персонажа лицом к кубикам (в сторону -Z)
-            player.rotation.y = -Math.PI / 2;
-
-            scene.add(player);
-
-            // Добавляем оружие к персонажу (в правую руку)
-            currentWeapon = createWeapon(selectedWeapon);
-            currentWeapon.position.set(0.15, 0.2, -0.4);
-            currentWeapon.rotation.y = 0;
-            currentWeapon.rotation.z = -Math.PI / 6;
-            player.add(currentWeapon);
-
-            // Показываем UI оружия и патронов
-            document.getElementById('weaponDisplay').style.display = 'block';
-            document.getElementById('weaponDisplay').textContent = 'Оружие: 🔫 Пистолет (одиночные)';
-            document.getElementById('ammoDisplay').style.display = 'block';
-            document.getElementById('cameraMode').style.display = 'block';
-            document.getElementById('cameraMode').textContent = 'Вид: От первого лица';
-            updateAmmoDisplay();
-
-            // Запускаем анимацию
-            animate();
-        }
-
-        function createTrees() {
-            // Деревья слева - больше деревьев
-            for (let i = 0; i < 25; i++) {
-                const tree = createTree();
-                tree.position.set(-5.5, 0, -i * 5 - 5);
-                scene.add(tree);
-                decorations.push(tree);
-            }
-            // Деревья справа - больше деревьев
-            for (let i = 0; i < 25; i++) {
-                const tree = createTree();
-                tree.position.set(5.5, 0, -i * 5 - 5);
-                scene.add(tree);
-                decorations.push(tree);
-            }
-
-            // Добавляем камни - больше камней
-            for (let i = 0; i < 20; i++) {
-                const rock = createRock();
-                const side = Math.random() > 0.5 ? -6 : 6;
-                rock.position.set(side + (Math.random() - 0.5) * 0.5, 0, -i * 6 - 10);
-                scene.add(rock);
-                decorations.push(rock);
-            }
-
-            // Добавляем облака - больше облаков
-            for (let i = 0; i < 20; i++) {
-                const cloud = createCloud();
-                cloud.position.set((Math.random() - 0.5) * 20, 8 + Math.random() * 4, -i * 8 - 20);
-                scene.add(cloud);
-                decorations.push(cloud);
-            }
-
-            // Добавляем кусты
-            for (let i = 0; i < 30; i++) {
-                const bush = createBush();
-                const side = Math.random() > 0.5 ? -4.5 : 4.5;
-                bush.position.set(side + (Math.random() - 0.5) * 0.8, 0, -i * 4 - Math.random() * 5);
-                scene.add(bush);
-                decorations.push(bush);
-            }
-
-            // Добавляем цветы
-            for (let i = 0; i < 40; i++) {
-                const flower = createFlower();
-                const side = Math.random() > 0.5 ? -4 : 4;
-                flower.position.set(side + (Math.random() - 0.5) * 1.5, 0, -i * 3 - Math.random() * 4);
-                scene.add(flower);
-                decorations.push(flower);
-            }
-
             // Добавляем траву
             for (let i = 0; i < 50; i++) {
                 const grass = createGrass();
@@ -1025,198 +974,6 @@
             decorations.push(houseCat);
         }
 
-        function createTree() {
-            const treeGroup = new THREE.Group();
-
-            // Ствол
-            const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 2, 8);
-            const trunkMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.position.y = 1;
-            trunk.castShadow = true;
-            treeGroup.add(trunk);
-
-            // Крона (3 сферы)
-            const foliageGeometry = new THREE.SphereGeometry(0.8, 8, 8);
-            const foliageMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
-
-            const foliage1 = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            foliage1.position.y = 2.5;
-            foliage1.castShadow = true;
-            treeGroup.add(foliage1);
-
-            const foliage2 = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            foliage2.position.y = 3.2;
-            foliage2.scale.set(0.8, 0.8, 0.8);
-            foliage2.castShadow = true;
-            treeGroup.add(foliage2);
-
-            return treeGroup;
-        }
-
-        function createRock() {
-            const geometry = new THREE.DodecahedronGeometry(0.5);
-            const material = new THREE.MeshPhongMaterial({ color: 0x808080 });
-            const rock = new THREE.Mesh(geometry, material);
-            rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-            rock.scale.set(0.8 + Math.random() * 0.4, 0.8 + Math.random() * 0.4, 0.8 + Math.random() * 0.4);
-            rock.castShadow = true;
-            return rock;
-        }
-
-        function createCloud() {
-            const cloudGroup = new THREE.Group();
-            const cloudMaterial = new THREE.MeshPhongMaterial({
-                color: 0xFFFFFF,
-                transparent: true,
-                opacity: 0.8
-            });
-
-            for (let i = 0; i < 3; i++) {
-                const geometry = new THREE.SphereGeometry(0.5 + Math.random() * 0.3, 8, 8);
-                const sphere = new THREE.Mesh(geometry, cloudMaterial);
-                sphere.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 1);
-                cloudGroup.add(sphere);
-            }
-
-            return cloudGroup;
-        }
-
-        function createBush() {
-            const bushGroup = new THREE.Group();
-
-            // Куст из нескольких сфер
-            const bushMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
-
-            for (let i = 0; i < 4; i++) {
-                const geometry = new THREE.SphereGeometry(0.3 + Math.random() * 0.2, 8, 8);
-                const sphere = new THREE.Mesh(geometry, bushMaterial);
-                sphere.position.set((Math.random() - 0.5) * 0.6, 0.2, (Math.random() - 0.5) * 0.6);
-                sphere.castShadow = true;
-                bushGroup.add(sphere);
-            }
-
-            return bushGroup;
-        }
-
-        function createFlower() {
-            const flowerGroup = new THREE.Group();
-
-            // Стебель
-            const stemGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 6);
-            const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
-            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-            stem.position.y = 0.2;
-            flowerGroup.add(stem);
-
-            // Цветок
-            const flowerColors = [0xFF1493, 0xFFFF00, 0xFF6347, 0xFF69B4, 0xFFA500, 0x9370DB];
-            const flowerColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-            const flowerGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const flowerMaterial = new THREE.MeshPhongMaterial({
-                color: flowerColor,
-                emissive: flowerColor,
-                emissiveIntensity: 0.2
-            });
-            const flower = new THREE.Mesh(flowerGeometry, flowerMaterial);
-            flower.position.y = 0.45;
-            flower.scale.set(1, 0.5, 1);
-            flowerGroup.add(flower);
-
-            return flowerGroup;
-        }
-
-        function createFence() {
-            const fenceGroup = new THREE.Group();
-
-            // Столбики забора
-            for (let i = 0; i < 3; i++) {
-                const postGeometry = new THREE.BoxGeometry(0.1, 0.8, 0.1);
-                const postMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-                const post = new THREE.Mesh(postGeometry, postMaterial);
-                post.position.set(i * 0.5, 0.4, 0);
-                post.castShadow = true;
-                fenceGroup.add(post);
-            }
-
-            // Перекладины
-            for (let i = 0; i < 2; i++) {
-                const railGeometry = new THREE.BoxGeometry(1.2, 0.08, 0.08);
-                const railMaterial = new THREE.MeshPhongMaterial({ color: 0xA0522D });
-                const rail = new THREE.Mesh(railGeometry, railMaterial);
-                rail.position.set(0.5, 0.3 + i * 0.3, 0);
-                rail.castShadow = true;
-                fenceGroup.add(rail);
-            }
-
-            return fenceGroup;
-        }
-
-        function createBird() {
-            const birdGroup = new THREE.Group();
-
-            // Тело птицы
-            const bodyGeometry = new THREE.SphereGeometry(0.15, 8, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.scale.set(1, 0.8, 1.2);
-            birdGroup.add(body);
-
-            // Крылья
-            const wingGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.2);
-            const wingMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF });
-
-            const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
-            leftWing.position.set(-0.25, 0, 0);
-            birdGroup.add(leftWing);
-
-            const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
-            rightWing.position.set(0.25, 0, 0);
-            birdGroup.add(rightWing);
-
-            // Анимация взмахов крыльев
-            birdGroup.userData.wingAnimation = 0;
-
-            return birdGroup;
-        }
-
-        function createGrass() {
-            const grassGroup = new THREE.Group();
-
-            // Несколько травинок
-            for (let i = 0; i < 5; i++) {
-                const bladeGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.02);
-                const bladeMaterial = new THREE.MeshPhongMaterial({ color: 0x32CD32 });
-                const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
-                blade.position.set((Math.random() - 0.5) * 0.3, 0.15, (Math.random() - 0.5) * 0.3);
-                blade.rotation.z = (Math.random() - 0.5) * 0.2;
-                grassGroup.add(blade);
-            }
-
-            return grassGroup;
-        }
-
-        function createSign() {
-            const signGroup = new THREE.Group();
-
-            // Столб
-            const postGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1.2, 8);
-            const postMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const post = new THREE.Mesh(postGeometry, postMaterial);
-            post.position.y = 0.6;
-            post.castShadow = true;
-            signGroup.add(post);
-
-            // Табличка
-            const signGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.05);
-            const signMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const sign = new THREE.Mesh(signGeometry, signMaterial);
-            sign.position.y = 1.1;
-            sign.castShadow = true;
-            signGroup.add(sign);
-
-            return signGroup;
-        }
 
         function createHouse() {
             const houseGroup = new THREE.Group();
@@ -2927,60 +2684,6 @@
             document.getElementById('cameraMode').style.display = 'none';
         }
 
-
-        function updateCoinsDisplay() {
-            document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
-        }
-
-        function openShop() {
-            gameActive = false;
-            document.getElementById('shopMenu').style.display = 'block';
-            document.getElementById('shopCoins').textContent = coins;
-        }
-
-        function closeShop() {
-            document.getElementById('shopMenu').style.display = 'none';
-            document.getElementById('shopMessage').style.display = 'none';
-            document.getElementById('score').style.display = 'block';
-            document.getElementById('instructions').style.display = 'block';
-            document.getElementById('weaponDisplay').style.display = 'block';
-            document.getElementById('ammoDisplay').style.display = 'block';
-            document.getElementById('cameraMode').style.display = 'block';
-            document.getElementById('coinsDisplay').style.display = 'block';
-            document.getElementById('openShopBtn').style.display = 'block';
-            document.getElementById('openItemsShopBtn').style.display = 'block';
-            if (cameraMode === 'firstPerson') {
-                document.getElementById('crosshair').style.display = 'block';
-            }
-            gameActive = true;
-        }
-
-        function showShopMessage(message, isSuccess) {
-            const msgElement = document.getElementById('shopMessage');
-            msgElement.textContent = message;
-            msgElement.style.display = 'block';
-            msgElement.style.backgroundColor = isSuccess ? 'rgba(76, 175, 80, 0.8)' : 'rgba(244, 67, 54, 0.8)';
-            msgElement.style.color = 'white';
-
-            setTimeout(() => {
-                msgElement.style.display = 'none';
-            }, 2000);
-        }
-
-        function buyAmmo(amount, cost) {
-            if (coins >= cost) {
-                coins -= cost;
-                ammo += amount;
-                localStorage.setItem('cubeGameCoins', coins);
-                updateCoinsDisplay();
-                updateAmmoDisplay();
-                document.getElementById('shopCoins').textContent = coins;
-                showShopMessage('✅ Куплено +' + amount + ' патронов!', true);
-            } else {
-                const need = cost - coins;
-                showShopMessage('❌ Недостаточно монет! Нужно еще: ' + need + ' 💰', false);
-            }
-        }
         function restartGame() {
             obstacles.forEach(obstacle => scene.remove(obstacle));
             obstacles = [];
@@ -3307,6 +3010,30 @@
 
         document.getElementById('exitShopBtn').addEventListener('click', () => {
             document.getElementById('itemsShopMenu').style.display = 'none';
+            returnToSkinMenu();
+        });
+
+        // Обработчики для магазина оружия
+        document.getElementById('openWeaponsShopBtn').addEventListener('click', () => {
+            openWeaponsShop();
+        });
+
+        document.getElementById('continueWeaponsShopBtn').addEventListener('click', () => {
+            document.getElementById('weaponsShopMenu').style.display = 'none';
+            document.getElementById('score').style.display = 'block';
+            document.getElementById('instructions').style.display = 'block';
+            document.getElementById('weaponDisplay').style.display = 'block';
+            document.getElementById('ammoDisplay').style.display = 'block';
+            document.getElementById('cameraMode').style.display = 'block';
+            document.getElementById('coinsDisplay').style.display = 'block';
+            if (cameraMode === 'firstPerson') {
+                document.getElementById('crosshair').style.display = 'block';
+            }
+            gameActive = true;
+        });
+
+        document.getElementById('exitWeaponsShopBtn').addEventListener('click', () => {
+            document.getElementById('weaponsShopMenu').style.display = 'none';
             returnToSkinMenu();
         });
 
