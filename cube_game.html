@@ -262,6 +262,21 @@
             max-height: 80vh;
             overflow-y: auto;
             min-width: 600px;
+            position: relative;
+        }
+        #closeShopX:hover {
+            background-color: rgba(255, 50, 50, 1);
+            transform: scale(1.1);
+        }
+        #closeShop:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.7);
+        }
+        #exitToMenu:hover {
+            background-color: #F57C00;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.7);
         }
         #shopMenu h2 {
             color: white;
@@ -404,7 +419,9 @@
     </div>
 
     <div id="shopMenu" style="display: none;">
+        <button id="closeShopX" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 0, 0, 0.8); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; font-weight: bold;">✕</button>
         <h2>Магазин</h2>
+        <div id="shopRewardMessage" style="color: #4CAF50; font-size: 24px; margin-bottom: 15px; font-weight: bold; display: none;">🎉 Поздравляем! Уровень <span id="rewardLevel">10</span> пройден! +300 монет!</div>
         <div style="color: #FFD700; font-size: 28px; margin-bottom: 20px;">💰 Монеты: <span id="shopCoins">0</span></div>
 
         <div style="margin-bottom: 30px;">
@@ -417,7 +434,10 @@
             <div id="shopWeapons" class="shop-items"></div>
         </div>
 
-        <button id="closeShop" style="background-color: #2196F3; font-size: 20px; padding: 10px 30px; margin-top: 20px;">Продолжить игру</button>
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+            <button id="closeShop" style="background-color: #4CAF50; font-size: 24px; padding: 15px 50px; border: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);">▶ Продолжить игру</button>
+            <button id="exitToMenu" style="background-color: #FF9800; font-size: 24px; padding: 15px 50px; border: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5);">🏠 Выйти в меню</button>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -469,12 +489,17 @@
                 { id: 'wizard', name: 'Волшебник', icon: '🧙', price: 250 }
             ],
             weapons: [
-                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Автоматическая стрельба' },
-                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Выстрел на 360°' }
+                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Авто, 200 патронов', ammo: 200 },
+                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Дробь, 60 патронов', ammo: 60 },
+                { id: 'sniper', name: 'Снайперка', icon: '🎯🔭', price: 400, description: 'Мощно, 40 патронов', ammo: 40 },
+                { id: 'laser', name: 'Лазер', icon: '⚡🔫', price: 500, description: 'Быстро, 300 патронов', ammo: 300 },
+                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Взрыв, 30 патронов', ammo: 30 },
+                { id: 'crossbow', name: 'Арбалет', icon: '🏹', price: 200, description: 'Стрелы, 100 патронов', ammo: 100 },
+                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 150 патронов', ammo: 150 }
             ]
         };
 
-        function openShop() {
+        function openShop(showReward = false) {
             document.getElementById('shopMenu').style.display = 'block';
             document.getElementById('score').style.display = 'none';
             document.getElementById('instructions').style.display = 'none';
@@ -483,6 +508,15 @@
             document.getElementById('cameraMode').style.display = 'none';
             document.getElementById('coinsDisplay').style.display = 'none';
             document.getElementById('crosshair').style.display = 'none';
+
+            // Показываем сообщение о награде если это после прохождения 10 уровней
+            if (showReward) {
+                document.getElementById('shopRewardMessage').style.display = 'block';
+                document.getElementById('rewardLevel').textContent = level;
+            } else {
+                document.getElementById('shopRewardMessage').style.display = 'none';
+            }
+
             updateShopDisplay();
         }
 
@@ -686,36 +720,99 @@
         }
 
         function createTrees() {
-            // Деревья слева
-            for (let i = 0; i < 15; i++) {
+            // Деревья слева - больше деревьев
+            for (let i = 0; i < 25; i++) {
                 const tree = createTree();
-                tree.position.set(-5.5, 0, -i * 7 - 5);
+                tree.position.set(-5.5, 0, -i * 5 - 5);
                 scene.add(tree);
                 decorations.push(tree);
             }
-            // Деревья справа
-            for (let i = 0; i < 15; i++) {
+            // Деревья справа - больше деревьев
+            for (let i = 0; i < 25; i++) {
                 const tree = createTree();
-                tree.position.set(5.5, 0, -i * 7 - 5);
+                tree.position.set(5.5, 0, -i * 5 - 5);
                 scene.add(tree);
                 decorations.push(tree);
             }
 
-            // Добавляем камни
-            for (let i = 0; i < 8; i++) {
+            // Добавляем камни - больше камней
+            for (let i = 0; i < 20; i++) {
                 const rock = createRock();
                 const side = Math.random() > 0.5 ? -6 : 6;
-                rock.position.set(side, 0, -i * 12 - 10);
+                rock.position.set(side + (Math.random() - 0.5) * 0.5, 0, -i * 6 - 10);
                 scene.add(rock);
                 decorations.push(rock);
             }
 
-            // Добавляем облака
-            for (let i = 0; i < 10; i++) {
+            // Добавляем облака - больше облаков
+            for (let i = 0; i < 20; i++) {
                 const cloud = createCloud();
-                cloud.position.set((Math.random() - 0.5) * 20, 8 + Math.random() * 4, -i * 10 - 20);
+                cloud.position.set((Math.random() - 0.5) * 20, 8 + Math.random() * 4, -i * 8 - 20);
                 scene.add(cloud);
                 decorations.push(cloud);
+            }
+
+            // Добавляем кусты
+            for (let i = 0; i < 30; i++) {
+                const bush = createBush();
+                const side = Math.random() > 0.5 ? -4.5 : 4.5;
+                bush.position.set(side + (Math.random() - 0.5) * 0.8, 0, -i * 4 - Math.random() * 5);
+                scene.add(bush);
+                decorations.push(bush);
+            }
+
+            // Добавляем цветы
+            for (let i = 0; i < 40; i++) {
+                const flower = createFlower();
+                const side = Math.random() > 0.5 ? -4 : 4;
+                flower.position.set(side + (Math.random() - 0.5) * 1.5, 0, -i * 3 - Math.random() * 4);
+                scene.add(flower);
+                decorations.push(flower);
+            }
+
+            // Добавляем траву
+            for (let i = 0; i < 50; i++) {
+                const grass = createGrass();
+                const side = Math.random() > 0.5 ? -3.5 : 3.5;
+                grass.position.set(side + (Math.random() - 0.5) * 2, 0, -i * 2.5 - Math.random() * 3);
+                scene.add(grass);
+                decorations.push(grass);
+            }
+
+            // Добавляем заборы
+            for (let i = 0; i < 15; i++) {
+                const fence = createFence();
+                const side = Math.random() > 0.5 ? -4.8 : 4.8;
+                fence.position.set(side, 0, -i * 8 - 15);
+                if (side > 0) {
+                    fence.rotation.y = Math.PI;
+                }
+                scene.add(fence);
+                decorations.push(fence);
+            }
+
+            // Добавляем птиц в небе
+            for (let i = 0; i < 12; i++) {
+                const bird = createBird();
+                bird.position.set(
+                    (Math.random() - 0.5) * 15,
+                    5 + Math.random() * 3,
+                    -i * 10 - Math.random() * 10
+                );
+                scene.add(bird);
+                decorations.push(bird);
+            }
+
+            // Добавляем знаки
+            for (let i = 0; i < 8; i++) {
+                const sign = createSign();
+                const side = Math.random() > 0.5 ? -5 : 5;
+                sign.position.set(side, 0, -i * 15 - 20);
+                if (side > 0) {
+                    sign.rotation.y = Math.PI;
+                }
+                scene.add(sign);
+                decorations.push(sign);
             }
         }
 
@@ -774,6 +871,142 @@
             }
 
             return cloudGroup;
+        }
+
+        function createBush() {
+            const bushGroup = new THREE.Group();
+            
+            // Куст из нескольких сфер
+            const bushMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
+            
+            for (let i = 0; i < 4; i++) {
+                const geometry = new THREE.SphereGeometry(0.3 + Math.random() * 0.2, 8, 8);
+                const sphere = new THREE.Mesh(geometry, bushMaterial);
+                sphere.position.set((Math.random() - 0.5) * 0.6, 0.2, (Math.random() - 0.5) * 0.6);
+                sphere.castShadow = true;
+                bushGroup.add(sphere);
+            }
+            
+            return bushGroup;
+        }
+
+        function createFlower() {
+            const flowerGroup = new THREE.Group();
+            
+            // Стебель
+            const stemGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 6);
+            const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = 0.2;
+            flowerGroup.add(stem);
+            
+            // Цветок
+            const flowerColors = [0xFF1493, 0xFFFF00, 0xFF6347, 0xFF69B4, 0xFFA500, 0x9370DB];
+            const flowerColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+            const flowerGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const flowerMaterial = new THREE.MeshPhongMaterial({ 
+                color: flowerColor,
+                emissive: flowerColor,
+                emissiveIntensity: 0.2
+            });
+            const flower = new THREE.Mesh(flowerGeometry, flowerMaterial);
+            flower.position.y = 0.45;
+            flower.scale.set(1, 0.5, 1);
+            flowerGroup.add(flower);
+            
+            return flowerGroup;
+        }
+
+        function createFence() {
+            const fenceGroup = new THREE.Group();
+            
+            // Столбики забора
+            for (let i = 0; i < 3; i++) {
+                const postGeometry = new THREE.BoxGeometry(0.1, 0.8, 0.1);
+                const postMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+                const post = new THREE.Mesh(postGeometry, postMaterial);
+                post.position.set(i * 0.5, 0.4, 0);
+                post.castShadow = true;
+                fenceGroup.add(post);
+            }
+            
+            // Перекладины
+            for (let i = 0; i < 2; i++) {
+                const railGeometry = new THREE.BoxGeometry(1.2, 0.08, 0.08);
+                const railMaterial = new THREE.MeshPhongMaterial({ color: 0xA0522D });
+                const rail = new THREE.Mesh(railGeometry, railMaterial);
+                rail.position.set(0.5, 0.3 + i * 0.3, 0);
+                rail.castShadow = true;
+                fenceGroup.add(rail);
+            }
+            
+            return fenceGroup;
+        }
+
+        function createBird() {
+            const birdGroup = new THREE.Group();
+            
+            // Тело птицы
+            const bodyGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.scale.set(1, 0.8, 1.2);
+            birdGroup.add(body);
+            
+            // Крылья
+            const wingGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.2);
+            const wingMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF });
+            
+            const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            leftWing.position.set(-0.25, 0, 0);
+            birdGroup.add(leftWing);
+            
+            const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
+            rightWing.position.set(0.25, 0, 0);
+            birdGroup.add(rightWing);
+            
+            // Анимация взмахов крыльев
+            birdGroup.userData.wingAnimation = 0;
+            
+            return birdGroup;
+        }
+
+        function createGrass() {
+            const grassGroup = new THREE.Group();
+            
+            // Несколько травинок
+            for (let i = 0; i < 5; i++) {
+                const bladeGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.02);
+                const bladeMaterial = new THREE.MeshPhongMaterial({ color: 0x32CD32 });
+                const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+                blade.position.set((Math.random() - 0.5) * 0.3, 0.15, (Math.random() - 0.5) * 0.3);
+                blade.rotation.z = (Math.random() - 0.5) * 0.2;
+                grassGroup.add(blade);
+            }
+            
+            return grassGroup;
+        }
+
+        function createSign() {
+            const signGroup = new THREE.Group();
+            
+            // Столб
+            const postGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1.2, 8);
+            const postMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const post = new THREE.Mesh(postGeometry, postMaterial);
+            post.position.y = 0.6;
+            post.castShadow = true;
+            signGroup.add(post);
+            
+            // Табличка
+            const signGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.05);
+            const signMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+            const sign = new THREE.Mesh(signGeometry, signMaterial);
+            sign.position.y = 1.1;
+            sign.castShadow = true;
+            signGroup.add(sign);
+            
+            return signGroup;
         }
 
         function createDog() {
@@ -1650,16 +1883,76 @@
             return sgGroup;
         }
 
+        function createSniper() {
+            const group = new THREE.Group();
+            const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.0, 8), new THREE.MeshPhongMaterial({ color: 0x1a1a1a }));
+            barrel.rotation.z = Math.PI / 2;
+            group.add(barrel);
+            const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+            scope.position.set(0.1, 0.1, 0);
+            group.add(scope);
+            group.scale.set(2.0, 2.0, 2.0);
+            return group;
+        }
+
+        function createLaser() {
+            const group = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.08, 0.12), new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 0.3 }));
+            group.add(body);
+            const crystal = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 0.8 }));
+            crystal.position.set(0.3, 0, 0);
+            group.add(crystal);
+            group.scale.set(1.8, 1.8, 1.8);
+            return group;
+        }
+
+        function createRocket() {
+            const group = new THREE.Group();
+            const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.7, 8), new THREE.MeshPhongMaterial({ color: 0x4a4a4a }));
+            tube.rotation.z = Math.PI / 2;
+            group.add(tube);
+            const grip = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), new THREE.MeshPhongMaterial({ color: 0x654321 }));
+            grip.position.set(-0.2, -0.12, 0);
+            group.add(grip);
+            group.scale.set(2.2, 2.2, 2.2);
+            return group;
+        }
+
+        function createCrossbow() {
+            const group = new THREE.Group();
+            const stock = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.08), new THREE.MeshPhongMaterial({ color: 0x8B4513 }));
+            group.add(stock);
+            const bow = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.02, 8, 16, Math.PI), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+            bow.rotation.z = -Math.PI / 2;
+            bow.position.set(0.25, 0, 0);
+            group.add(bow);
+            group.scale.set(1.7, 1.7, 1.7);
+            return group;
+        }
+
+        function createPlasma() {
+            const group = new THREE.Group();
+            const core = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshPhongMaterial({ color: 0xFF00FF, emissive: 0xFF00FF, emissiveIntensity: 0.8 }));
+            group.add(core);
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.02, 8, 16), new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 0.5 }));
+            group.add(ring1);
+            const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 8), new THREE.MeshPhongMaterial({ color: 0x666666 }));
+            handle.position.set(-0.2, -0.08, 0);
+            group.add(handle);
+            group.scale.set(1.9, 1.9, 1.9);
+            return group;
+        }
+
         function createWeapon(type) {
-            if (type === 'pistol') {
-                return createPistol();
-            } else if (type === 'rifle') {
-                return createRifle();
-            } else if (type === 'machinegun') {
-                return createMachinegun();
-            } else if (type === 'shotgun') {
-                return createShotgun();
-            }
+            if (type === 'pistol') return createPistol();
+            else if (type === 'rifle') return createRifle();
+            else if (type === 'machinegun') return createMachinegun();
+            else if (type === 'shotgun') return createShotgun();
+            else if (type === 'sniper') return createSniper();
+            else if (type === 'laser') return createLaser();
+            else if (type === 'rocket') return createRocket();
+            else if (type === 'crossbow') return createCrossbow();
+            else if (type === 'plasma') return createPlasma();
             return createPistol();
         }
 
@@ -1681,19 +1974,24 @@
             player.add(currentWeapon);
 
             // Обновляем UI и параметры стрельбы
-            if (weaponType === 'pistol') {
-                document.getElementById('weaponDisplay').textContent = 'Оружие: 🔫 Пистолет (одиночные)';
-                shootCooldown = 300;
-            } else if (weaponType === 'rifle') {
-                document.getElementById('weaponDisplay').textContent = 'Оружие: 🎯 Винтовка (очереди по 3)';
-                shootCooldown = 800;
-            } else if (weaponType === 'machinegun') {
-                document.getElementById('weaponDisplay').textContent = 'Оружие: 🔫💨 Пулемёт (авто)';
-                shootCooldown = 100;
-            } else if (weaponType === 'shotgun') {
-                document.getElementById('weaponDisplay').textContent = 'Оружие: 💥🔫 Дробовик (360°)';
-                shootCooldown = 600;
-            }
+            const weaponConfigs = {
+                pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 80 },
+                rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 80 },
+                machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 200 },
+                shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 60 },
+                sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 40 },
+                laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 300 },
+                rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 30 },
+                crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 100 },
+                plasma: { name: '⚛️💫 Плазма', cooldown: 200, ammo: 150 }
+            };
+
+            const config = weaponConfigs[weaponType] || weaponConfigs.pistol;
+            document.getElementById('weaponDisplay').textContent = 'Оружие: ' + config.name;
+            shootCooldown = config.cooldown;
+            maxAmmo = config.ammo;
+            ammo = maxAmmo;
+            updateAmmoDisplay();
         }
 
         function createObstacle() {
@@ -1901,18 +2199,23 @@
         }
 
         function shootShotgun() {
-            // Дробовик стреляет 8 пулями по кругу (360 градусов)
+            // Дробовик стреляет дробью (множество мелких пуль с разбросом)
             if (ammo <= 0) {
                 return;
             }
 
-            const pelletsCount = 8;
-            const ammoUsed = Math.min(pelletsCount, ammo);
+            const pelletsCount = 15; // Больше дроби
+            const spreadAngle = 0.25; // Разброс в радианах (~30 градусов конус)
+            const ammoUsed = Math.min(1, ammo); // Дробовик использует 1 патрон
 
-            for (let i = 0; i < ammoUsed; i++) {
-                ammo--;
+            ammo -= ammoUsed;
 
-                const bulletGeometry = new THREE.SphereGeometry(0.2, 12, 12);
+            // Получаем направление взгляда камеры
+            const cameraDirection = new THREE.Vector3();
+            camera.getWorldDirection(cameraDirection);
+
+            for (let i = 0; i < pelletsCount; i++) {
+                const bulletGeometry = new THREE.SphereGeometry(0.1, 8, 8); // Мелкая дробь
                 const bulletMaterial = new THREE.MeshPhongMaterial({
                     color: 0xFF6600,
                     emissive: 0xFF4500,
@@ -1927,13 +2230,14 @@
                     bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
                 }
 
-                // Направление - круг на 360 градусов
-                const angle = (i / pelletsCount) * Math.PI * 2;
-                const direction = new THREE.Vector3(
-                    Math.sin(angle),
-                    0,
-                    Math.cos(angle)
-                );
+                // Направление - вперед от камеры с случайным разбросом
+                const direction = cameraDirection.clone();
+
+                // Добавляем случайный разброс
+                direction.x += (Math.random() - 0.5) * spreadAngle;
+                direction.y += (Math.random() - 0.5) * spreadAngle;
+                direction.z += (Math.random() - 0.5) * spreadAngle * 0.5; // Меньше по Z
+
                 direction.normalize();
                 bullet.userData.direction = direction;
 
@@ -2022,10 +2326,6 @@
                 obstacleSpeed = 0.05 + (level - 1) * 0.01;
                 spawnRate = 0.01 + (level - 1) * 0.008;
 
-                // Даём 50 монет за новый уровень
-                coins += 50;
-                updateCoinsDisplay();
-
                 // Восстанавливаем патроны при переходе на новый уровень
                 ammo = maxAmmo;
                 updateAmmoDisplay();
@@ -2037,11 +2337,15 @@
                     scene.background = new THREE.Color(0x87ceeb);
                 }, 300);
 
-                // Открываем магазин
-                gameActive = false;
-                setTimeout(() => {
-                    openShop();
-                }, 500);
+                // Каждые 10 уровней - большая награда и магазин
+                if (level % 10 === 0) {
+                    coins += 300;
+                    updateCoinsDisplay();
+                    gameActive = false;
+                    setTimeout(() => {
+                        openShop(true);
+                    }, 500);
+                }
             }
         }
 
@@ -2241,8 +2545,19 @@
                 camera.position.y = player.position.y + 5; // Выше игрока
                 camera.position.z = player.position.z + 8; // Позади игрока
 
-                // Смотрим на игрока и немного вперед
-                camera.lookAt(player.position.x, player.position.y, player.position.z - 5);
+                // Автоприцеливание на ближайший кубик для стрельбы
+                const nearestCube = findNearestObstacle();
+                let targetLook;
+                if (nearestCube) {
+                    targetLook = nearestCube.clone();
+                } else {
+                    // Если кубиков нет, смотрим на игрока и вперед
+                    targetLook = new THREE.Vector3(player.position.x, player.position.y, player.position.z - 10);
+                }
+
+                // Плавное следование за целью
+                cameraLookTarget.lerp(targetLook, 0.15);
+                camera.lookAt(cameraLookTarget);
             }
         }
 
@@ -2276,6 +2591,14 @@
         document.getElementById('closeShop').addEventListener('click', () => {
             closeShop();
             gameActive = true;
+        });
+        document.getElementById('closeShopX').addEventListener('click', () => {
+            closeShop();
+            gameActive = true;
+        });
+        document.getElementById('exitToMenu').addEventListener('click', () => {
+            document.getElementById('shopMenu').style.display = 'none';
+            returnToSkinMenu();
         });
 
         // init() будет вызван после выбора скина
@@ -2360,3 +2683,5 @@
             }
         });
     </script>
+</body>
+</html>
