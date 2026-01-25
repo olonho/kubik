@@ -246,8 +246,8 @@
         #shootBtn:active { background-color: rgba(255, 100, 100, 0.7); }
         #weapon1Btn { bottom: 180px; right: 20px; width: 60px; height: 60px; font-size: 20px; }
         #weapon2Btn { bottom: 180px; right: 90px; width: 60px; height: 60px; font-size: 20px; }
-        #weapon3Btn { bottom: 180px; right: 160px; width: 60px; height: 60px; font-size: 20px; display: none; }
-        #weapon4Btn { bottom: 180px; right: 230px; width: 60px; height: 60px; font-size: 20px; display: none; }
+        #weapon3Btn { bottom: 180px; right: 160px; width: 60px; height: 60px; font-size: 20px; }
+        #weapon4Btn { bottom: 180px; right: 230px; width: 60px; height: 60px; font-size: 20px; }
         #cameraModeBtn { top: 150px; right: 20px; width: 60px; height: 60px; font-size: 24px; background-color: rgba(100, 150, 255, 0.4); border-color: rgba(100, 150, 255, 0.9); }
         #cameraModeBtn:active { background-color: rgba(100, 150, 255, 0.7); }
 
@@ -2554,9 +2554,15 @@
                 bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
             }
 
-            // Направление пули - куда смотрит камера (автоприцеливание)
+            // Направление пули
             const direction = new THREE.Vector3();
-            camera.getWorldDirection(direction);
+            if (cameraMode === 'firstPerson') {
+                // От первого лица - куда смотрит камера
+                camera.getWorldDirection(direction);
+            } else {
+                // От третьего лица - от игрока к цели автоприцеливания
+                direction.subVectors(cameraLookTarget, bullet.position).normalize();
+            }
             bullet.userData.direction = direction;
 
             bullet.castShadow = true;
