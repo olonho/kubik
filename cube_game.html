@@ -396,7 +396,7 @@
     </div>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
-    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | ENTER: Сменить вид</div>
+    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | ENTER: Вид | B: Магазин</div>
     <div id="weaponDisplay" style="display: none;">
         Оружие: 🔫 Пистолет
     </div>
@@ -406,6 +406,12 @@
     <div id="cameraMode" style="display: none;">
         Вид: От первого лица
     </div>
+    <div id="coinsDisplay" style="display: none; position: absolute; top: 180px; left: 20px; color: gold; font-size: 22px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 100;">
+        💰 Монеты: 0
+    </div>
+    <button id="openShopBtn" style="display: none; position: absolute; top: 210px; left: 20px; padding: 10px 20px; background-color: rgba(255, 215, 0, 0.9); border: 3px solid gold; border-radius: 10px; color: #000; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);">
+        🛒 Магазин
+    </button>
     <div id="coinsDisplay" style="display: none; position: absolute; top: 275px; left: 20px; color: #FFD700; font-size: 20px; font-weight: bold; z-index: 100;">
         💰 Монеты: 0
     </div>
@@ -418,29 +424,38 @@
         <button id="changeSkin" style="margin-left: 10px; background-color: #FF9800;">Сменить персонажа</button>
     </div>
 
-    <div id="shopMenu" style="display: none;">
-        <button id="closeShopX" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 0, 0, 0.8); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; font-weight: bold;">✕</button>
-        <h2>Магазин</h2>
-        <div id="shopRewardMessage" style="color: #4CAF50; font-size: 24px; margin-bottom: 15px; font-weight: bold; display: none;">🎉 Поздравляем! Уровень <span id="rewardLevel">10</span> пройден! +300 монет!</div>
-        <div style="color: #FFD700; font-size: 28px; margin-bottom: 20px;">💰 Монеты: <span id="shopCoins">0</span></div>
 
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #4CAF50;">Персонажи</h3>
-            <div id="shopSkins" class="shop-items"></div>
+    <!-- Магазин боеприпасов -->
+    <div id="shopMenu" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.95); padding: 40px; border-radius: 20px; text-align: center; z-index: 300; border: 5px solid gold;">
+        <h2 style="color: gold; font-size: 42px; margin-bottom: 20px;">🛒 Магазин боеприпасов</h2>
+        <div style="color: white; font-size: 24px; margin-bottom: 30px;">
+            💰 Ваши монеты: <span id="shopCoins" style="color: gold; font-weight: bold;">0</span>
+        </div>
+        
+        <div style="background-color: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 15px; margin: 20px 0;">
+            <div style="color: white; font-size: 28px; margin-bottom: 15px;">📦 Набор патронов</div>
+            <div style="color: #FFD700; font-size: 22px; margin-bottom: 15px;">+40 патронов</div>
+            <div style="color: #FFA500; font-size: 20px; margin-bottom: 20px;">Цена: 50 💰</div>
+            <button id="buyAmmoBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                Купить патроны
+            </button>
         </div>
 
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #FF9800;">Оружие</h3>
-            <div id="shopWeapons" class="shop-items"></div>
+        <div style="background-color: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 15px; margin: 20px 0;">
+            <div style="color: white; font-size: 28px; margin-bottom: 15px;">📦 Большой набор патронов</div>
+            <div style="color: #FFD700; font-size: 22px; margin-bottom: 15px;">+100 патронов</div>
+            <div style="color: #FFA500; font-size: 20px; margin-bottom: 20px;">Цена: 100 💰</div>
+            <button id="buyAmmoBigBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                Купить патроны
+            </button>
         </div>
 
-        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
-            <button id="closeShop" style="background-color: #4CAF50; font-size: 24px; padding: 15px 50px; border: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);">▶ Продолжить игру</button>
-            <button id="exitToMenu" style="background-color: #FF9800; font-size: 24px; padding: 15px 50px; border: none; color: white; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.5);">🏠 Выйти в меню</button>
-        </div>
+        <button id="closeShopBtn" style="margin-top: 20px; padding: 12px 30px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 20px; font-weight: bold; cursor: pointer;">
+            Закрыть магазин
+        </button>
+        
+        <div id="shopMessage" style="display: none; margin-top: 20px; padding: 15px; border-radius: 10px; font-size: 20px; font-weight: bold;"></div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene, camera, renderer;
         let player, ground, currentWeapon;
@@ -452,6 +467,7 @@
         let lives = 3;
         let ammo = 80;
         let maxAmmo = 80;
+        let coins = parseInt(localStorage.getItem('cubeGameCoins')) || 0;
         let gameActive = true;
         let playerVelocityY = 0;
         let isJumping = false;
@@ -468,7 +484,6 @@
         let playerDirection = 0;
         let cameraMode = 'firstPerson'; // 'firstPerson' или 'thirdPerson'
         let cameraLookTarget = new THREE.Vector3(0, 0.7, -10); // Цель взгляда камеры
-        let coins = 0; // Монеты игрока
         let ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval']; // Купленные скины
         let ownedWeapons = ['pistol', 'rifle']; // Купленное оружие
         const gravity = -0.02;
@@ -489,13 +504,13 @@
                 { id: 'wizard', name: 'Волшебник', icon: '🧙', price: 250 }
             ],
             weapons: [
-                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Авто, 200 патронов', ammo: 200 },
-                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Дробь, 60 патронов', ammo: 60 },
-                { id: 'sniper', name: 'Снайперка', icon: '🎯🔭', price: 400, description: 'Мощно, 40 патронов', ammo: 40 },
-                { id: 'laser', name: 'Лазер', icon: '⚡🔫', price: 500, description: 'Быстро, 300 патронов', ammo: 300 },
-                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Взрыв, 30 патронов', ammo: 30 },
-                { id: 'crossbow', name: 'Арбалет', icon: '🏹', price: 200, description: 'Стрелы, 100 патронов', ammo: 100 },
-                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 150 патронов', ammo: 150 }
+                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Авто, 80 патронов', ammo: 80 },
+                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Дробь, 25 патронов', ammo: 25 },
+                { id: 'sniper', name: 'Снайперка', icon: '🎯🔭', price: 400, description: 'Мощно, 15 патронов', ammo: 15 },
+                { id: 'laser', name: 'Лазер', icon: '⚡🔫', price: 500, description: 'Быстро, 120 патронов', ammo: 120 },
+                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Взрыв, 12 патронов', ammo: 12 },
+                { id: 'crossbow', name: 'Арбалет', icon: '🏹', price: 200, description: 'Стрелы, 40 патронов', ammo: 40 },
+                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 60 патронов', ammo: 60 }
             ]
         };
 
@@ -528,6 +543,7 @@
             document.getElementById('ammoDisplay').style.display = 'block';
             document.getElementById('cameraMode').style.display = 'block';
             document.getElementById('coinsDisplay').style.display = 'block';
+            document.getElementById('openShopBtn').style.display = 'block';
             if (cameraMode === 'firstPerson') {
                 document.getElementById('crosshair').style.display = 'block';
             }
@@ -814,6 +830,20 @@
                 scene.add(sign);
                 decorations.push(sign);
             }
+
+            // Добавляем дом с кошкой справа от игрока
+            const house = createHouse();
+            house.position.set(6, 0, 3);
+            house.rotation.y = -Math.PI / 4; // Поворачиваем дом к игроку
+            scene.add(house);
+            decorations.push(house);
+
+            // Добавляем кошку перед домом
+            const houseCat = createHouseCat();
+            houseCat.position.set(5, 0, 5);
+            houseCat.rotation.y = Math.PI; // Кошка смотрит на игрока
+            scene.add(houseCat);
+            decorations.push(houseCat);
         }
 
         function createTree() {
@@ -1007,6 +1037,135 @@
             signGroup.add(sign);
             
             return signGroup;
+        }
+
+        function createHouse() {
+            const houseGroup = new THREE.Group();
+
+            // Основание дома
+            const wallGeometry = new THREE.BoxGeometry(2.5, 2, 2);
+            const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
+            const walls = new THREE.Mesh(wallGeometry, wallMaterial);
+            walls.position.y = 1;
+            walls.castShadow = true;
+            walls.receiveShadow = true;
+            houseGroup.add(walls);
+
+            // Крыша
+            const roofGeometry = new THREE.ConeGeometry(1.8, 1.2, 4);
+            const roofMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = 2.6;
+            roof.rotation.y = Math.PI / 4;
+            roof.castShadow = true;
+            houseGroup.add(roof);
+
+            // Дверь
+            const doorGeometry = new THREE.BoxGeometry(0.6, 1.2, 0.1);
+            const doorMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 0.6, 1.05);
+            door.castShadow = true;
+            houseGroup.add(door);
+
+            // Окна
+            const windowGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.1);
+            const windowMaterial = new THREE.MeshPhongMaterial({
+                color: 0x87CEEB,
+                emissive: 0x4682B4,
+                emissiveIntensity: 0.3
+            });
+
+            const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window1.position.set(-0.8, 1.2, 1.05);
+            houseGroup.add(window1);
+
+            const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window2.position.set(0.8, 1.2, 1.05);
+            houseGroup.add(window2);
+
+            // Труба
+            const chimneyGeometry = new THREE.BoxGeometry(0.3, 0.8, 0.3);
+            const chimneyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
+            chimney.position.set(0.8, 2.8, 0.5);
+            chimney.castShadow = true;
+            houseGroup.add(chimney);
+
+            return houseGroup;
+        }
+
+        function createHouseCat() {
+            const catGroup = new THREE.Group();
+
+            // Тело кошки
+            const bodyGeometry = new THREE.BoxGeometry(0.5, 0.3, 0.7);
+            const catMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
+            const body = new THREE.Mesh(bodyGeometry, catMaterial);
+            body.position.y = 0.25;
+            body.castShadow = true;
+            catGroup.add(body);
+
+            // Голова
+            const headGeometry = new THREE.SphereGeometry(0.18, 16, 16);
+            const head = new THREE.Mesh(headGeometry, catMaterial);
+            head.position.set(0, 0.35, 0.4);
+            head.castShadow = true;
+            catGroup.add(head);
+
+            // Уши
+            const earGeometry = new THREE.ConeGeometry(0.08, 0.15, 4);
+            const ear1 = new THREE.Mesh(earGeometry, catMaterial);
+            ear1.position.set(-0.1, 0.5, 0.4);
+            ear1.rotation.z = -0.3;
+            catGroup.add(ear1);
+
+            const ear2 = new THREE.Mesh(earGeometry, catMaterial);
+            ear2.position.set(0.1, 0.5, 0.4);
+            ear2.rotation.z = 0.3;
+            catGroup.add(ear2);
+
+            // Хвост
+            const tailGeometry = new THREE.CylinderGeometry(0.05, 0.03, 0.6, 8);
+            const tail = new THREE.Mesh(tailGeometry, catMaterial);
+            tail.position.set(0, 0.4, -0.3);
+            tail.rotation.x = Math.PI / 3;
+            tail.castShadow = true;
+            catGroup.add(tail);
+
+            // Лапы
+            const legGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.25, 8);
+            const positions = [
+                [-0.15, 0.12, 0.2],
+                [0.15, 0.12, 0.2],
+                [-0.15, 0.12, -0.2],
+                [0.15, 0.12, -0.2]
+            ];
+
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, catMaterial);
+                leg.position.set(...pos);
+                leg.castShadow = true;
+                catGroup.add(leg);
+            });
+
+            // Глаза
+            const eyeGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+            const eyeMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00FF00,
+                emissive: 0x00FF00,
+                emissiveIntensity: 0.5
+            });
+
+            const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye1.position.set(-0.08, 0.38, 0.52);
+            catGroup.add(eye1);
+
+            const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye2.position.set(0.08, 0.38, 0.52);
+            catGroup.add(eye2);
+
+            return catGroup;
         }
 
         function createDog() {
@@ -1975,15 +2134,15 @@
 
             // Обновляем UI и параметры стрельбы
             const weaponConfigs = {
-                pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 80 },
-                rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 80 },
-                machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 200 },
-                shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 60 },
-                sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 40 },
-                laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 300 },
-                rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 30 },
-                crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 100 },
-                plasma: { name: '⚛️💫 Плазма', cooldown: 200, ammo: 150 }
+                pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 30 },
+                rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 30 },
+                machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 80 },
+                shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 25 },
+                sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 15 },
+                laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 120 },
+                rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 12 },
+                crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 40 },
+                plasma: { name: '⚛️💫 Плазма', cooldown: 200, ammo: 60 }
             };
 
             const config = weaponConfigs[weaponType] || weaponConfigs.pistol;
@@ -2083,6 +2242,21 @@
             if (keys['Digit4'] && ownedWeapons.includes('shotgun')) {
                 changeWeapon('shotgun');
             }
+            if (keys['Digit5'] && ownedWeapons.includes('sniper')) {
+                changeWeapon('sniper');
+            }
+            if (keys['Digit6'] && ownedWeapons.includes('laser')) {
+                changeWeapon('laser');
+            }
+            if (keys['Digit7'] && ownedWeapons.includes('rocket')) {
+                changeWeapon('rocket');
+            }
+            if (keys['Digit8'] && ownedWeapons.includes('crossbow')) {
+                changeWeapon('crossbow');
+            }
+            if (keys['Digit9'] && ownedWeapons.includes('plasma')) {
+                changeWeapon('plasma');
+            }
 
             // Переключение режима камеры на ENTER
             if (keys['Enter']) {
@@ -2098,32 +2272,33 @@
                 }
             }
 
+
+            // Открытие магазина на клавишу B
+            if (keys['KeyB']) {
+                keys['KeyB'] = false;
+                openShop();
+            }
             // Стрельба на клавишу W
             if ((keys['KeyW'] || keys['KeyW'.toLowerCase()]) && canShoot && !isBurstFiring) {
                 if (selectedWeapon === 'rifle') {
-                    // Винтовка стреляет очередью из 3 выстрелов
                     shootBurst();
-                } else if (selectedWeapon === 'machinegun') {
-                    // Пулемёт стреляет автоматически пока удерживается клавиша
-                    shoot();
-                    canShoot = false;
-                    setTimeout(() => {
-                        canShoot = true;
-                    }, shootCooldown);
                 } else if (selectedWeapon === 'shotgun') {
-                    // Дробовик стреляет во все стороны
                     shootShotgun();
                     canShoot = false;
-                    setTimeout(() => {
-                        canShoot = true;
-                    }, shootCooldown);
+                    setTimeout(() => { canShoot = true; }, shootCooldown);
+                } else if (selectedWeapon === 'rocket') {
+                    shootRocket();
+                    canShoot = false;
+                    setTimeout(() => { canShoot = true; }, shootCooldown);
+                } else if (selectedWeapon === 'plasma') {
+                    shootPlasma();
+                    canShoot = false;
+                    setTimeout(() => { canShoot = true; }, shootCooldown);
                 } else {
-                    // Пистолет стреляет одиночным выстрелом
+                    // Все остальные: пистолет, пулемёт, снайперка, лазер, арбалет
                     shoot();
                     canShoot = false;
-                    setTimeout(() => {
-                        canShoot = true;
-                    }, shootCooldown);
+                    setTimeout(() => { canShoot = true; }, shootCooldown);
                 }
             }
 
@@ -2249,6 +2424,71 @@
             updateAmmoDisplay();
         }
 
+        function shootRocket() {
+            // Ракетница стреляет большой взрывной ракетой
+            if (ammo <= 0) return;
+
+            ammo--;
+            updateAmmoDisplay();
+
+            const bulletGeometry = new THREE.CylinderGeometry(0.15, 0.2, 0.4, 8);
+            const bulletMaterial = new THREE.MeshPhongMaterial({
+                color: 0xFF0000,
+                emissive: 0xFF4500,
+                emissiveIntensity: 0.9
+            });
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+            bullet.rotation.z = Math.PI / 2;
+
+            if (cameraMode === 'firstPerson') {
+                bullet.position.copy(camera.position);
+            } else {
+                bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
+            }
+
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            bullet.userData.direction = direction;
+            bullet.userData.isRocket = true; // Специальный флаг для ракеты
+
+            bullet.castShadow = true;
+            scene.add(bullet);
+            bullets.push(bullet);
+        }
+
+        function shootPlasma() {
+            // Плазменная пушка стреляет энергетическими шарами
+            if (ammo <= 0) return;
+
+            ammo--;
+            updateAmmoDisplay();
+
+            const bulletGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const bulletMaterial = new THREE.MeshPhongMaterial({
+                color: 0xFF00FF,
+                emissive: 0xFF00FF,
+                emissiveIntensity: 1.0,
+                transparent: true,
+                opacity: 0.8
+            });
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+
+            if (cameraMode === 'firstPerson') {
+                bullet.position.copy(camera.position);
+            } else {
+                bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
+            }
+
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+            bullet.userData.direction = direction;
+            bullet.userData.isPlasma = true; // Специальный флаг
+
+            bullet.castShadow = true;
+            scene.add(bullet);
+            bullets.push(bullet);
+        }
+
         function updateAmmoDisplay() {
             const ammoColor = ammo < 10 ? 'red' : (ammo < 30 ? 'orange' : 'yellow');
             document.getElementById('ammoDisplay').innerHTML = `<span style="color: ${ammoColor}">Патроны: ${ammo} / ${maxAmmo}</span>`;
@@ -2284,6 +2524,9 @@
                         scene.remove(bullet);
                         bullets.splice(i, 1);
                         score += 10;
+                        coins += 5;
+                        updateCoinsDisplay();
+                        localStorage.setItem('cubeGameCoins', coins);
                         updateLevel();
                         updateScoreDisplay();
                         break;
@@ -2326,9 +2569,11 @@
                 obstacleSpeed = 0.05 + (level - 1) * 0.01;
                 spawnRate = 0.01 + (level - 1) * 0.008;
 
-                // Восстанавливаем патроны при переходе на новый уровень
-                ammo = maxAmmo;
-                updateAmmoDisplay();
+                // Восстанавливаем патроны каждые 5 уровней
+                if (level % 5 === 0) {
+                    ammo = maxAmmo;
+                    updateAmmoDisplay();
+                }
                 updateScoreDisplay();
 
                 // Эффект при повышении уровня
@@ -2372,6 +2617,9 @@
                     scene.remove(obstacleGroup);
                     obstacles.splice(i, 1);
                     score += 10;
+                    coins += 5;
+                    updateCoinsDisplay();
+                    localStorage.setItem('cubeGameCoins', coins);
                     updateLevel();
                     updateScoreDisplay();
                 } else if (obstacleGroup.position.z > 10) {
@@ -2414,6 +2662,49 @@
             document.getElementById('cameraMode').style.display = 'none';
         }
 
+
+        function updateCoinsDisplay() {
+            document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
+        }
+
+        function openShop() {
+            gameActive = false;
+            document.getElementById('shopMenu').style.display = 'block';
+            document.getElementById('shopCoins').textContent = coins;
+        }
+
+        function closeShop() {
+            document.getElementById('shopMenu').style.display = 'none';
+            document.getElementById('shopMessage').style.display = 'none';
+            gameActive = true;
+        }
+
+        function showShopMessage(message, isSuccess) {
+            const msgElement = document.getElementById('shopMessage');
+            msgElement.textContent = message;
+            msgElement.style.display = 'block';
+            msgElement.style.backgroundColor = isSuccess ? 'rgba(76, 175, 80, 0.8)' : 'rgba(244, 67, 54, 0.8)';
+            msgElement.style.color = 'white';
+            
+            setTimeout(() => {
+                msgElement.style.display = 'none';
+            }, 2000);
+        }
+
+        function buyAmmo(amount, cost) {
+            if (coins >= cost) {
+                coins -= cost;
+                ammo += amount;
+                localStorage.setItem('cubeGameCoins', coins);
+                updateCoinsDisplay();
+                updateAmmoDisplay();
+                document.getElementById('shopCoins').textContent = coins;
+                showShopMessage('✅ Куплено +' + amount + ' патронов!', true);
+            } else {
+                const need = cost - coins;
+                showShopMessage('❌ Недостаточно монет! Нужно еще: ' + need + ' 💰', false);
+            }
+        }
         function restartGame() {
             obstacles.forEach(obstacle => scene.remove(obstacle));
             obstacles = [];
@@ -2588,6 +2879,10 @@
         document.addEventListener('keyup', (e) => keys[e.code] = false);
         document.getElementById('restart').addEventListener('click', restartGame);
         document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
+        document.getElementById('openShopBtn').addEventListener('click', openShop);
+        document.getElementById('closeShopBtn').addEventListener('click', closeShop);
+        document.getElementById('buyAmmoBtn').addEventListener('click', () => buyAmmo(40, 50));
+        document.getElementById('buyAmmoBigBtn').addEventListener('click', () => buyAmmo(100, 100));
         document.getElementById('closeShop').addEventListener('click', () => {
             closeShop();
             gameActive = true;
