@@ -115,6 +115,10 @@ function updateLevel() {
             setTimeout(() => {
                 document.body.removeChild(notification);
                 gameActive = true;
+            
+            // Показываем кнопку weapon4
+            const weapon4Btn = document.getElementById('weapon4Btn');
+            if (weapon4Btn) weapon4Btn.style.display = 'block';
             }, 5000);
         }
         

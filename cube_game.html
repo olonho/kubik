@@ -247,6 +247,7 @@
         #weapon1Btn { bottom: 180px; right: 20px; width: 60px; height: 60px; font-size: 20px; }
         #weapon2Btn { bottom: 180px; right: 90px; width: 60px; height: 60px; font-size: 20px; }
         #weapon3Btn { bottom: 180px; right: 160px; width: 60px; height: 60px; font-size: 20px; display: none; }
+        #weapon4Btn { bottom: 180px; right: 230px; width: 60px; height: 60px; font-size: 20px; display: none; }
         #cameraModeBtn { top: 150px; right: 20px; width: 60px; height: 60px; font-size: 24px; background-color: rgba(100, 150, 255, 0.4); border-color: rgba(100, 150, 255, 0.9); }
         #cameraModeBtn:active { background-color: rgba(100, 150, 255, 0.7); }
 
@@ -402,7 +403,7 @@
     </div>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
-    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | 3: Лазер* | ENTER: Вид | B: Магазин</div>
+    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | 3: Лазер* | 4: Гравитация* | ENTER: Вид | B: Магазин</div>
     <div id="weaponDisplay" style="display: none;">
         Оружие: 🔫 Пистолет
     </div>
@@ -2521,6 +2522,7 @@
                 rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 30 },
                 machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 80 },
                 laser: { name: '⚡🔫 Лазерная Пушка', cooldown: 100, ammo: 9999 },
+                gravity: { name: '🌀💜 Гравитационная Пушка', cooldown: 150, ammo: 9999 },
                 sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 15 },
                 laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 120 },
                 rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 12 },
@@ -2856,9 +2858,9 @@
             }
             if (keys['Digit3'] && unlockedWeapons.includes('laser')) {
                 changeWeapon('laser');
-            }
-            if (keys['Digit4'] && ownedWeapons.includes('shotgun')) {
-                changeWeapon('shotgun');
+            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
+            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
+            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
             }
             if (keys['Digit5'] && ownedWeapons.includes('sniper')) {
                 changeWeapon('sniper');
@@ -2936,7 +2938,7 @@
                 return;
             }
             // Лазерная пушка не расходует патроны
-            if (selectedWeapon !== 'laser') {
+            if (selectedWeapon !== 'laser' && selectedWeapon !== 'gravity') {
                 ammo--;
                 updateAmmoDisplay();
             }
@@ -2954,6 +2956,16 @@
                     emissiveIntensity: 1.2,
                     transparent: true,
                     opacity: 0.9
+                });
+            } else if (selectedWeapon === 'gravity') {
+                // Гравитационная сфера - фиолетовая с эффектами
+                bulletGeometry = new THREE.SphereGeometry(0.35, 16, 16);
+                bulletMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x9400D3,
+                    emissive: 0xFF00FF,
+                    emissiveIntensity: 1.5,
+                    transparent: true,
+                    opacity: 0.8
                 });
             } else {
                 // Обычная пуля
@@ -3743,6 +3755,7 @@
         <button class="control-button" id="weapon1Btn">🔫</button>
         <button class="control-button" id="weapon2Btn">🎯</button>
         <button class="control-button" id="weapon3Btn">⚡</button>
+        <button class="control-button" id="weapon4Btn">🌀</button>
         <button class="control-button" id="cameraModeBtn">📷</button>
     </div>
 
@@ -3798,6 +3811,13 @@
             e.preventDefault();
             if (unlockedWeapons.includes('laser')) {
                 changeWeapon('laser');
+            }
+        });
+
+        document.getElementById('weapon4Btn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (unlockedWeapons.includes('gravity')) {
+                changeWeapon('gravity');
             }
         });
 
