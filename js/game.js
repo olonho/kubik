@@ -33,6 +33,7 @@ var spawnRate = 0.03;
 var gravity = -0.015;
 var playerSpeed = 0.1;
 var bulletSpeed = 0.5;
+var jumpPower = 0.3;
 var cameraLookTarget;
 var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
 var ownedWeapons = ['pistol', 'rifle'];
@@ -41,6 +42,11 @@ var hasTurret = false;
 var hasFireTurret = false;
 var hasLaserTurret = false;
 var hasRocketTurret = false;
+var hasFreezeTurret = false;
+var hasElectricTurret = false;
+var hasPoisonTurret = false;
+var hasExplosiveTurret = false;
+var hasSonicTurret = false;
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);
@@ -131,7 +137,140 @@ function updateLevel() {
             if (weapon4Btn) weapon4Btn.style.display = 'block';
             }, 5000);
         }
-        
+
+        // Катсцена победы на 250 уровне
+        if (level === 250) {
+            gameActive = false;
+
+            // Очищаем всех зомби с экрана
+            obstacles.forEach(obstacle => scene.remove(obstacle));
+            obstacles = [];
+
+            // Создаем катсцену победы
+            const victoryScreen = document.createElement('div');
+            victoryScreen.id = 'victoryScreen';
+            victoryScreen.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 1s ease-in;';
+
+            victoryScreen.innerHTML = `
+                <style>
+                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                    @keyframes bounce {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(-30px); }
+                    }
+                    @keyframes sparkle {
+                        0%, 100% { opacity: 0; transform: scale(0); }
+                        50% { opacity: 1; transform: scale(1); }
+                    }
+                    .victory-title {
+                        font-size: 72px;
+                        font-weight: bold;
+                        color: gold;
+                        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
+                        margin-bottom: 30px;
+                        animation: bounce 2s ease-in-out infinite;
+                    }
+                    .victory-content {
+                        background: rgba(0, 0, 0, 0.7);
+                        padding: 50px;
+                        border-radius: 30px;
+                        border: 5px solid gold;
+                        box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+                        text-align: center;
+                        max-width: 800px;
+                    }
+                    .victory-text {
+                        font-size: 28px;
+                        color: white;
+                        margin: 20px 0;
+                        line-height: 1.6;
+                    }
+                    .victory-stats {
+                        font-size: 32px;
+                        color: #FFD700;
+                        font-weight: bold;
+                        margin: 30px 0;
+                    }
+                    .victory-button {
+                        padding: 20px 50px;
+                        font-size: 28px;
+                        font-weight: bold;
+                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                        border: none;
+                        border-radius: 15px;
+                        color: white;
+                        cursor: pointer;
+                        margin: 10px;
+                        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                        transition: transform 0.2s;
+                    }
+                    .victory-button:hover {
+                        transform: scale(1.05);
+                    }
+                    .sparkle {
+                        position: absolute;
+                        width: 10px;
+                        height: 10px;
+                        background: gold;
+                        border-radius: 50%;
+                        animation: sparkle 1.5s ease-in-out infinite;
+                    }
+                </style>
+                <div class="victory-title">🎉 ПОБЕДА! 🎉</div>
+                <div class="victory-content">
+                    <div class="victory-text">
+                        🏆 ПОЗДРАВЛЯЕМ! 🏆<br><br>
+                        ВЫ ДОСТИГЛИ 250 УРОВНЯ И ПОБЕДИЛИ ВСЕХ ЗОМБИ!<br><br>
+                        🧟 Все зомби повержены! Вы спасли мир! 🌍<br><br>
+                        💪 Невероятное достижение! 💪
+                    </div>
+                    <div class="victory-stats">
+                        📊 Ваш счёт: ${score}<br>
+                        🏅 Уровень: ${level}<br>
+                        💰 Награда: +10000 монет!
+                    </div>
+                    <div>
+                        <button class="victory-button" onclick="continueAfterVictory()">Продолжить приключение</button>
+                        <button class="victory-button" onclick="returnToMenuAfterVictory()">Вернуться в меню</button>
+                    </div>
+                </div>
+            `;
+
+            // Добавляем сверкающие звезды
+            for (let i = 0; i < 50; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 1.5 + 's';
+                victoryScreen.appendChild(sparkle);
+            }
+
+            document.body.appendChild(victoryScreen);
+
+            // Даем награду
+            coins += 10000;
+            updateCoinsDisplay();
+            localStorage.setItem('cubeGameCoins', coins);
+
+            // Глобальные функции для кнопок
+            window.continueAfterVictory = function() {
+                const victoryScreen = document.getElementById('victoryScreen');
+                if (victoryScreen) {
+                    document.body.removeChild(victoryScreen);
+                }
+                gameActive = true;
+            };
+
+            window.returnToMenuAfterVictory = function() {
+                const victoryScreen = document.getElementById('victoryScreen');
+                if (victoryScreen) {
+                    document.body.removeChild(victoryScreen);
+                }
+                returnToSkinMenu();
+            };
+        }
+
         if (level > maxLevelReached) {
             maxLevelReached = level;
             localStorage.setItem('cubeGameMaxLevel', maxLevelReached);

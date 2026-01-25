@@ -257,6 +257,10 @@ function createWeapon(type) {
     else if (type === 'sniper') return createSniper();
     else if (type === 'rocket') return createRocket();
     else if (type === 'crossbow') return createCrossbow();
+    else if (type === 'minigun') return createMinigun();
+    else if (type === 'railgun') return createRailgun();
+    else if (type === 'bfg') return createBFG();
+    else if (type === 'plasmacannon') return createPlasmaCannon();
     else if (type === 'plasma') return createPlasma();
     return createPistol();
 }
@@ -382,4 +386,289 @@ function createMachinegun() {
     mgGroup.add(magazine);
     mgGroup.scale.set(1.8, 1.8, 1.8);
     return mgGroup;
+}
+
+// Премиум оружие для магазина
+
+function createMinigun() {
+    const minigunGroup = new THREE.Group();
+    
+    // 6 стволов в круге
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const x = Math.cos(angle) * 0.08;
+        const z = Math.sin(angle) * 0.08;
+        
+        const barrelGeometry = new THREE.CylinderGeometry(0.025, 0.025, 0.8, 8);
+        const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+        const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+        barrel.rotation.z = Math.PI / 2;
+        barrel.position.set(0.2, x, z);
+        barrel.castShadow = true;
+        minigunGroup.add(barrel);
+    }
+    
+    // Центральный вал
+    const axleGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.5, 8);
+    const axleMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+    const axle = new THREE.Mesh(axleGeometry, axleMaterial);
+    axle.rotation.z = Math.PI / 2;
+    axle.position.set(0.2, 0, 0);
+    minigunGroup.add(axle);
+    
+    // Корпус мотора
+    const motorGeometry = new THREE.BoxGeometry(0.3, 0.25, 0.25);
+    const motorMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFF4500,
+        emissive: 0xFF4500,
+        emissiveIntensity: 0.2
+    });
+    const motor = new THREE.Mesh(motorGeometry, motorMaterial);
+    motor.position.set(-0.15, 0, 0);
+    motor.castShadow = true;
+    minigunGroup.add(motor);
+    
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.12);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.1, -0.2, 0);
+    grip.castShadow = true;
+    minigunGroup.add(grip);
+    
+    // Патронная лента
+    const beltGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.08);
+    const beltMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+    const belt = new THREE.Mesh(beltGeometry, beltMaterial);
+    belt.position.set(-0.2, 0.15, 0);
+    minigunGroup.add(belt);
+    
+    minigunGroup.scale.set(1.7, 1.7, 1.7);
+    return minigunGroup;
+}
+
+function createRailgun() {
+    const railgunGroup = new THREE.Group();
+    
+    // Длинный рельсовый ствол
+    const railGeometry = new THREE.BoxGeometry(1.2, 0.06, 0.06);
+    const railMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00FFFF,
+        emissive: 0x00FFFF,
+        emissiveIntensity: 0.5,
+        metalness: 1.0
+    });
+    
+    const topRail = new THREE.Mesh(railGeometry, railMaterial);
+    topRail.position.set(0.4, 0.04, 0);
+    railgunGroup.add(topRail);
+    
+    const bottomRail = new THREE.Mesh(railGeometry, railMaterial);
+    bottomRail.position.set(0.4, -0.04, 0);
+    railgunGroup.add(bottomRail);
+    
+    // Энергетические катушки
+    for (let i = 0; i < 8; i++) {
+        const coilGeometry = new THREE.TorusGeometry(0.08, 0.02, 8, 16);
+        const coilMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x0088FF,
+            emissive: 0x0088FF,
+            emissiveIntensity: 0.6
+        });
+        const coil = new THREE.Mesh(coilGeometry, coilMaterial);
+        coil.position.set(0.1 + i * 0.12, 0, 0);
+        coil.rotation.y = Math.PI / 2;
+        railgunGroup.add(coil);
+    }
+    
+    // Корпус генератора
+    const bodyGeometry = new THREE.BoxGeometry(0.4, 0.2, 0.15);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x1a1a2e,
+        metalness: 0.9
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.set(-0.2, 0, 0);
+    body.castShadow = true;
+    railgunGroup.add(body);
+    
+    // Энергетический блок
+    const powerGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.12);
+    const powerMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFF00FF,
+        emissive: 0xFF00FF,
+        emissiveIntensity: 0.8
+    });
+    const power = new THREE.Mesh(powerGeometry, powerMaterial);
+    power.position.set(-0.35, 0, 0);
+    railgunGroup.add(power);
+    
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.1, 0.22, 0.12);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x222222 });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.15, -0.18, 0);
+    grip.castShadow = true;
+    railgunGroup.add(grip);
+    
+    // Прицел
+    const scopeGeometry = new THREE.BoxGeometry(0.15, 0.06, 0.06);
+    const scopeMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFF0000,
+        emissive: 0xFF0000,
+        emissiveIntensity: 0.5
+    });
+    const scope = new THREE.Mesh(scopeGeometry, scopeMaterial);
+    scope.position.set(0, 0.12, 0);
+    railgunGroup.add(scope);
+    
+    railgunGroup.scale.set(1.6, 1.6, 1.6);
+    return railgunGroup;
+}
+
+function createBFG() {
+    const bfgGroup = new THREE.Group();
+    
+    // Массивный корпус
+    const bodyGeometry = new THREE.BoxGeometry(0.8, 0.3, 0.3);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00FF00,
+        emissive: 0x00FF00,
+        emissiveIntensity: 0.4,
+        metalness: 1.0
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.castShadow = true;
+    bfgGroup.add(body);
+    
+    // Огромное дуло
+    const muzzleGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.3, 16);
+    const muzzleMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFFFFFF,
+        emissive: 0x00FF00,
+        emissiveIntensity: 1.0
+    });
+    const muzzle = new THREE.Mesh(muzzleGeometry, muzzleMaterial);
+    muzzle.rotation.z = Math.PI / 2;
+    muzzle.position.set(0.55, 0, 0);
+    bfgGroup.add(muzzle);
+    
+    // Энергетическая сфера в центре
+    const coreGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+    const coreMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00FF00,
+        emissive: 0x00FF00,
+        emissiveIntensity: 2.0,
+        transparent: true,
+        opacity: 0.9
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    core.position.set(0.2, 0, 0);
+    bfgGroup.add(core);
+    
+    // Охлаждающие ребра
+    for (let i = 0; i < 5; i++) {
+        const finGeometry = new THREE.BoxGeometry(0.15, 0.35, 0.02);
+        const finMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x00AA00,
+            metalness: 0.8
+        });
+        const fin = new THREE.Mesh(finGeometry, finMaterial);
+        fin.position.set(-0.1 + i * 0.15, 0, 0.16 - i % 2 * 0.32);
+        bfgGroup.add(fin);
+    }
+    
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.12, 0.25, 0.14);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.15, -0.25, 0);
+    grip.castShadow = true;
+    bfgGroup.add(grip);
+    
+    // Индикаторы заряда
+    for (let i = 0; i < 3; i++) {
+        const ledGeometry = new THREE.BoxGeometry(0.04, 0.04, 0.04);
+        const ledMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xFF0000,
+            emissive: 0xFF0000,
+            emissiveIntensity: 1.5
+        });
+        const led = new THREE.Mesh(ledGeometry, ledMaterial);
+        led.position.set(-0.3, 0.1 - i * 0.05, 0.1);
+        bfgGroup.add(led);
+    }
+    
+    bfgGroup.scale.set(2.0, 2.0, 2.0);
+    return bfgGroup;
+}
+
+function createPlasmaCannon() {
+    const plasmaGroup = new THREE.Group();
+    
+    // Корпус пушки
+    const bodyGeometry = new THREE.BoxGeometry(0.7, 0.25, 0.25);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x8B00FF,
+        emissive: 0x8B00FF,
+        emissiveIntensity: 0.3
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.castShadow = true;
+    plasmaGroup.add(body);
+    
+    // Плазменный контейнер
+    const containerGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+    const containerMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFF00FF,
+        emissive: 0xFF00FF,
+        emissiveIntensity: 1.8,
+        transparent: true,
+        opacity: 0.7
+    });
+    
+    for (let i = 0; i < 3; i++) {
+        const container = new THREE.Mesh(containerGeometry, containerMaterial);
+        container.position.set(-0.2 + i * 0.2, 0, 0);
+        plasmaGroup.add(container);
+    }
+    
+    // Излучатель
+    const emitterGeometry = new THREE.ConeGeometry(0.12, 0.3, 16);
+    const emitterMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xFF00FF,
+        emissive: 0xFF00FF,
+        emissiveIntensity: 1.0,
+        transparent: true,
+        opacity: 0.8
+    });
+    const emitter = new THREE.Mesh(emitterGeometry, emitterMaterial);
+    emitter.rotation.z = -Math.PI / 2;
+    emitter.position.set(0.5, 0, 0);
+    plasmaGroup.add(emitter);
+    
+    // Энергетические кольца вокруг излучателя
+    for (let i = 0; i < 4; i++) {
+        const ringGeometry = new THREE.TorusGeometry(0.1 + i * 0.03, 0.015, 8, 16);
+        const ringMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x00FFFF,
+            emissive: 0x00FFFF,
+            emissiveIntensity: 0.8
+        });
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring.position.set(0.45, 0, 0);
+        ring.rotation.y = Math.PI / 2;
+        plasmaGroup.add(ring);
+    }
+    
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.12);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.1, -0.2, 0);
+    grip.castShadow = true;
+    plasmaGroup.add(grip);
+    
+    plasmaGroup.scale.set(1.7, 1.7, 1.7);
+    return plasmaGroup;
 }

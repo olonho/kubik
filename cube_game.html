@@ -597,7 +597,12 @@
                 { id: 'basic', name: 'Базовая турель', icon: '🔫⚙️', price: 1000, description: 'Автоматическая защита' },
                 { id: 'fire', name: 'Огневая турель', icon: '🔥💥', price: 1500, description: 'Огненные снаряды' },
                 { id: 'laser', name: 'Лазерная турель', icon: '⚡🔷', price: 2000, description: 'Быстрая лазерная стрельба' },
-                { id: 'rocket', name: 'Ракетная турель', icon: '🚀💣', price: 2500, description: 'Мощные ракеты' }
+                { id: 'rocket', name: 'Ракетная турель', icon: '🚀💣', price: 2500, description: 'Мощные ракеты' },
+                { id: 'freeze', name: 'Морозная турель', icon: '❄️💎', price: 3000, description: 'Замораживает врагов' },
+                { id: 'electric', name: 'Электро турель', icon: '⚡💛', price: 3500, description: 'Цепная молния' },
+                { id: 'poison', name: 'Ядовитая турель', icon: '☢️💚', price: 4000, description: 'Токсичный газ' },
+                { id: 'explosive', name: 'Взрывная турель', icon: '💥⚫', price: 4500, description: 'Мощные взрывы' },
+                { id: 'sonic', name: 'Звуковая турель', icon: '🔊🌀', price: 5000, description: 'Звуковые волны' }
             ]
         };
 
@@ -667,7 +672,12 @@
                 basic: 1000,
                 fire: 1500,
                 laser: 2000,
-                rocket: 2500
+                rocket: 2500,
+                freeze: 3000,
+                electric: 3500,
+                poison: 4000,
+                explosive: 4500,
+                sonic: 5000
             };
             const price = prices[type];
 
@@ -690,6 +700,26 @@
                     case 'rocket':
                         hasRocketTurret = true;
                         createRocketTurret();
+                        break;
+                    case 'freeze':
+                        hasFreezeTurret = true;
+                        createFreezeTurret();
+                        break;
+                    case 'electric':
+                        hasElectricTurret = true;
+                        createElectricTurret();
+                        break;
+                    case 'poison':
+                        hasPoisonTurret = true;
+                        createPoisonTurret();
+                        break;
+                    case 'explosive':
+                        hasExplosiveTurret = true;
+                        createExplosiveTurret();
+                        break;
+                    case 'sonic':
+                        hasSonicTurret = true;
+                        createSonicTurret();
                         break;
                 }
 
@@ -749,13 +779,22 @@
                 basic: { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)', name: '#aaaaaa', desc: '#cccccc' },
                 fire: { bg: 'rgba(255, 100, 0, 0.2)', border: 'rgba(255, 100, 0, 0.5)', name: '#ff6600', desc: '#ffaa88' },
                 laser: { bg: 'rgba(0, 200, 255, 0.2)', border: 'rgba(0, 200, 255, 0.5)', name: '#00ccff', desc: '#aaeeff' },
-                rocket: { bg: 'rgba(150, 0, 200, 0.2)', border: 'rgba(150, 0, 200, 0.5)', name: '#aa00ff', desc: '#ddaaff' }
+                rocket: { bg: 'rgba(150, 0, 200, 0.2)', border: 'rgba(150, 0, 200, 0.5)', name: '#aa00ff', desc: '#ddaaff' },
+                freeze: { bg: 'rgba(135, 206, 235, 0.2)', border: 'rgba(0, 206, 209, 0.5)', name: '#00ffff', desc: '#aaffff' },
+                electric: { bg: 'rgba(255, 215, 0, 0.2)', border: 'rgba(255, 215, 0, 0.5)', name: '#ffff00', desc: '#ffffaa' },
+                poison: { bg: 'rgba(34, 139, 34, 0.2)', border: 'rgba(50, 205, 50, 0.5)', name: '#00ff00', desc: '#aaffaa' },
+                explosive: { bg: 'rgba(139, 0, 0, 0.2)', border: 'rgba(255, 69, 0, 0.5)', name: '#ff4500', desc: '#ffaa88' },
+                sonic: { bg: 'rgba(65, 105, 225, 0.2)', border: 'rgba(0, 191, 255, 0.5)', name: '#00bfff', desc: '#aaddff' }
             };
 
             shopItems.turrets.forEach(item => {
-                const ownedVars = { basic: hasTurret, fire: hasFireTurret, laser: hasLaserTurret, rocket: hasRocketTurret };
+                const ownedVars = {
+                    basic: hasTurret, fire: hasFireTurret, laser: hasLaserTurret, rocket: hasRocketTurret,
+                    freeze: hasFreezeTurret, electric: hasElectricTurret, poison: hasPoisonTurret,
+                    explosive: hasExplosiveTurret, sonic: hasSonicTurret
+                };
                 const owned = ownedVars[item.id];
-                const colors = turretColors[item.id];
+                const colors = turretColors[item.id] || { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)', name: '#aaaaaa', desc: '#cccccc' };
 
                 const turretItem = document.createElement('div');
                 turretItem.className = 'shop-item' + (owned ? ' owned' : '');
@@ -809,6 +848,26 @@
                     case 'rocket':
                         hasRocketTurret = true;
                         createRocketTurret();
+                        break;
+                    case 'freeze':
+                        hasFreezeTurret = true;
+                        createFreezeTurret();
+                        break;
+                    case 'electric':
+                        hasElectricTurret = true;
+                        createElectricTurret();
+                        break;
+                    case 'poison':
+                        hasPoisonTurret = true;
+                        createPoisonTurret();
+                        break;
+                    case 'explosive':
+                        hasExplosiveTurret = true;
+                        createExplosiveTurret();
+                        break;
+                    case 'sonic':
+                        hasSonicTurret = true;
+                        createSonicTurret();
                         break;
                 }
 
@@ -914,6 +973,26 @@
             }
             if (hasLaserTurret) {
                 createLaserTurret();
+            }
+            if (hasRocketTurret) {
+                createRocketTurret();
+            }
+            if (hasFreezeTurret) {
+                createFreezeTurret();
+            }
+            if (hasElectricTurret) {
+                createElectricTurret();
+            }
+            if (hasPoisonTurret) {
+                createPoisonTurret();
+            }
+            if (hasExplosiveTurret) {
+                createExplosiveTurret();
+            }
+            if (hasSonicTurret) {
+                createSonicTurret();
+            }
+
             // Добавляем траву
             for (let i = 0; i < 50; i++) {
                 const grass = createGrass();
@@ -972,6 +1051,57 @@
             houseCat.rotation.y = Math.PI; // Кошка смотрит на игрока
             scene.add(houseCat);
             decorations.push(houseCat);
+
+            // Создаём игрока в зависимости от выбранного скина
+            switch(selectedSkin) {
+                case 'dog':
+                    player = createDog();
+                    break;
+                case 'cat':
+                    player = createCat();
+                    break;
+                case 'fox':
+                    player = createFox();
+                    break;
+                case 'panda':
+                    player = createPanda();
+                    break;
+                case 'rabbit':
+                    player = createRabbit();
+                    break;
+                case 'robot':
+                    player = createRobot();
+                    break;
+                case 'cube':
+                    player = createCube();
+                    break;
+                case 'oval':
+                    player = createOval();
+                    break;
+                default:
+                    player = createDog();
+            }
+
+            player.position.set(0, 0.5, 0);
+            player.rotation.y = -Math.PI / 2; // Смотрит налево (на кубики)
+            player.castShadow = true;
+            scene.add(player);
+
+            // Создаем оружие
+            currentWeapon = createWeapon(selectedWeapon);
+            currentWeapon.position.set(0.15, 0.2, -0.4);
+            currentWeapon.rotation.y = 0;
+            currentWeapon.rotation.z = -Math.PI / 6;
+            player.add(currentWeapon);
+
+            // Обновляем дисплей
+            updateScoreDisplay();
+            updateAmmoDisplay();
+            document.getElementById('weaponDisplay').style.display = 'block';
+            document.getElementById('weaponDisplay').textContent = '🔫 Пистолет';
+
+            // Запускаем игровой цикл
+            animate();
         }
 
 
@@ -1788,6 +1918,10 @@
             const coolingMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
             const cooling = new THREE.Mesh(coolingGeometry, coolingMaterial);
             cooling.rotation.z = Math.PI / 2;
+                minigun: { name: '🔫🔥 Миниган', cooldown: 50, ammo: 200 },
+                railgun: { name: '⚡💎 Рельсотрон', cooldown: 800, ammo: 20 },
+                bfg: { name: '💚💥 BFG-9000', cooldown: 2000, ammo: 10 },
+                plasmacannon: { name: '💜⚛️ Плазменная Пушка', cooldown: 200, ammo: 50 },
             cooling.position.set(0.1, 0, 0);
             cooling.castShadow = true;
             mgGroup.add(cooling);
@@ -1846,7 +1980,6 @@
                 laser: { name: '⚡🔫 Лазерная Пушка', cooldown: 100, ammo: 9999 },
                 gravity: { name: '🌀💜 Гравитационная Пушка', cooldown: 150, ammo: 9999 },
                 sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 15 },
-                laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 120 },
                 rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 12 },
                 crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 40 },
             };
@@ -2052,6 +2185,210 @@
             turrets.push(turretGroup);
         }
 
+        function createFreezeTurret() {
+            const turretGroup = new THREE.Group();
+            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
+            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x87CEEB });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.15;
+            base.castShadow = true;
+            turretGroup.add(base);
+            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xADD8E6 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            turretGroup.add(body);
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xE0FFFF, emissive: 0x00CED1, emissiveIntensity: 0.5 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.1;
+            head.castShadow = true;
+            turretGroup.add(head);
+            const barrelGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.8, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0xB0E0E6, emissive: 0x4682B4, emissiveIntensity: 0.4 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.position.set(0.4, 1.1, 0);
+            barrel.castShadow = true;
+            turretGroup.add(barrel);
+            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 1.0 });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(0, 1.3, 0.25);
+            turretGroup.add(light);
+            turretGroup.position.set(3, 0, 2);
+            turretGroup.userData.head = head;
+            turretGroup.userData.barrel = barrel;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'freeze';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
+        function createElectricTurret() {
+            const turretGroup = new THREE.Group();
+            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
+            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.15;
+            base.castShadow = true;
+            turretGroup.add(base);
+            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            turretGroup.add(body);
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, emissive: 0xFFFF00, emissiveIntensity: 0.6 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.1;
+            head.castShadow = true;
+            turretGroup.add(head);
+            const barrelGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.1);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700, emissive: 0xFFD700, emissiveIntensity: 0.5 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.position.set(0.4, 1.1, 0);
+            barrel.castShadow = true;
+            turretGroup.add(barrel);
+            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, emissive: 0xFFFF00, emissiveIntensity: 1.2 });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(0, 1.3, 0.25);
+            turretGroup.add(light);
+            turretGroup.position.set(-4, 0, 3);
+            turretGroup.userData.head = head;
+            turretGroup.userData.barrel = barrel;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'electric';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
+        function createPoisonTurret() {
+            const turretGroup = new THREE.Group();
+            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
+            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.15;
+            base.castShadow = true;
+            turretGroup.add(base);
+            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x32CD32 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            turretGroup.add(body);
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, emissive: 0x00FF00, emissiveIntensity: 0.4 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.1;
+            head.castShadow = true;
+            turretGroup.add(head);
+            const barrelGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.7, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x7FFF00, emissive: 0x7FFF00, emissiveIntensity: 0.3 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.position.set(0.35, 1.1, 0);
+            barrel.castShadow = true;
+            turretGroup.add(barrel);
+            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, emissive: 0x00FF00, emissiveIntensity: 1.0 });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(0, 1.3, 0.25);
+            turretGroup.add(light);
+            turretGroup.position.set(4, 0, -3);
+            turretGroup.userData.head = head;
+            turretGroup.userData.barrel = barrel;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'poison';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
+        function createExplosiveTurret() {
+            const turretGroup = new THREE.Group();
+            const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
+            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x2F4F4F });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.2;
+            base.castShadow = true;
+            turretGroup.add(base);
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.7, 6);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x696969 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.75;
+            body.castShadow = true;
+            turretGroup.add(body);
+            const headGeometry = new THREE.BoxGeometry(0.6, 0.5, 0.6);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000, emissive: 0xFF4500, emissiveIntensity: 0.3 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.3;
+            head.castShadow = true;
+            turretGroup.add(head);
+            const barrelGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 8);
+            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+            barrel.rotation.z = Math.PI / 2;
+            barrel.position.set(0.3, 1.3, 0);
+            barrel.castShadow = true;
+            turretGroup.add(barrel);
+            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4500, emissive: 0xFF4500, emissiveIntensity: 1.0 });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(0, 1.5, 0.3);
+            turretGroup.add(light);
+            turretGroup.position.set(-4, 0, -3);
+            turretGroup.userData.head = head;
+            turretGroup.userData.barrel = barrel;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'explosive';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
+        function createSonicTurret() {
+            const turretGroup = new THREE.Group();
+            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 12);
+            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 0.15;
+            base.castShadow = true;
+            turretGroup.add(base);
+            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 12);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6495ED });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.6;
+            body.castShadow = true;
+            turretGroup.add(body);
+            const headGeometry = new THREE.SphereGeometry(0.35, 16, 16);
+            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x00BFFF, emissive: 0x1E90FF, emissiveIntensity: 0.5 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.2;
+            head.castShadow = true;
+            turretGroup.add(head);
+            const speakerGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
+            const speakerMaterial = new THREE.MeshPhongMaterial({ color: 0x191970, emissive: 0x4169E1, emissiveIntensity: 0.4 });
+            const speaker = new THREE.Mesh(speakerGeometry, speakerMaterial);
+            speaker.rotation.z = -Math.PI / 2;
+            speaker.position.set(0.5, 1.2, 0);
+            speaker.castShadow = true;
+            turretGroup.add(speaker);
+            const lightGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00BFFF, emissive: 0x00BFFF, emissiveIntensity: 1.2 });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(0, 1.4, 0.25);
+            turretGroup.add(light);
+            turretGroup.position.set(0, 0, 4);
+            turretGroup.userData.head = head;
+            turretGroup.userData.speaker = speaker;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'sonic';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
         function createZombie() {
             const zombieGroup = new THREE.Group();
 
@@ -2180,9 +2517,9 @@
             }
             if (keys['Digit3'] && unlockedWeapons.includes('laser')) {
                 changeWeapon('laser');
-            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
-            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
-            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {                changeWeapon('gravity');            }
+            }
+            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {
+                changeWeapon('gravity');
             }
             if (keys['Digit5'] && ownedWeapons.includes('sniper')) {
                 changeWeapon('sniper');
@@ -2884,7 +3221,12 @@
                             basic: 20,
                             fire: 40,
                             laser: 5,
-                            rocket: 60
+                            rocket: 60,
+                            freeze: 30,
+                            electric: 15,
+                            poison: 35,
+                            explosive: 50,
+                            sonic: 25
                         };
                         turret.userData.shootCooldown = cooldowns[turret.userData.type] || 20;
                     }
@@ -2900,7 +3242,12 @@
                 basic: { size: 0.2, color: 0xffff00, emissive: 0xffff00 },
                 fire: { size: 0.3, color: 0xFF4500, emissive: 0xFF4500 },
                 laser: { size: 0.15, color: 0x00FFFF, emissive: 0x00FFFF },
-                rocket: { size: 0.4, color: 0xAA00FF, emissive: 0xAA00FF }
+                rocket: { size: 0.4, color: 0xAA00FF, emissive: 0xAA00FF },
+                freeze: { size: 0.25, color: 0x00FFFF, emissive: 0x00CED1 },
+                electric: { size: 0.2, color: 0xFFFF00, emissive: 0xFFD700 },
+                poison: { size: 0.3, color: 0x00FF00, emissive: 0x32CD32 },
+                explosive: { size: 0.35, color: 0xFF4500, emissive: 0x8B0000 },
+                sonic: { size: 0.25, color: 0x00BFFF, emissive: 0x1E90FF }
             };
 
             const config = bulletConfigs[turretType];
