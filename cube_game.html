@@ -357,6 +357,10 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/decorations.js"></script>
+    <script src="js/shop.js"></script>
 </head>
 <body>
     <div id="skinMenu">
@@ -417,9 +421,6 @@
     <button id="openItemsShopBtn" style="display: none; position: absolute; top: 250px; left: 20px; padding: 10px 20px; background-color: rgba(100, 150, 255, 0.9); border: 3px solid #6699ff; border-radius: 10px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
         🛒 Магазин
     </button>
-    <div id="coinsDisplay" style="display: none; position: absolute; top: 275px; left: 20px; color: #FFD700; font-size: 20px; font-weight: bold; z-index: 100;">
-        💰 Монеты: 0
-    </div>
     <div id="gameOver">
         <div>Игра окончена!</div>
         <div style="font-size: 24px; margin-top: 10px;">Ваш счёт: <span id="finalScore">0</span></div>
@@ -436,7 +437,7 @@
         <div style="color: white; font-size: 24px; margin-bottom: 30px;">
             💰 Ваши монеты: <span id="shopCoins" style="color: gold; font-weight: bold;">0</span>
         </div>
-        
+
         <div style="background-color: rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 15px; margin: 20px 0;">
             <div style="color: white; font-size: 28px; margin-bottom: 15px;">📦 Набор патронов</div>
             <div style="color: #FFD700; font-size: 22px; margin-bottom: 15px;">+40 патронов</div>
@@ -458,7 +459,7 @@
         <button id="closeShopBtn" style="margin-top: 20px; padding: 12px 30px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 20px; font-weight: bold; cursor: pointer;">
             Закрыть магазин
         </button>
-        
+
         <div id="shopMessage" style="display: none; margin-top: 20px; padding: 15px; border-radius: 10px; font-size: 20px; font-weight: bold;"></div>
     </div>
 
@@ -823,13 +824,13 @@
             document.getElementById('cameraMode').style.display = 'block';
             document.getElementById('coinsDisplay').style.display = 'block';
             document.getElementById('openShopBtn').style.display = 'block';
-            if (unlockedWeapons.includes('laser')) {
-                document.getElementById('weapon3Btn').style.display = 'block';
-            }
             document.getElementById('openItemsShopBtn').style.display = 'block';
             updateCoinsDisplay();
             init();
         }
+
+        // Делаем функцию selectSkin глобальной сразу после определения
+        window.selectSkin = selectSkin;
 
         function init() {
             // Останавливаем старую анимацию если есть
@@ -1123,10 +1124,10 @@
 
         function createBush() {
             const bushGroup = new THREE.Group();
-            
+
             // Куст из нескольких сфер
             const bushMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
-            
+
             for (let i = 0; i < 4; i++) {
                 const geometry = new THREE.SphereGeometry(0.3 + Math.random() * 0.2, 8, 8);
                 const sphere = new THREE.Mesh(geometry, bushMaterial);
@@ -1134,25 +1135,25 @@
                 sphere.castShadow = true;
                 bushGroup.add(sphere);
             }
-            
+
             return bushGroup;
         }
 
         function createFlower() {
             const flowerGroup = new THREE.Group();
-            
+
             // Стебель
             const stemGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.4, 6);
             const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
             const stem = new THREE.Mesh(stemGeometry, stemMaterial);
             stem.position.y = 0.2;
             flowerGroup.add(stem);
-            
+
             // Цветок
             const flowerColors = [0xFF1493, 0xFFFF00, 0xFF6347, 0xFF69B4, 0xFFA500, 0x9370DB];
             const flowerColor = flowerColors[Math.floor(Math.random() * flowerColors.length)];
             const flowerGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const flowerMaterial = new THREE.MeshPhongMaterial({ 
+            const flowerMaterial = new THREE.MeshPhongMaterial({
                 color: flowerColor,
                 emissive: flowerColor,
                 emissiveIntensity: 0.2
@@ -1161,13 +1162,13 @@
             flower.position.y = 0.45;
             flower.scale.set(1, 0.5, 1);
             flowerGroup.add(flower);
-            
+
             return flowerGroup;
         }
 
         function createFence() {
             const fenceGroup = new THREE.Group();
-            
+
             // Столбики забора
             for (let i = 0; i < 3; i++) {
                 const postGeometry = new THREE.BoxGeometry(0.1, 0.8, 0.1);
@@ -1177,7 +1178,7 @@
                 post.castShadow = true;
                 fenceGroup.add(post);
             }
-            
+
             // Перекладины
             for (let i = 0; i < 2; i++) {
                 const railGeometry = new THREE.BoxGeometry(1.2, 0.08, 0.08);
@@ -1187,41 +1188,41 @@
                 rail.castShadow = true;
                 fenceGroup.add(rail);
             }
-            
+
             return fenceGroup;
         }
 
         function createBird() {
             const birdGroup = new THREE.Group();
-            
+
             // Тело птицы
             const bodyGeometry = new THREE.SphereGeometry(0.15, 8, 8);
             const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
             const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             body.scale.set(1, 0.8, 1.2);
             birdGroup.add(body);
-            
+
             // Крылья
             const wingGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.2);
             const wingMaterial = new THREE.MeshPhongMaterial({ color: 0x1E90FF });
-            
+
             const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
             leftWing.position.set(-0.25, 0, 0);
             birdGroup.add(leftWing);
-            
+
             const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
             rightWing.position.set(0.25, 0, 0);
             birdGroup.add(rightWing);
-            
+
             // Анимация взмахов крыльев
             birdGroup.userData.wingAnimation = 0;
-            
+
             return birdGroup;
         }
 
         function createGrass() {
             const grassGroup = new THREE.Group();
-            
+
             // Несколько травинок
             for (let i = 0; i < 5; i++) {
                 const bladeGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.02);
@@ -1231,13 +1232,13 @@
                 blade.rotation.z = (Math.random() - 0.5) * 0.2;
                 grassGroup.add(blade);
             }
-            
+
             return grassGroup;
         }
 
         function createSign() {
             const signGroup = new THREE.Group();
-            
+
             // Столб
             const postGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1.2, 8);
             const postMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
@@ -1245,7 +1246,7 @@
             post.position.y = 0.6;
             post.castShadow = true;
             signGroup.add(post);
-            
+
             // Табличка
             const signGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.05);
             const signMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
@@ -1253,7 +1254,7 @@
             sign.position.y = 1.1;
             sign.castShadow = true;
             signGroup.add(sign);
-            
+
             return signGroup;
         }
 
@@ -2278,7 +2279,7 @@
 
             // Футуристический корпус
             const bodyGeometry = new THREE.BoxGeometry(0.5, 0.15, 0.15);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ 
+            const bodyMaterial = new THREE.MeshPhongMaterial({
                 color: 0x00FFFF,
                 emissive: 0x00FFFF,
                 emissiveIntensity: 0.3,
@@ -2290,7 +2291,7 @@
 
             // Энергетический стержень
             const coreGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
-            const coreMaterial = new THREE.MeshPhongMaterial({ 
+            const coreMaterial = new THREE.MeshPhongMaterial({
                 color: 0x00FF00,
                 emissive: 0x00FF00,
                 emissiveIntensity: 0.8
@@ -2303,7 +2304,7 @@
             // Кольца охлаждения
             for (let i = 0; i < 4; i++) {
                 const ringGeometry = new THREE.TorusGeometry(0.08, 0.02, 8, 16);
-                const ringMaterial = new THREE.MeshPhongMaterial({ 
+                const ringMaterial = new THREE.MeshPhongMaterial({
                     color: 0x0088FF,
                     emissive: 0x0088FF,
                     emissiveIntensity: 0.5
@@ -2324,7 +2325,7 @@
 
             // Энергетический блок
             const powerGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.1);
-            const powerMaterial = new THREE.MeshPhongMaterial({ 
+            const powerMaterial = new THREE.MeshPhongMaterial({
                 color: 0xFF00FF,
                 emissive: 0xFF00FF,
                 emissiveIntensity: 0.6
@@ -2335,7 +2336,7 @@
 
             // Дуло с эффектом свечения
             const muzzleGeometry = new THREE.CylinderGeometry(0.06, 0.04, 0.1, 8);
-            const muzzleMaterial = new THREE.MeshPhongMaterial({ 
+            const muzzleMaterial = new THREE.MeshPhongMaterial({
                 color: 0xFFFFFF,
                 emissive: 0x00FFFF,
                 emissiveIntensity: 0.9
@@ -2347,6 +2348,103 @@
 
             laserGroup.scale.set(1.5, 1.5, 1.5);
             return laserGroup;
+        }
+
+        function createGravityGun() {
+            const gravityGroup = new THREE.Group();
+
+            // Основной корпус - массивный и тяжелый
+            const bodyGeometry = new THREE.BoxGeometry(0.6, 0.2, 0.2);
+            const bodyMaterial = new THREE.MeshPhongMaterial({
+                color: 0x9400D3,
+                emissive: 0x9400D3,
+                emissiveIntensity: 0.4,
+                metalness: 1.0
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.castShadow = true;
+            gravityGroup.add(body);
+
+            // Гравитационные кольца
+            for (let i = 0; i < 6; i++) {
+                const ringGeometry = new THREE.TorusGeometry(0.12 + i * 0.02, 0.025, 8, 16);
+                const ringMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xFF00FF,
+                    emissive: 0xFF00FF,
+                    emissiveIntensity: 0.7 - i * 0.1
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.set(0.2 + i * 0.08, 0, 0);
+                ring.rotation.y = Math.PI / 2;
+                gravityGroup.add(ring);
+            }
+
+            // Энергетическая сфера в центре
+            const coreGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const coreMaterial = new THREE.MeshPhongMaterial({
+                color: 0xFFFFFF,
+                emissive: 0xFF00FF,
+                emissiveIntensity: 1.5,
+                transparent: true,
+                opacity: 0.8
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            core.position.set(0.5, 0, 0);
+            gravityGroup.add(core);
+
+            // Гравитационный излучатель - воронка
+            const emitterGeometry = new THREE.ConeGeometry(0.15, 0.25, 16);
+            const emitterMaterial = new THREE.MeshPhongMaterial({
+                color: 0x8A2BE2,
+                emissive: 0x8A2BE2,
+                emissiveIntensity: 0.8,
+                transparent: true,
+                opacity: 0.7
+            });
+            const emitter = new THREE.Mesh(emitterGeometry, emitterMaterial);
+            emitter.rotation.z = -Math.PI / 2;
+            emitter.position.set(0.7, 0, 0);
+            gravityGroup.add(emitter);
+
+            // Рукоятка с подсветкой
+            const gripGeometry = new THREE.BoxGeometry(0.12, 0.25, 0.14);
+            const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+            const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+            grip.position.set(-0.15, -0.2, 0);
+            grip.castShadow = true;
+            gravityGroup.add(grip);
+
+            // Энергетические индикаторы на рукоятке
+            for (let i = 0; i < 3; i++) {
+                const ledGeometry = new THREE.BoxGeometry(0.03, 0.03, 0.03);
+                const ledMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x00FFFF,
+                    emissive: 0x00FFFF,
+                    emissiveIntensity: 1.0
+                });
+                const led = new THREE.Mesh(ledGeometry, ledMaterial);
+                led.position.set(-0.15, -0.1 - i * 0.05, 0.08);
+                gravityGroup.add(led);
+            }
+
+            // Стабилизаторы по бокам
+            const stabGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.05);
+            const stabMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4B0082,
+                emissive: 0x4B0082,
+                emissiveIntensity: 0.3
+            });
+
+            const topStab = new THREE.Mesh(stabGeometry, stabMaterial);
+            topStab.position.set(0.1, 0.12, 0);
+            gravityGroup.add(topStab);
+
+            const bottomStab = new THREE.Mesh(stabGeometry, stabMaterial);
+            bottomStab.position.set(0.1, -0.12, 0);
+            gravityGroup.add(bottomStab);
+
+            gravityGroup.scale.set(1.6, 1.6, 1.6);
+            return gravityGroup;
         }
 
         function createRocket() {
@@ -2392,10 +2490,11 @@
             else if (type === 'machinegun') return createMachinegun();
             else if (type === 'shotgun') return createShotgun();
             else if (type === 'sniper') return createSniper();
-            else if (type === 'laser') return createLaser();
+            else if (type === 'laser') return createLaserGun();
             else if (type === 'rocket') return createRocket();
             else if (type === 'crossbow') return createCrossbow();
             else if (type === 'plasma') return createPlasma();
+            else if (type === 'gravity') return createGravityGun();
             return createPistol();
         }
 
@@ -2426,7 +2525,6 @@
                 laser: { name: '⚡🔫 Лазер', cooldown: 80, ammo: 120 },
                 rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 12 },
                 crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 40 },
-                plasma: { name: '⚛️💫 Плазма', cooldown: 200, ammo: 60 }
             };
 
             const config = weaponConfigs[weaponType] || weaponConfigs.pistol;
@@ -2492,10 +2590,12 @@
             turretGroup.userData.barrel = barrel;
             turretGroup.userData.shootCooldown = 0;
             turretGroup.userData.targetRotation = 0;
+            turretGroup.userData.type = 'basic';
 
-                    scene.add(turretGroup);
-                    turrets.push(turretGroup);
-                }
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
+
         function createFireTurret() {
             const turretGroup = new THREE.Group();
             const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
@@ -2536,7 +2636,7 @@
             scene.add(turretGroup);
             turrets.push(turretGroup);
         }
-        
+
         function createLaserTurret() {
             const turretGroup = new THREE.Group();
             const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
@@ -2577,7 +2677,7 @@
             scene.add(turretGroup);
             turrets.push(turretGroup);
         }
-        
+
         function createRocketTurret() {
             const turretGroup = new THREE.Group();
             const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
@@ -2617,16 +2717,16 @@
             const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
             const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xAA00FF, emissive: 0xAA00FF, emissiveIntensity: 1.0 });
             const light = new THREE.Mesh(lightGeometry, lightMaterial);
-    light.position.set(0, 1.5, 0.3);
-    turretGroup.add(light);
-    turretGroup.position.set(-3, 0, -2);
-    turretGroup.userData.head = head;
-    turretGroup.userData.barrel = barrel;
-    turretGroup.userData.shootCooldown = 0;
-    turretGroup.userData.type = 'rocket';
-    scene.add(turretGroup);
-    turrets.push(turretGroup);
-}
+            light.position.set(0, 1.5, 0.3);
+            turretGroup.add(light);
+            turretGroup.position.set(-3, 0, -2);
+            turretGroup.userData.head = head;
+            turretGroup.userData.barrel = barrel;
+            turretGroup.userData.shootCooldown = 0;
+            turretGroup.userData.type = 'rocket';
+            scene.add(turretGroup);
+            turrets.push(turretGroup);
+        }
 
         function createZombie() {
             const zombieGroup = new THREE.Group();
@@ -2741,11 +2841,9 @@
             }
 
 
-            // Лазерная пушка не расходует патроны
-            if (selectedWeapon !== 'laser') {
-                ammo--;
-                updateAmmoDisplay();
-            }
+            // Прыжок на пробел
+            if (keys['Space'] && !isJumping) {
+                playerVelocityY = jumpPower;
                 isJumping = true;
             }
 
@@ -2765,6 +2863,8 @@
             if (keys['Digit5'] && ownedWeapons.includes('sniper')) {
                 changeWeapon('sniper');
             }
+            if (keys['Digit6'] && ownedWeapons.includes('laser')) {
+                changeWeapon('laser');
             }
             if (keys['Digit7'] && ownedWeapons.includes('rocket')) {
                 changeWeapon('rocket');
@@ -2834,18 +2934,17 @@
             // Проверяем наличие патронов
             if (ammo <= 0) {
                 return;
-
+            }
             // Лазерная пушка не расходует патроны
             if (selectedWeapon !== 'laser') {
                 ammo--;
                 updateAmmoDisplay();
             }
 
-            const bulletGeometry = new THREE.SphereGeometry(0.25, 12, 12);
 
             // Создаем пулю в зависимости от типа оружия
             let bulletGeometry, bulletMaterial;
-            
+
             if (selectedWeapon === 'laser') {
                 // Лазерный луч - зеленый светящийся цилиндр
                 bulletGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8);
@@ -3122,14 +3221,14 @@
                 if (level === 20 && !unlockedWeapons.includes('laser')) {
                     unlockedWeapons.push('laser');
                     localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
-                    
+
                     // Показываем уведомление
                     gameActive = false;
                     const notification = document.createElement('div');
                     notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);';
                     notification.innerHTML = '🎉 ПОЗДРАВЛЯЕМ! 🎉<br><br>🔫⚡ РАЗБЛОКИРОВАНА ЛАЗЕРНАЯ ПУШКА! ⚡🔫<br><br>Нажмите 3 для выбора<br><br><span style="font-size: 20px; color: #FFD700;">Бесконечные патроны • Быстрая стрельба</span>';
                     document.body.appendChild(notification);
-                    
+
                     setTimeout(() => {
                         document.body.removeChild(notification);
                         gameActive = true;
@@ -3275,7 +3374,7 @@
             msgElement.style.display = 'block';
             msgElement.style.backgroundColor = isSuccess ? 'rgba(76, 175, 80, 0.8)' : 'rgba(244, 67, 54, 0.8)';
             msgElement.style.color = 'white';
-            
+
             setTimeout(() => {
                 msgElement.style.display = 'none';
             }, 2000);
@@ -3622,6 +3721,9 @@
             returnToSkinMenu();
         });
 
+        // Делаем функцию selectSkin глобальной для onclick
+        window.selectSkin = selectSkin;
+
         // init() будет вызван после выбора скина
     </script>
 
@@ -3631,7 +3733,6 @@
         <div class="crosshair-line crosshair-v"></div>
         <div class="crosshair-dot"></div>
     </div>
-</body>
 
     <!-- Мобильные элементы управления -->
     <div id="mobileControls">
@@ -3644,7 +3745,6 @@
         <button class="control-button" id="weapon3Btn">⚡</button>
         <button class="control-button" id="cameraModeBtn">📷</button>
     </div>
-</html>
 
     <script>
         // Обработчики для мобильных кнопок
