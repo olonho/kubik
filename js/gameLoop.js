@@ -35,13 +35,13 @@ function changeWeapon(weaponType) {
             console.log('FPS руки добавлены в fpsScene');
         }
 
-        // Вид от первого лица - оружие в ПРАВОЙ руке (как в CS:GO)
-        currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
+        // Вид от первого лица - оружие в ПРАВОЙ руке (у края экрана)
+        currentWeapon.position.set(0.5, -0.5, -0.7); // Дальше вправо, ниже, дальше от камеры
         // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
         currentWeapon.rotation.x = 0;
         currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
         currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
-        currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
+        currentWeapon.scale.set(0.7, 0.7, 0.7); // Немного меньше для лучшего обзора
         fpsHands.add(currentWeapon);
     } else {
         // Вид от третьего лица - оружие к игроку
@@ -242,12 +242,12 @@ function updatePlayer() {
                     fpsScene.add(fpsHands);
                 }
 
-                currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
+                currentWeapon.position.set(0.5, -0.5, -0.7); // Дальше вправо, ниже, дальше от камеры
                 // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
                 currentWeapon.rotation.x = 0;
                 currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
                 currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
-                currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
+                currentWeapon.scale.set(0.7, 0.7, 0.7); // Немного меньше для лучшего обзора
                 fpsHands.add(currentWeapon);
             }
         }

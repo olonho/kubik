@@ -369,16 +369,16 @@ function init() {
         fpsScene.add(fpsHands);
         console.log('FPS руки добавлены в fpsScene');
 
-        // Вид от первого лица - оружие в ПРАВОЙ руке
-        currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
+        // Вид от первого лица - оружие в ПРАВОЙ руке (у края экрана)
+        currentWeapon.position.set(0.5, -0.5, -0.7); // Дальше вправо, ниже, дальше от камеры
         // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
         // Модель создается со стволом по X, нужно повернуть на -90° по Y
         currentWeapon.rotation.x = 0;
         currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой доп. поворот
         currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
-        currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
+        currentWeapon.scale.set(0.7, 0.7, 0.7); // Немного меньше для лучшего обзора
         fpsHands.add(currentWeapon);
-        console.log('Оружие позиционировано в правой руке, ствол смотрит вперед');
+        console.log('Оружие позиционировано у края экрана справа');
         console.log('Оружие добавлено к рукам. Руки имеют', fpsHands.children.length, 'детей');
         console.log('Позиция рук относительно камеры:', fpsHands.position);
         console.log('Позиция оружия относительно рук:', currentWeapon.position);

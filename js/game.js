@@ -903,59 +903,63 @@ function checkWaveComplete() {
     }
 }
 
-// Функция воспроизведения победной музыки
+// Функция воспроизведения победной музыки "Only You" (Far Cry 5)
 function playVictoryMusic() {
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // Пытаемся загрузить песню "Only You" из разных источников
+        const audio = new Audio();
+        audio.volume = 0.4; // Умеренная громкость
 
-        // Торжественная мелодия (простая победная фанфара)
-        const notes = [
-            { freq: 523.25, time: 0, duration: 0.3 },    // C
-            { freq: 523.25, time: 0.3, duration: 0.3 },  // C
-            { freq: 523.25, time: 0.6, duration: 0.3 },  // C
-            { freq: 659.25, time: 0.9, duration: 0.6 },  // E
-            { freq: 783.99, time: 1.5, duration: 0.9 },  // G
-            { freq: 1046.50, time: 2.4, duration: 1.2 }, // C верхняя
+        // Список возможных путей к файлу
+        const audioPaths = [
+            'audio/only-you.mp3',
+            'only-you.mp3',
+            'assets/only-you.mp3',
+            // Публичный URL как запасной вариант (The Platters - Only You)
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Заглушка, замените на настоящий файл
         ];
 
-        notes.forEach(note => {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+        // Пробуем первый путь
+        audio.src = audioPaths[0];
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+        audio.play().then(() => {
+            console.log('🎵 "Only You" играет!');
+            // Показываем уведомление о музыке
+            const musicNotification = document.createElement('div');
+            musicNotification.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 25px; border-radius: 10px; font-size: 18px; z-index: 1001; border: 2px solid gold;';
+            musicNotification.innerHTML = '🎵 The Platters - Only You';
+            document.body.appendChild(musicNotification);
 
-            oscillator.frequency.value = note.freq;
-            oscillator.type = 'triangle'; // Мягкий звук
+            setTimeout(() => {
+                if (document.body.contains(musicNotification)) {
+                    document.body.removeChild(musicNotification);
+                }
+            }, 5000);
+        }).catch(e => {
+            console.warn('Не удалось воспроизвести "Only You":', e);
+            console.log('💡 Подсказка: Добавьте файл "only-you.mp3" в папку "audio" для воспроизведения песни из Far Cry 5');
 
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime + note.time);
-            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + note.time + 0.05);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + note.time + note.duration);
+            // Показываем подсказку пользователю
+            const hint = document.createElement('div');
+            hint.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(255, 100, 100, 0.9); color: white; padding: 15px 25px; border-radius: 10px; font-size: 16px; z-index: 1001; border: 2px solid white; max-width: 300px;';
+            hint.innerHTML = '🎵 Добавьте файл "only-you.mp3"<br>в папку "audio" для музыки';
+            document.body.appendChild(hint);
 
-            oscillator.start(audioContext.currentTime + note.time);
-            oscillator.stop(audioContext.currentTime + note.time + note.duration);
+            setTimeout(() => {
+                if (document.body.contains(hint)) {
+                    document.body.removeChild(hint);
+                }
+            }, 7000);
         });
 
-        // Добавляем барабанный эффект (низкие частоты для драматизма)
-        const drumBeats = [0, 0.3, 0.6, 0.9, 1.5, 2.4];
-        drumBeats.forEach(time => {
-            const drumOsc = audioContext.createOscillator();
-            const drumGain = audioContext.createGain();
+        // Событие окончания музыки
+        audio.onended = () => {
+            console.log('🎵 Музыка закончилась');
+        };
 
-            drumOsc.connect(drumGain);
-            drumGain.connect(audioContext.destination);
+        // Сохраняем ссылку на аудио для возможности остановки
+        window.victoryAudio = audio;
 
-            drumOsc.frequency.value = 100;
-            drumOsc.type = 'sine';
-
-            drumGain.gain.setValueAtTime(0.5, audioContext.currentTime + time);
-            drumGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.2);
-
-            drumOsc.start(audioContext.currentTime + time);
-            drumOsc.stop(audioContext.currentTime + time + 0.2);
-        });
-
-        console.log('🎵 Музыка победы запущена!');
     } catch (e) {
         console.error('Ошибка воспроизведения музыки:', e);
     }

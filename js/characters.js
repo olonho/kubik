@@ -10,97 +10,68 @@ function createFPSHands() {
     console.log('createFPSHands() вызвана');
     const handsGroup = new THREE.Group();
 
-    // Левая рука (далеко слева, почти не видна - как в большинстве FPS)
-    const leftArmGeometry = new THREE.BoxGeometry(0.12, 0.45, 0.12);
+    // Материал для кожи
     const skinMaterial = new THREE.MeshStandardMaterial({
         color: 0xFFDBB0, // Нормальный цвет кожи
         roughness: 0.9,
         metalness: 0.0
     });
-    const leftArm = new THREE.Mesh(leftArmGeometry, skinMaterial);
-    leftArm.position.set(-0.45, -0.25, -0.5); // Сдвинута сильно влево и вниз
-    leftArm.rotation.x = Math.PI / 4;
-    leftArm.rotation.z = -Math.PI / 8;
-    leftArm.castShadow = true;
-    handsGroup.add(leftArm);
 
-    // Левая кисть (еще дальше)
-    const leftHandGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.18);
-    const leftHand = new THREE.Mesh(leftHandGeometry, skinMaterial);
-    leftHand.position.set(-0.5, -0.45, -0.65);
-    leftHand.rotation.x = Math.PI / 3;
-    leftHand.rotation.z = -Math.PI / 8;
-    leftHand.castShadow = true;
-    handsGroup.add(leftHand);
+    // Левая рука УДАЛЕНА - ничего не мешает обзору!
 
-    // Пальцы левой руки (почти не видны)
-    for (let i = 0; i < 4; i++) {
-        const fingerGeometry = new THREE.BoxGeometry(0.03, 0.05, 0.05);
-        const finger = new THREE.Mesh(fingerGeometry, skinMaterial);
-        finger.position.set(-0.44 - i * 0.035, -0.5, -0.72);
-        finger.rotation.x = Math.PI / 3;
-        handsGroup.add(finger);
-    }
-
-    // Правая рука (держит оружие)
-    const rightArmGeometry = new THREE.BoxGeometry(0.12, 0.45, 0.12);
+    // Правая рука (держит оружие) - сдвинута дальше вправо и ниже
+    const rightArmGeometry = new THREE.BoxGeometry(0.11, 0.4, 0.11);
     const rightArm = new THREE.Mesh(rightArmGeometry, skinMaterial);
-    rightArm.position.set(0.25, -0.15, -0.4);
-    rightArm.rotation.x = Math.PI / 6;
-    rightArm.rotation.z = Math.PI / 12;
+    rightArm.position.set(0.45, -0.35, -0.5); // Дальше вправо, ниже
+    rightArm.rotation.x = Math.PI / 5;
+    rightArm.rotation.z = Math.PI / 10;
     rightArm.castShadow = true;
     handsGroup.add(rightArm);
 
-    // Правая кисть
-    const rightHandGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.18);
+    // Правая кисть - также сдвинута
+    const rightHandGeometry = new THREE.BoxGeometry(0.13, 0.07, 0.16);
     const rightHand = new THREE.Mesh(rightHandGeometry, skinMaterial);
-    rightHand.position.set(0.28, -0.38, -0.55);
+    rightHand.position.set(0.5, -0.55, -0.65); // Дальше вправо и ниже
     rightHand.rotation.x = Math.PI / 3;
-    rightHand.rotation.z = Math.PI / 12;
+    rightHand.rotation.z = Math.PI / 10;
     rightHand.castShadow = true;
     handsGroup.add(rightHand);
 
-    // Пальцы правой руки
+    // Пальцы правой руки (меньше и ближе к краю)
     for (let i = 0; i < 4; i++) {
-        const fingerGeometry = new THREE.BoxGeometry(0.03, 0.05, 0.05);
+        const fingerGeometry = new THREE.BoxGeometry(0.025, 0.045, 0.045);
         const finger = new THREE.Mesh(fingerGeometry, skinMaterial);
-        finger.position.set(0.22 + i * 0.035, -0.42, -0.63);
+        finger.position.set(0.45 + i * 0.032, -0.6, -0.72);
         finger.rotation.x = Math.PI / 3;
         handsGroup.add(finger);
     }
 
     // Большой палец правой руки
-    const thumbGeometry = new THREE.BoxGeometry(0.04, 0.05, 0.06);
+    const thumbGeometry = new THREE.BoxGeometry(0.035, 0.045, 0.055);
     const thumb = new THREE.Mesh(thumbGeometry, skinMaterial);
-    thumb.position.set(0.35, -0.36, -0.58);
+    thumb.position.set(0.57, -0.53, -0.68);
     thumb.rotation.x = Math.PI / 4;
     thumb.rotation.z = Math.PI / 3;
     handsGroup.add(thumb);
 
-    // Рукава (темно-серые)
-    const sleeveGeometry = new THREE.BoxGeometry(0.14, 0.15, 0.14);
+    // Рукав правой руки (темно-серый)
+    const sleeveGeometry = new THREE.BoxGeometry(0.13, 0.14, 0.13);
     const sleeveMaterial = new THREE.MeshStandardMaterial({
         color: 0x2F4F4F,
         roughness: 0.8
     });
 
-    const leftSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
-    leftSleeve.position.set(-0.25, 0.05, -0.35);
-    leftSleeve.rotation.x = Math.PI / 6;
-    leftSleeve.rotation.z = -Math.PI / 12;
-    handsGroup.add(leftSleeve);
-
     const rightSleeve = new THREE.Mesh(sleeveGeometry, sleeveMaterial);
-    rightSleeve.position.set(0.25, 0.05, -0.4);
-    rightSleeve.rotation.x = Math.PI / 6;
-    rightSleeve.rotation.z = Math.PI / 12;
+    rightSleeve.position.set(0.45, -0.15, -0.5); // Соответствует новой позиции правой руки
+    rightSleeve.rotation.x = Math.PI / 5;
+    rightSleeve.rotation.z = Math.PI / 10;
     handsGroup.add(rightSleeve);
 
-    console.log('FPS руки созданы. Всего элементов:', handsGroup.children.length);
+    console.log('FPS рука создана. Всего элементов:', handsGroup.children.length);
 
-    // Нормальный размер и позиция для CS:GO стиля
+    // Нормальный размер (без дополнительного масштабирования)
     handsGroup.scale.set(1, 1, 1);
-    handsGroup.position.set(0, -0.15, -0.4); // Немного ниже центра и ближе
+    // Позиция настроена индивидуально для каждого элемента руки
 
     return handsGroup;
 }
