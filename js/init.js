@@ -362,23 +362,12 @@ function init() {
         fpsScene.add(fpsHands);
         console.log('FPS руки добавлены в fpsScene');
 
-        // ТЕСТОВЫЙ КУБ - должен быть хорошо виден!
-        const testCubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const testCubeMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00FF00, // Ярко-зеленый
-            wireframe: true
-        });
-        const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterial);
-        testCube.position.set(0.5, 0, -1); // Справа от центра
-        fpsScene.add(testCube);
-        console.log('Тестовый зеленый куб добавлен в fpsScene');
-
         // Вид от первого лица - оружие в руки
-        currentWeapon.position.set(0.05, -0.2, -0.45);
-        currentWeapon.rotation.y = Math.PI / 24;
-        currentWeapon.rotation.x = -Math.PI / 24;
-        currentWeapon.rotation.z = 0;
-        currentWeapon.scale.set(1.2, 1.2, 1.2);
+        currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
+        currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+        currentWeapon.rotation.x = 0;
+        currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
+        currentWeapon.scale.set(1, 1, 1);
         fpsHands.add(currentWeapon);
         console.log('Оружие добавлено к рукам. Руки имеют', fpsHands.children.length, 'детей');
         console.log('Позиция рук относительно камеры:', fpsHands.position);

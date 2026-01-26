@@ -13,11 +13,9 @@ function createFPSHands() {
     // Левая рука
     const leftArmGeometry = new THREE.BoxGeometry(0.12, 0.45, 0.12);
     const skinMaterial = new THREE.MeshStandardMaterial({
-        color: 0xFF0000, // ЯРКИЙ КРАСНЫЙ для тестирования!
+        color: 0xFFDBB0, // Нормальный цвет кожи
         roughness: 0.9,
-        metalness: 0.0,
-        emissive: 0xFF0000, // Светится красным
-        emissiveIntensity: 0.5
+        metalness: 0.0
     });
     const leftArm = new THREE.Mesh(leftArmGeometry, skinMaterial);
     leftArm.position.set(-0.25, -0.15, -0.35);
@@ -99,13 +97,10 @@ function createFPSHands() {
     handsGroup.add(rightSleeve);
 
     console.log('FPS руки созданы. Всего элементов:', handsGroup.children.length);
-    console.log('Руки включают:', handsGroup.children.map(c => c.type).join(', '));
 
-    // ТЕСТ: делаем руки огромными и прямо перед камерой
-    handsGroup.scale.set(5, 5, 5);
-    handsGroup.position.set(0, 0, -2); // Прямо по центру, немного впереди
-
-    console.log('Руки увеличены в 5 раз, позиция:', handsGroup.position);
+    // Нормальный размер и позиция для CS:GO стиля
+    handsGroup.scale.set(1, 1, 1);
+    handsGroup.position.set(0, -0.15, -0.4); // Немного ниже центра и ближе
 
     return handsGroup;
 }

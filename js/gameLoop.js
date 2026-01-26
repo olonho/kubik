@@ -36,11 +36,11 @@ function changeWeapon(weaponType) {
         }
 
         // Вид от первого лица - оружие в руки (как в CS:GO)
-        currentWeapon.position.set(0.05, -0.2, -0.45); // В центре между руками
-        currentWeapon.rotation.y = Math.PI / 24;
-        currentWeapon.rotation.x = -Math.PI / 24;
-        currentWeapon.rotation.z = 0;
-        currentWeapon.scale.set(1.2, 1.2, 1.2); // Немного увеличим
+        currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
+        currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+        currentWeapon.rotation.x = 0;
+        currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
+        currentWeapon.scale.set(1, 1, 1);
         fpsHands.add(currentWeapon);
     } else {
         // Вид от третьего лица - оружие к игроку
@@ -84,12 +84,12 @@ function updatePlayer() {
     // Движение влево-вправо
     if (keys['ArrowLeft']) {
         const newX = player.position.x - playerSpeed;
-        // Разные границы для дома и улицы
-        const leftBound = isInsideHouse ? -2.2 : -4;
+        // Разные границы для дома и улицы (широкие границы, основная проверка в checkCollisionInHouse)
+        const leftBound = isInsideHouse ? -3 : -4;
 
         if (newX > leftBound) {
-            // Проверяем коллизии только внутри дома
-            if (!isInsideHouse || !checkCollisionInHouse(newX, player.position.z)) {
+            // Проверяем коллизии
+            if (!checkCollisionInHouse(newX, player.position.z)) {
                 player.position.x = newX;
             }
         }
@@ -101,11 +101,11 @@ function updatePlayer() {
     if (keys['ArrowRight']) {
         const newX = player.position.x + playerSpeed;
         // Разные границы для дома и улицы
-        const rightBound = isInsideHouse ? 2.2 : 4;
+        const rightBound = isInsideHouse ? 3 : 4;
 
         if (newX < rightBound) {
-            // Проверяем коллизии только внутри дома
-            if (!isInsideHouse || !checkCollisionInHouse(newX, player.position.z)) {
+            // Проверяем коллизии
+            if (!checkCollisionInHouse(newX, player.position.z)) {
                 player.position.x = newX;
             }
         }
@@ -123,11 +123,11 @@ function updatePlayer() {
     if (keys['ArrowUp']) {
         const newZ = player.position.z - playerSpeed;
         // Разные границы для дома и улицы
-        const forwardBound = isInsideHouse ? -2 : -40;
+        const forwardBound = isInsideHouse ? -2.5 : -40;
 
         if (newZ > forwardBound) {
-            // Проверяем коллизии только внутри дома
-            if (!isInsideHouse || !checkCollisionInHouse(player.position.x, newZ)) {
+            // Проверяем коллизии
+            if (!checkCollisionInHouse(player.position.x, newZ)) {
                 player.position.z = newZ;
             }
         }
@@ -139,11 +139,11 @@ function updatePlayer() {
     if (keys['ArrowDown']) {
         const newZ = player.position.z + playerSpeed;
         // Разные границы для дома и улицы
-        const backBound = isInsideHouse ? 2 : 5;
+        const backBound = isInsideHouse ? 2.5 : 5;
 
         if (newZ < backBound) {
-            // Проверяем коллизии только внутри дома
-            if (!isInsideHouse || !checkCollisionInHouse(player.position.x, newZ)) {
+            // Проверяем коллизии
+            if (!checkCollisionInHouse(player.position.x, newZ)) {
                 player.position.z = newZ;
             }
         }
@@ -248,11 +248,11 @@ function updatePlayer() {
                     fpsScene.add(fpsHands);
                 }
 
-                currentWeapon.position.set(0.05, -0.2, -0.45);
-                currentWeapon.rotation.y = Math.PI / 24;
-                currentWeapon.rotation.x = -Math.PI / 24;
-                currentWeapon.rotation.z = 0;
-                currentWeapon.scale.set(1.2, 1.2, 1.2);
+                currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
+                currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+                currentWeapon.rotation.x = 0;
+                currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
+                currentWeapon.scale.set(1, 1, 1);
                 fpsHands.add(currentWeapon);
             }
         }

@@ -204,33 +204,50 @@ function buildBed() {
 function checkCollisionInHouse(newX, newZ) {
     if (!isInsideHouse || !houseInterior) return false;
 
-    // Проверяем коллизии со всеми объектами в интерьере
+    // Проверка границ дома (простые границы стен)
+    // Стены находятся на позициях: -2.5, 2.5 по X и -2.25, 2.25 по Z
+    const wallThickness = 0.15; // Половина толщины стены
+    const playerRadius = 0.25;
+
+    // Проверяем столкновение со стенами
+    if (newX < -2.5 + wallThickness + playerRadius) return true; // Левая стена
+    if (newX > 2.5 - wallThickness - playerRadius) return true;  // Правая стена
+    if (newZ < -2.25 + wallThickness + playerRadius) return true; // Задняя стена
+    if (newZ > 2.25 - wallThickness - playerRadius) return true;  // Передняя стена (кроме двери)
+
+    // Проверка дверного проема - если игрок в зоне двери (X от -0.55 до 0.55, Z > 2.0), пропускаем
+    const inDoorway = (Math.abs(newX) < 0.55 && newZ > 2.0);
+    if (inDoorway) {
+        // В дверном проеме нет коллизий с передней стеной
+        return false;
+    }
+
+    // Проверяем коллизии с мебелью
     let hasCollision = false;
 
     houseInterior.children.forEach(child => {
-        // Проверяем только объекты с метками isWall или isFurniture
-        if (!child.userData.isWall && !child.userData.isFurniture) return;
+        // Проверяем только мебель (не стены)
+        if (!child.userData.isFurniture) return;
 
-        // Получаем мировую позицию объекта
-        const worldPos = new THREE.Vector3();
-        child.getWorldPosition(worldPos);
-
-        // Получаем размеры объекта
+        // Получаем bounding box объекта
         const box = new THREE.Box3().setFromObject(child);
-        const size = new THREE.Vector3();
-        box.getSize(size);
 
-        // Радиус игрока
-        const playerRadius = 0.3;
+        // Пропускаем объекты которые слишком высоко или низко
+        if (box.min.y > 1.5 || box.max.y < 0.2) return;
 
-        // Проверяем пересечение (AABB collision с учетом радиуса игрока)
-        const distX = Math.abs(newX - worldPos.x);
-        const distZ = Math.abs(newZ - worldPos.z);
+        // Размеры объекта
+        const sizeX = box.max.x - box.min.x;
+        const sizeZ = box.max.z - box.min.z;
 
-        const halfSizeX = size.x / 2 + playerRadius;
-        const halfSizeZ = size.z / 2 + playerRadius;
+        // Центр объекта
+        const centerX = (box.min.x + box.max.x) / 2;
+        const centerZ = (box.min.z + box.max.z) / 2;
 
-        if (distX < halfSizeX && distZ < halfSizeZ) {
+        // Проверяем пересечение
+        const distX = Math.abs(newX - centerX);
+        const distZ = Math.abs(newZ - centerZ);
+
+        if (distX < sizeX / 2 + playerRadius && distZ < sizeZ / 2 + playerRadius) {
             hasCollision = true;
         }
     });
@@ -280,8 +297,9 @@ function enterHouseInterior() {
     }
 
     // Перемещаем игрока внутрь дома (ближе к двери)
-    player.position.set(0, 0.5, 1.5);
+    player.position.set(0, 0.5, 1.8);
     player.rotation.y = -Math.PI; // Смотрит внутрь дома
+    console.log('🏠 Игрок вошел в дом на позиции:', player.position);
 
     // Меняем фон на более темный
     scene.background = new THREE.Color(0x4a3f35);

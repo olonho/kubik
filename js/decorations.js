@@ -727,7 +727,7 @@ function createHouseInterior() {
     const floor = new THREE.Mesh(floorGeometry, stoneMaterial);
     floor.position.y = 0;
     floor.receiveShadow = true;
-    floor.userData.isWall = true;
+    // НЕ добавляем isWall - пол не должен блокировать движение
     interiorGroup.add(floor);
 
     // КАМЕННЫЕ СТЕНЫ
