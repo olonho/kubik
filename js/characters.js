@@ -5,6 +5,159 @@
 
 console.log('✅ characters.js загружен');
 
+// Создание человеческого персонажа - Dani Rojas
+function createHuman() {
+    const humanGroup = new THREE.Group();
+
+    // Материалы
+    const skinMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffdbac, // Цвет кожи
+        roughness: 0.7,
+        metalness: 0.1
+    });
+
+    const hairMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2c1810, // Темно-коричневые волосы
+        roughness: 0.8
+    });
+
+    const shirtMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4a4a4a, // Темно-серая рубашка
+        roughness: 0.6
+    });
+
+    const pantsMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2c2c2c, // Черные штаны
+        roughness: 0.7
+    });
+
+    const shoesMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a, // Черные ботинки
+        roughness: 0.5
+    });
+
+    // Туловище (торс)
+    const torsoGeometry = new THREE.BoxGeometry(0.5, 0.7, 0.25);
+    const torso = new THREE.Mesh(torsoGeometry, shirtMaterial);
+    torso.position.y = 0.85;
+    torso.castShadow = true;
+    humanGroup.add(torso);
+
+    // Голова
+    const headGeometry = new THREE.BoxGeometry(0.35, 0.35, 0.35);
+    const head = new THREE.Mesh(headGeometry, skinMaterial);
+    head.position.y = 1.4;
+    head.castShadow = true;
+    humanGroup.add(head);
+
+    // Волосы
+    const hairGeometry = new THREE.BoxGeometry(0.38, 0.15, 0.38);
+    const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+    hair.position.y = 1.57;
+    hair.castShadow = true;
+    humanGroup.add(hair);
+
+    // Глаза
+    const eyeGeometry = new THREE.BoxGeometry(0.08, 0.08, 0.05);
+    const eyeMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        emissive: 0x4169e1,
+        emissiveIntensity: 0.3
+    });
+
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.1, 1.43, 0.175);
+    humanGroup.add(leftEye);
+
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.1, 1.43, 0.175);
+    humanGroup.add(rightEye);
+
+    // Зрачки
+    const pupilGeometry = new THREE.BoxGeometry(0.04, 0.04, 0.03);
+    const pupilMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    leftPupil.position.set(-0.1, 1.43, 0.19);
+    humanGroup.add(leftPupil);
+
+    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    rightPupil.position.set(0.1, 1.43, 0.19);
+    humanGroup.add(rightPupil);
+
+    // Руки (левая)
+    const armGeometry = new THREE.BoxGeometry(0.15, 0.6, 0.15);
+    const leftArm = new THREE.Mesh(armGeometry, shirtMaterial);
+    leftArm.position.set(-0.325, 0.85, 0);
+    leftArm.castShadow = true;
+    humanGroup.add(leftArm);
+
+    // Кисть левой руки
+    const handGeometry = new THREE.BoxGeometry(0.12, 0.12, 0.18);
+    const leftHand = new THREE.Mesh(handGeometry, skinMaterial);
+    leftHand.position.set(-0.325, 0.5, 0);
+    leftHand.castShadow = true;
+    humanGroup.add(leftHand);
+
+    // Руки (правая)
+    const rightArm = new THREE.Mesh(armGeometry, shirtMaterial);
+    rightArm.position.set(0.325, 0.85, 0);
+    rightArm.castShadow = true;
+    humanGroup.add(rightArm);
+
+    // Кисть правой руки
+    const rightHand = new THREE.Mesh(handGeometry, skinMaterial);
+    rightHand.position.set(0.325, 0.5, 0);
+    rightHand.castShadow = true;
+    humanGroup.add(rightHand);
+
+    // Ноги (левая)
+    const legGeometry = new THREE.BoxGeometry(0.18, 0.5, 0.18);
+    const leftLeg = new THREE.Mesh(legGeometry, pantsMaterial);
+    leftLeg.position.set(-0.12, 0.25, 0);
+    leftLeg.castShadow = true;
+    humanGroup.add(leftLeg);
+    humanGroup.userData.leftLeg = leftLeg;
+
+    // Ноги (правая)
+    const rightLeg = new THREE.Mesh(legGeometry, pantsMaterial);
+    rightLeg.position.set(0.12, 0.25, 0);
+    rightLeg.castShadow = true;
+    humanGroup.add(rightLeg);
+    humanGroup.userData.rightLeg = rightLeg;
+
+    // Обувь (левая)
+    const shoeGeometry = new THREE.BoxGeometry(0.18, 0.1, 0.28);
+    const leftShoe = new THREE.Mesh(shoeGeometry, shoesMaterial);
+    leftShoe.position.set(-0.12, 0.05, 0.05);
+    leftShoe.castShadow = true;
+    humanGroup.add(leftShoe);
+
+    // Обувь (правая)
+    const rightShoe = new THREE.Mesh(shoeGeometry, shoesMaterial);
+    rightShoe.position.set(0.12, 0.05, 0.05);
+    rightShoe.castShadow = true;
+    humanGroup.add(rightShoe);
+
+    // Тень на земле
+    const shadowGeometry = new THREE.CircleGeometry(0.4, 16);
+    const shadowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.3
+    });
+    const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.01;
+    humanGroup.add(shadow);
+
+    // Сохраняем фазу анимации ног
+    humanGroup.userData.legPhase = 0;
+
+    console.log('✅ Человеческий персонаж Dani Rojas создан');
+    return humanGroup;
+}
+
 // Создание рук для FPS вида (как в CS:GO)
 function createFPSHands() {
     console.log('createFPSHands() вызвана - руки не создаются, только контейнер для оружия');

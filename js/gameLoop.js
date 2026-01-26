@@ -1514,14 +1514,25 @@ function animate() {
         }
     }
     if (renderer && scene && camera) {
-        // Рендерим основную сцену
-        renderer.render(scene, camera);
+        // Рендерим основную сцену с постобработкой
+        if (composer) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
 
         // Рендерим FPS сцену (руки и оружие) поверх основной
         if (fpsScene && cameraMode === 'firstPerson') {
             renderer.autoClear = false; // Не очищаем canvas
             renderer.clearDepth(); // Очищаем только depth buffer
-            renderer.render(fpsScene, camera);
+
+            // Используем composer для FPS сцены если доступен
+            if (fpsComposer) {
+                fpsComposer.render();
+            } else {
+                renderer.render(fpsScene, camera);
+            }
+
             renderer.autoClear = true; // Восстанавливаем
         }
     }

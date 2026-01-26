@@ -5,6 +5,27 @@
 
 console.log('✅ init.js загружен');
 
+// Функция запуска игры из вступительной катсцены
+function startGameFromIntro() {
+    console.log('🎬 Запуск игры из вступительной катсцены...');
+
+    // Скрываем вступительную сцену
+    const introScene = document.getElementById('introScene');
+    if (introScene) {
+        introScene.style.transition = 'opacity 1.5s';
+        introScene.style.opacity = '0';
+        setTimeout(() => {
+            introScene.style.display = 'none';
+        }, 1500);
+    }
+
+    // Запускаем игру с человеческим персонажем
+    selectSkin('human');
+}
+
+// Делаем функцию глобальной
+window.startGameFromIntro = startGameFromIntro;
+
 function selectSkin(skin) {
     console.log('=== selectSkin вызвана, скин:', skin);
     console.log('cameraMode:', cameraMode);
@@ -27,8 +48,6 @@ function selectSkin(skin) {
     cameraMode = 'firstPerson'; // Начинаем с вида от первого лица
 
     console.log('📂 Загружены данные: score=', score, 'wave=', wave, 'lives=', lives, 'coins=', coins, 'wood=', wood);
-
-    document.getElementById('skinMenu').style.display = 'none';
     document.getElementById('score').style.display = 'block';
     document.getElementById('instructions').style.display = 'block';
     document.getElementById('crosshair').style.display = 'block';
@@ -103,9 +122,40 @@ function init() {
 
     console.log('Высококачественное освещение добавлено в FPS сцену');
 
-    // Градиентное небо
-    const skyColor = new THREE.Color(0x87ceeb);
-    scene.background = skyColor;
+    // Реалистичное градиентное небо (как в Far Cry)
+    const vertexShader = `
+        varying vec3 vWorldPosition;
+        void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `;
+    const fragmentShader = `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+        varying vec3 vWorldPosition;
+        void main() {
+            float h = normalize(vWorldPosition + offset).y;
+            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+        }
+    `;
+    const skyGeo = new THREE.SphereGeometry(500, 32, 15);
+    const skyMat = new THREE.ShaderMaterial({
+        uniforms: {
+            topColor: { value: new THREE.Color(0x0077ff) },    // Яркое синее небо
+            bottomColor: { value: new THREE.Color(0xffffff) }, // Белый горизонт
+            offset: { value: 33 },
+            exponent: { value: 0.6 }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        side: THREE.BackSide
+    });
+    const sky = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(sky);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
     // Вид от первого лица - камера на уровне глаз персонажа
@@ -131,6 +181,36 @@ function init() {
         renderer.toneMappingExposure = 1.2;
 
         document.body.appendChild(renderer.domElement);
+
+        // Инициализация постобработки для основной сцены
+        composer = new THREE.EffectComposer(renderer);
+        const renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);
+
+        // Bloom эффект для свечения (как в современных играх)
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            0.6,  // strength (интенсивность свечения)
+            0.4,  // radius
+            0.85  // threshold (порог яркости для свечения)
+        );
+        composer.addPass(bloomPass);
+
+        // Composer для FPS сцены (оружие)
+        fpsComposer = new THREE.EffectComposer(renderer);
+        const fpsRenderPass = new THREE.RenderPass(fpsScene, camera);
+        fpsComposer.addPass(fpsRenderPass);
+
+        // Еще более сильный bloom для оружия (подсветка деталей)
+        const fpsBloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            1.2,  // сильное свечение для металла и прицелов
+            0.5,
+            0.5   // более низкий порог чтобы больше деталей светилось
+        );
+        fpsComposer.addPass(fpsBloomPass);
+
+        console.log('✨ Постобработка с bloom эффектом инициализирована');
     }
 
     // Туман для атмосферы и глубины
@@ -166,13 +246,40 @@ function init() {
     fillLight.position.set(-5, 5, -5);
     scene.add(fillLight);
 
-    // Улучшенная земля с текстурой
-    const groundGeometry = new THREE.PlaneGeometry(10, 100);
+    // Улучшенная земля с процедурной текстурой травы (как в Far Cry)
+    const groundGeometry = new THREE.PlaneGeometry(10, 100, 100, 100);
+
+    // Создаем процедурную текстуру травы
+    const groundCanvas = document.createElement('canvas');
+    groundCanvas.width = 512;
+    groundCanvas.height = 512;
+    const groundCtx = groundCanvas.getContext('2d');
+
+    // Базовый цвет травы
+    groundCtx.fillStyle = '#2d5a2d';
+    groundCtx.fillRect(0, 0, 512, 512);
+
+    // Добавляем шум для реалистичности
+    for (let i = 0; i < 10000; i++) {
+        const x = Math.random() * 512;
+        const y = Math.random() * 512;
+        const brightness = 0.8 + Math.random() * 0.4;
+        groundCtx.fillStyle = `rgba(${30 * brightness}, ${90 * brightness}, ${30 * brightness}, 0.3)`;
+        groundCtx.fillRect(x, y, 2, 2);
+    }
+
+    const groundTexture = new THREE.CanvasTexture(groundCanvas);
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(20, 20);
+
     const groundMaterial = new THREE.MeshStandardMaterial({
+        map: groundTexture,
         color: 0x2d5a2d,
-        roughness: 0.8,
-        metalness: 0.1
+        roughness: 0.95,
+        metalness: 0.0
     });
+
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
@@ -330,35 +437,8 @@ function init() {
     scene.add(houseCat);
     decorations.push(houseCat);
 
-    // Создаём игрока в зависимости от выбранного скина
-    switch(selectedSkin) {
-        case 'dog':
-            player = createDog();
-            break;
-        case 'cat':
-            player = createCat();
-            break;
-        case 'fox':
-            player = createFox();
-            break;
-        case 'panda':
-            player = createPanda();
-            break;
-        case 'rabbit':
-            player = createRabbit();
-            break;
-        case 'robot':
-            player = createRobot();
-            break;
-        case 'cube':
-            player = createCube();
-            break;
-        case 'oval':
-            player = createOval();
-            break;
-        default:
-            player = createDog();
-    }
+    // Создаём игрока - человека Dani Rojas
+    player = createHuman();
 
     player.position.set(0, 0.5, 0);
     player.rotation.y = -Math.PI / 2; // Смотрит вперед

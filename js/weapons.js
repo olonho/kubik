@@ -3,19 +3,23 @@
 function createPistol() {
     const pistolGroup = new THREE.Group();
 
-    // Высококачественные материалы как в Chicken Gun
+    // Ультра высококачественные материалы (как в Far Cry / Modern Warfare)
     const metalMaterial = new THREE.MeshStandardMaterial({
         color: 0x1A1A1A,
-        roughness: 0.25,
-        metalness: 0.95,
-        envMapIntensity: 1.5 // Блики
+        roughness: 0.15,
+        metalness: 1.0,
+        envMapIntensity: 2.5, // Сильные блики и отражения
+        emissive: 0x0A0A0A,
+        emissiveIntensity: 0.1
     });
 
     const darkMetalMaterial = new THREE.MeshStandardMaterial({
-        color: 0x0A0A0A,
-        roughness: 0.15,
+        color: 0x050505,
+        roughness: 0.1,
         metalness: 1.0,
-        envMapIntensity: 2.0
+        envMapIntensity: 3.0, // Максимальные отражения
+        emissive: 0x020202,
+        emissiveIntensity: 0.15
     });
 
     const gripMaterial = new THREE.MeshStandardMaterial({
@@ -98,21 +102,21 @@ function createPistol() {
     ejector.position.set(0.25, 0.04, 0.05);
     pistolGroup.add(ejector);
 
-    // Мушка светящаяся (как в Chicken Gun)
+    // Мушка светящаяся (ультра яркая как в AAA играх)
     const frontSightGeometry = new THREE.BoxGeometry(0.02, 0.04, 0.02);
     const frontSightMaterial = new THREE.MeshStandardMaterial({
         color: 0x00FF00,
         emissive: 0x00FF00,
-        emissiveIntensity: 0.8,
-        metalness: 0.3,
-        roughness: 0.4
+        emissiveIntensity: 2.5, // Очень яркая
+        metalness: 0.8,
+        roughness: 0.2
     });
     const frontSight = new THREE.Mesh(frontSightGeometry, frontSightMaterial);
     frontSight.position.set(0.35, 0.06, 0);
     pistolGroup.add(frontSight);
 
-    // Точка подсветки на мушке
-    const sightLight = new THREE.PointLight(0x00FF00, 0.5, 1);
+    // Точка подсветки на мушке (ярче)
+    const sightLight = new THREE.PointLight(0x00FF00, 1.5, 2); // Увеличена интенсивность и радиус
     sightLight.position.set(0.35, 0.06, 0);
     pistolGroup.add(sightLight);
 

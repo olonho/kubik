@@ -3,7 +3,7 @@
 console.log('✅ game.js загружен');
 
 // Глобальные переменные (используем var для совместимости с inline скриптом)
-var scene, camera, renderer;
+var scene, camera, renderer, composer, fpsComposer;
 var fpsScene; // Отдельная сцена для FPS рук и оружия
 var player, ground, currentWeapon, fpsHands;
 var obstacles = [];
@@ -2033,7 +2033,17 @@ function returnToSkinMenu() {
     document.getElementById('woodDisplay').style.display = 'none';
     document.getElementById('buildHouseBtn').style.display = 'none';
     document.getElementById('buildBedBtn').style.display = 'none';
-    document.getElementById('skinMenu').style.display = 'block';
+
+    // Показываем вступительную сцену с книгой
+    const introScene = document.getElementById('introScene');
+    if (introScene) {
+        introScene.style.display = 'flex';
+        introScene.style.opacity = '0';
+        setTimeout(() => {
+            introScene.style.transition = 'opacity 1s';
+            introScene.style.opacity = '1';
+        }, 100);
+    }
 
     selectedSkin = null;
 }

@@ -365,6 +365,13 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Постобработка для улучшенной графики -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
     <!-- Данные (без зависимостей) -->
     <script src="js/shopData.js"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
@@ -385,43 +392,44 @@
     <script src="js/init.js"></script>
 </head>
 <body>
-    <div id="skinMenu">
-        <h2>Выберите персонажа</h2>
-        <div class="skin-options" style="flex-wrap: wrap; max-width: 800px; margin: 0 auto;">
-            <div class="skin-button" onclick="selectSkin('dog')">
-                <div class="skin-icon">🐶</div>
-                <h3>Собачка</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('cat')">
-                <div class="skin-icon">🐱</div>
-                <h3>Кошечка</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('fox')">
-                <div class="skin-icon">🦊</div>
-                <h3>Лисичка</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('panda')">
-                <div class="skin-icon">🐼</div>
-                <h3>Панда</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('rabbit')">
-                <div class="skin-icon">🐰</div>
-                <h3>Зайчик</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('robot')">
-                <div class="skin-icon">🤖</div>
-                <h3>Робот</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('cube')">
-                <div class="skin-icon">🟦</div>
-                <h3>Квадратик</h3>
-            </div>
-            <div class="skin-button" onclick="selectSkin('oval')">
-                <div class="skin-icon">⚪</div>
-                <h3>Овал</h3>
+    <!-- Вступительная катсцена с книгой -->
+    <div id="introScene" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #1a1a1a 0%, #2d2d2d 100%); z-index: 300; display: flex; align-items: center; justify-content: center;">
+        <div id="bookContainer" style="text-align: center;">
+            <div id="book" style="position: relative; width: 600px; height: 800px; background: linear-gradient(135deg, #8B4513 0%, #654321 100%); border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); padding: 60px; border: 10px solid #3e2723;">
+                <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 5px; height: 100%; background: linear-gradient(to bottom, #654321 0%, #3e2723 100%);"></div>
+
+                <div id="bookContent" style="opacity: 0; transition: opacity 2s;">
+                    <h1 style="font-family: 'Georgia', serif; font-size: 48px; color: #d4af37; margin-bottom: 40px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                        Дневник выжившего
+                    </h1>
+
+                    <div style="width: 80%; height: 2px; background: #d4af37; margin: 30px auto; opacity: 0.5;"></div>
+
+                    <p style="font-family: 'Brush Script MT', cursive; font-size: 36px; color: #f5deb3; margin: 50px 0; line-height: 1.6; font-style: italic;">
+                        Это история о последнем выжившем...<br><br>
+                        Человеке, который боролся до конца...
+                    </p>
+
+                    <div style="width: 80%; height: 2px; background: #d4af37; margin: 30px auto; opacity: 0.5;"></div>
+
+                    <p style="font-family: 'Brush Script MT', cursive; font-size: 42px; color: #d4af37; margin: 50px 0; font-weight: bold; text-shadow: 2px 2px 6px rgba(0,0,0,0.7);">
+                        Dani Rojas
+                    </p>
+
+                    <button id="startGameBtn" onclick="startGameFromIntro()" style="margin-top: 80px; padding: 20px 60px; font-size: 28px; background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%); color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 20px rgba(139,0,0,0.5); transition: transform 0.3s, box-shadow 0.3s; font-family: Arial;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 8px 30px rgba(139,0,0,0.8)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 5px 20px rgba(139,0,0,0.5)';">
+                        ⚔️ Начать историю
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Анимация появления книги
+        setTimeout(() => {
+            document.getElementById('bookContent').style.opacity = '1';
+        }, 500);
+    </script>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
     <div id="instructions" style="display: none;">🎮 DualShock 4: Левый стик | R2: Стрелять | X: Прыжок | □: Вид | △: Магазин<br>⌨️ Клавиатура: ↑↓←→ | W: Стрелять | Пробел: Прыжок | ENTER: Вид | B: Магазин</div>
