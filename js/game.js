@@ -15,6 +15,8 @@ var zombiesPerWave = 5;
 var zombiesInCurrentWave = 0;
 var waveActive = false;
 var lives = 3;
+var playerHP = 100; // Здоровье игрока
+var maxPlayerHP = 100;
 var ammo = 80;
 var maxAmmo = 80;
 var coins = 50000; // Всегда начинаем с 50000 монет
@@ -25,6 +27,9 @@ var hasBed = false; // Есть ли кровать
 var houseInterior = null; // Интерьер дома
 var isInsideHouse = false; // Находится ли игрок внутри дома
 var savedOutdoorPosition = null; // Сохраненная позиция на улице
+var petPats = 0; // Количество поглаживаний питомца
+var hasCompanion = false; // Есть ли напарник
+var companion = null; // Объект напарника
 var gameActive = true;
 var playerVelocityY = 0;
 var isJumping = false;
@@ -104,6 +109,108 @@ function updateAmmoDisplay() {
 
 function updateCoinsDisplay() {
     document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
+}
+
+function updatePlayerHPDisplay() {
+    const hpBar = document.getElementById('playerHPBar');
+    const hpText = document.getElementById('playerHPText');
+
+    if (hpBar && hpText) {
+        const hpPercent = (playerHP / maxPlayerHP) * 100;
+        hpBar.style.width = hpPercent + '%';
+
+        // Меняем цвет в зависимости от HP
+        if (hpPercent > 60) {
+            hpBar.style.backgroundColor = '#4CAF50'; // Зеленый
+        } else if (hpPercent > 30) {
+            hpBar.style.backgroundColor = '#FFA500'; // Оранжевый
+        } else {
+            hpBar.style.backgroundColor = '#FF0000'; // Красный
+        }
+
+        hpText.textContent = playerHP + ' / ' + maxPlayerHP;
+    }
+}
+
+function petDog() {
+    // Проверяем есть ли собака среди питомцев
+    if (!ownedPets.includes('dog')) {
+        alert('❌ У вас нет собаки! Купите собаку в магазине оружия.');
+        return;
+    }
+
+    if (hasCompanion) {
+        alert('💚 Ваш напарник уже с вами!');
+        return;
+    }
+
+    petPats++;
+    document.getElementById('petPatsCount').textContent = petPats;
+
+    // Уведомление о поглаживании
+    const notification = document.createElement('div');
+    notification.style.cssText = 'position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 182, 193, 0.95); color: #fff; padding: 20px 40px; border-radius: 15px; font-size: 24px; font-weight: bold; z-index: 999; border: 3px solid #FFB6C1; box-shadow: 0 0 20px rgba(255, 182, 193, 0.8);';
+    notification.innerHTML = '🐶💕 Собака довольна! (' + petPats + '/5)';
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+        }
+    }, 1500);
+
+    // После 5 поглаживаний появляется напарник
+    if (petPats >= 5) {
+        hasCompanion = true;
+        spawnCompanion();
+
+        // Драматичное уведомление
+        const companionNotif = document.createElement('div');
+        companionNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 36px; font-weight: bold; z-index: 1000; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);';
+        companionNotif.innerHTML = '🤝 НАПАРНИК ПРИБЫЛ! 🤝<br><br><span style="font-size: 24px;">Он будет помогать вам в бою!</span>';
+        document.body.appendChild(companionNotif);
+        setTimeout(() => {
+            if (document.body.contains(companionNotif)) {
+                document.body.removeChild(companionNotif);
+            }
+        }, 4000);
+
+        // Скрываем кнопку поглаживания
+        document.getElementById('petDogBtn').style.display = 'none';
+    }
+}
+
+function spawnCompanion() {
+    // Создаем напарника (человек как персонаж игрока)
+    companion = createHuman();
+    companion.position.set(player.position.x + 3, 0, player.position.z - 2);
+    companion.userData.shootCooldown = 0;
+    scene.add(companion);
+
+    // Добавляем бирку над напарником
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 64;
+
+    // Фон
+    context.fillStyle = 'rgba(102, 126, 234, 0.9)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Текст
+    context.font = 'bold 32px Arial';
+    context.fillStyle = '#FFFFFF';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText('🤝 Напарник', canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(2, 0.5, 1);
+    sprite.position.set(0, 2.5, 0);
+
+    companion.add(sprite);
+    companion.userData.nameTag = sprite;
 }
 
 function updateWoodDisplay() {
@@ -826,6 +933,11 @@ function spawnWaveZombies() {
         setTimeout(() => {
             if (gameActive && waveActive) {
                 window.finalBoss = createFinalBoss();
+
+                // Показываем HP бар игрока для боя с боссом
+                document.getElementById('playerHPContainer').style.display = 'block';
+                playerHP = maxPlayerHP;
+                updatePlayerHPDisplay();
 
                 // Драматичное уведомление
                 const notification = document.createElement('div');

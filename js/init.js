@@ -33,15 +33,16 @@ function selectSkin(skin) {
 
     // Загружаем сохранённые параметры игры или используем дефолтные
     score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
-    wave = parseInt(localStorage.getItem('cubeGameWave')) || 1;
+    wave = parseInt(localStorage.getItem('cubeGameWave')) || 18; // СТАРТ С 18 ВОЛНЫ
     lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
     ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
     coins = parseInt(localStorage.getItem('cubeGameCoins')) || 50000;
     wood = parseInt(localStorage.getItem('cubeGameWood')) || 0;
 
-    level = 1;
-    obstacleSpeed = 0.015; // Медленная скорость зомби
-    spawnRate = 0.03; // Много зомби
+    // Если начинаем с 18 волны, устанавливаем соответствующую сложность
+    level = Math.floor(wave / 1); // Уровень зависит от волны
+    obstacleSpeed = 0.015 + (wave - 1) * 0.002; // Скорость увеличивается с каждой волной
+    spawnRate = 0.03 + (wave - 1) * 0.001; // Частота спавна тоже
     playerVelocityY = 0;
     isJumping = false;
     gameActive = true;
@@ -65,6 +66,11 @@ function selectSkin(skin) {
     // Затем обновляем дисплеи (функции определены в game.js)
     if (typeof updateCoinsDisplay === 'function') updateCoinsDisplay();
     if (typeof updateWoodDisplay === 'function') updateWoodDisplay();
+
+    // Показываем кнопку поглаживания если есть собака
+    if (ownedPets && ownedPets.includes('dog')) {
+        document.getElementById('petDogBtn').style.display = 'block';
+    }
 }
 
 // Делаем функцию selectSkin глобальной сразу после определения

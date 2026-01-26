@@ -240,7 +240,13 @@ function updateWeaponsShopDisplay() {
             <div class="shop-item-price">${owned ? '✓ Куплено' : '💰 ' + item.price}</div>
         `;
         if (!owned) {
-            itemDiv.onclick = () => buyWeaponFromShop(item);
+            itemDiv.onclick = () => {
+                console.log('Клик по оружию:', item.name);
+                buyWeaponFromShop(item);
+            };
+            itemDiv.style.cursor = 'pointer';
+        } else {
+            itemDiv.style.cursor = 'default';
         }
         weaponsContainer.appendChild(itemDiv);
     });
@@ -308,7 +314,13 @@ function updateWeaponsShopDisplay() {
             <div class="shop-item-price">${owned ? '✓ Установлена' : '💰 ' + item.price}</div>
         `;
         if (!owned) {
-            turretItem.onclick = () => buyTurretFromShop(item.id);
+            turretItem.onclick = () => {
+                console.log('Клик по турели:', item.name);
+                buyTurretFromShop(item.id);
+            };
+            turretItem.style.cursor = 'pointer';
+        } else {
+            turretItem.style.cursor = 'default';
         }
         turretsContainer.appendChild(turretItem);
     });
@@ -357,7 +369,13 @@ function updateWeaponsShopDisplay() {
             <div class="shop-item-price">${owned ? '✓ Куплен' : '💰 ' + item.price}</div>
         `;
         if (!owned) {
-            petItem.onclick = () => buyPetFromShop(item.id);
+            petItem.onclick = () => {
+                console.log('Клик по питомцу:', item.name);
+                buyPetFromShop(item.id);
+            };
+            petItem.style.cursor = 'pointer';
+        } else {
+            petItem.style.cursor = 'default';
         }
         petsContainer.appendChild(petItem);
     });

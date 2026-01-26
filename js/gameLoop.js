@@ -753,9 +753,18 @@ function updateObstacles() {
                 if (obstacleGroup.userData.attackCooldown <= 0) {
                     obstacleGroup.userData.attackCooldown = 120;
 
-                    // Наносим урон игроку
-                    lives--;
+                    // Наносим урон игроку (четверть HP = 25)
+                    const damage = 25;
+                    playerHP -= damage;
+
+                    // Если HP закончилось, теряем жизнь и восстанавливаем HP
+                    if (playerHP <= 0) {
+                        lives--;
+                        playerHP = maxPlayerHP;
+                    }
+
                     updateScoreDisplay();
+                    updatePlayerHPDisplay();
 
                     // Эффект атаки босса - красная вспышка
                     scene.background = new THREE.Color(0xFF0000);
@@ -766,7 +775,7 @@ function updateObstacles() {
                     // Уведомление об атаке
                     const attackNotif = document.createElement('div');
                     attackNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.9); color: white; padding: 30px 50px; border-radius: 15px; font-size: 32px; font-weight: bold; z-index: 999; border: 3px solid #8B0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);';
-                    attackNotif.innerHTML = '💀 БОСС АТАКУЕТ! -1 ❤️';
+                    attackNotif.innerHTML = '💀 БОСС АТАКУЕТ! -25 HP';
                     document.body.appendChild(attackNotif);
                     setTimeout(() => {
                         if (document.body.contains(attackNotif)) {
@@ -1042,6 +1051,74 @@ function updatePets() {
             pet.position.y = 2 + Math.sin(time + pet.userData.flyOffset || 0) * 0.3;
         }
     });
+
+    // Обновляем напарника
+    if (companion && gameActive) {
+        // Напарник следует за игроком
+        if (player) {
+            const dx = player.position.x - companion.position.x + 3;
+            const dz = player.position.z - companion.position.z - 2;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+
+            // Если далеко от игрока, подходим ближе
+            if (distance > 1) {
+                companion.position.x += dx * 0.05;
+                companion.position.z += dz * 0.05;
+            }
+        }
+
+        // Напарник стреляет по ближайшему зомби
+        companion.userData.shootCooldown--;
+
+        let nearestZombie = null;
+        let nearestDistance = 30;
+
+        obstacles.forEach(obstacleGroup => {
+            const zombie = obstacleGroup.userData.zombie || obstacleGroup.userData.cube;
+            if (!zombie) return;
+
+            const zombieWorldPos = new THREE.Vector3();
+            zombie.getWorldPosition(zombieWorldPos);
+
+            const distance = companion.position.distanceTo(zombieWorldPos);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestZombie = { pos: zombieWorldPos, group: obstacleGroup };
+            }
+        });
+
+        // Если есть зомби и кулдаун прошел, стреляем
+        if (nearestZombie && companion.userData.shootCooldown <= 0) {
+            companionShoot(companion, nearestZombie.pos);
+            companion.userData.shootCooldown = 30; // Стреляет каждые 30 кадров
+        }
+    }
+}
+
+// Стрельба напарника
+function companionShoot(companion, targetPos) {
+    // Создаем пулю
+    const bulletGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+    const bulletMaterial = new THREE.MeshPhongMaterial({
+        color: 0x667eea,
+        emissive: 0x667eea,
+        emissiveIntensity: 0.8
+    });
+    const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+
+    bullet.position.copy(companion.position);
+    bullet.position.y += 1.5; // Пуля вылетает из уровня груди
+
+    // Направление к цели
+    const direction = new THREE.Vector3()
+        .subVectors(targetPos, bullet.position)
+        .normalize();
+
+    bullet.userData.direction = direction;
+    bullet.userData.isCompanionBullet = true;
+
+    scene.add(bullet);
+    bullets.push(bullet);
 }
 
 // Атака питомца

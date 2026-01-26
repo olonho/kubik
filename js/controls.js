@@ -498,6 +498,11 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('buildBedBtn').addEventListener('click', () => {
         buildBed();
     });
+
+    // Обработчик кнопки поглаживания собаки
+    document.getElementById('petDogBtn').addEventListener('click', () => {
+        petDog();
+    });
 });
 
 // init() будет вызван после выбора скина (определён в init.js)
