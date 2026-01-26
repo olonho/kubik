@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persy House</title>
     <style>
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
         body {
             margin: 0;
             overflow: hidden;
@@ -360,9 +365,16 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="js/game.js"></script>
+    <!-- Данные (без зависимостей) -->
+    <script src="js/shopData.js"></script>
+    <!-- Создатели 3D моделей (только THREE.js) -->
     <script src="js/weapons.js"></script>
+    <script src="js/characters.js"></script>
     <script src="js/decorations.js"></script>
+    <script src="js/turrets.js"></script>
+    <script src="js/pets.js"></script>
+    <!-- Основная игровая логика -->
+    <script src="js/game.js"></script>
     <script src="js/shop.js"></script>
 </head>
 <body>
@@ -405,7 +417,7 @@
     </div>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
-    <div id="instructions" style="display: none;">← → : Движение | Пробел: Прыжок | W: Стрелять | 1: Пистолет | 2: Винтовка | 3: Лазер* | 4: Гравитация* | ENTER: Вид | B: Магазин</div>
+    <div id="instructions" style="display: none;">🎮 DualShock 4: Левый стик | R2: Стрелять | X: Прыжок | □: Вид | △: Магазин<br>⌨️ Клавиатура: ↑↓←→ | W: Стрелять | Пробел: Прыжок | ENTER: Вид | B: Магазин</div>
     <div id="weaponDisplay" style="display: none;">
         Оружие: 🔫 Пистолет
     </div>
@@ -465,7 +477,7 @@
 
         <hr style="border: 2px solid gold; margin: 30px 0;">
         <h3 style="color: gold; font-size: 36px; margin-bottom: 20px;">💎 ПРЕМИУМ ОРУЖИЕ 💎</h3>
-        
+
         <div style="background-color: rgba(255, 100, 0, 0.15); padding: 30px; border-radius: 15px; margin: 20px 0; border: 3px solid #FF6347;">
             <div style="color: white; font-size: 32px; margin-bottom: 15px;">🔫🔥 МИНИГАН</div>
             <div style="color: #FFD700; font-size: 20px; margin-bottom: 10px;">Супер скорострельность • 200 патронов</div>
@@ -552,6 +564,10 @@
             <h3 style="color: #ff5555; font-size: 36px; margin: 40px 0 20px 0; text-align: center;">⚡ Боевые Турели ⚡</h3>
             <div id="weaponsShopTurrets" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
 
+            <!-- Питомцы -->
+            <h3 style="color: #55ff55; font-size: 36px; margin: 40px 0 20px 0; text-align: center;">🐾 Боевые Питомцы 🐾</h3>
+            <div id="weaponsShopPets" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
+
             <div style="text-align: center; margin-top: 40px;">
                 <button id="continueWeaponsShopBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
                     Продолжить игру
@@ -611,41 +627,9 @@
 
     <script>
         // Глобальные переменные объявлены в js/game.js
-
-        // Магазин предметов
-        const shopItems = {
-            skins: [
-                { id: 'dragon', name: 'Дракон', icon: '🐉', price: 100 },
-                { id: 'unicorn', name: 'Единорог', icon: '🦄', price: 150 },
-                { id: 'tiger', name: 'Тигр', icon: '🐯', price: 120 },
-                { id: 'alien', name: 'Инопланетянин', icon: '👽', price: 200 },
-                { id: 'ninja', name: 'Ниндзя', icon: '🥷', price: 180 },
-                { id: 'wizard', name: 'Волшебник', icon: '🧙', price: 250 }
-            ],
-            weapons: [
-                { id: 'machinegun', name: 'Пулемёт', icon: '🔫💨', price: 300, description: 'Авто, 80 патронов', ammo: 80 },
-                { id: 'shotgun', name: 'Дробовик', icon: '💥🔫', price: 250, description: 'Дробь, 25 патронов', ammo: 25 },
-                { id: 'sniper', name: 'Снайперка', icon: '🎯🔭', price: 400, description: 'Мощно, 15 патронов', ammo: 15 },
-                { id: 'crossbow', name: 'Арбалет', icon: '🏹', price: 200, description: 'Стрелы, 40 патронов', ammo: 40 },
-                { id: 'flamethrower', name: 'Огнемёт', icon: '🔥🔫', price: 550, description: 'Огонь, 50 патронов', ammo: 50 },
-                { id: 'railgun', name: 'Рельсотрон', icon: '⚡🎯', price: 800, description: 'Мощь, 10 патронов', ammo: 10 },
-                { id: 'minigun', name: 'Минигун', icon: '🔫⚙️', price: 900, description: 'Скорострел, 200 патронов', ammo: 200 },
-                { id: 'grenade', name: 'Гранатомёт', icon: '💣🔫', price: 650, description: 'Взрывы, 15 патронов', ammo: 15 },
-                { id: 'plasma', name: 'Плазма', icon: '⚛️💫', price: 700, description: 'Энергия, 60 патронов', ammo: 60 },
-                { id: 'rocket', name: 'Ракетница', icon: '🚀💥', price: 600, description: 'Ракеты, 12 патронов', ammo: 12 }
-            ],
-            turrets: [
-                { id: 'basic', name: 'Базовая турель', icon: '🔫⚙️', price: 1000, description: 'Автоматическая защита' },
-                { id: 'fire', name: 'Огневая турель', icon: '🔥💥', price: 1500, description: 'Огненные снаряды' },
-                { id: 'laser', name: 'Лазерная турель', icon: '⚡🔷', price: 2000, description: 'Быстрая лазерная стрельба' },
-                { id: 'rocket', name: 'Ракетная турель', icon: '🚀💣', price: 2500, description: 'Мощные ракеты' },
-                { id: 'freeze', name: 'Морозная турель', icon: '❄️💎', price: 3000, description: 'Замораживает врагов' },
-                { id: 'electric', name: 'Электро турель', icon: '⚡💛', price: 3500, description: 'Цепная молния' },
-                { id: 'poison', name: 'Ядовитая турель', icon: '☢️💚', price: 4000, description: 'Токсичный газ' },
-                { id: 'explosive', name: 'Взрывная турель', icon: '💥⚫', price: 4500, description: 'Мощные взрывы' },
-                { id: 'sonic', name: 'Звуковая турель', icon: '🔊🌀', price: 5000, description: 'Звуковые волны' }
-            ]
-        };
+        // Данные магазина (shopItems) в js/shopData.js
+        // Функции создания персонажей в js/characters.js
+        // Функции создания турелей в js/turrets.js
 
         function openShop(showReward = false) {
             document.getElementById('itemsShopMenu').style.display = 'block';
@@ -710,15 +694,12 @@
 
         function buyTurret(type) {
             const prices = {
-                basic: 1000,
-                fire: 1500,
-                laser: 2000,
-                rocket: 2500,
-                freeze: 3000,
-                electric: 3500,
-                poison: 4000,
-                explosive: 4500,
-                sonic: 5000
+                basic: 1000, fire: 1500, laser: 2000, rocket: 2500, freeze: 3000,
+                electric: 3500, poison: 4000, explosive: 4500, sonic: 5000,
+                plasma: 5500, tesla: 6000, gravityt: 6500, railgunt: 7000, minigunt: 7500,
+                flamethrower: 8000, sniper: 8500, shotgunt: 9000, cannon: 9500, nuclear: 10000,
+                rainbow: 10500, healing: 11000, shield: 11500, quantum: 12000, blackhole: 12500,
+                timet: 13000, energyt: 13500, meteor: 14000, stormt: 14500, antimatter: 15000
             };
             const price = prices[type];
 
@@ -761,6 +742,86 @@
                     case 'sonic':
                         hasSonicTurret = true;
                         createSonicTurret();
+                        break;
+                    case 'plasma':
+                        hasPlasmaTurret = true;
+                        createPlasmaTurret();
+                        break;
+                    case 'tesla':
+                        hasTeslaTurret = true;
+                        createTeslaTurret();
+                        break;
+                    case 'gravityt':
+                        hasGravityTurret = true;
+                        createGravityTurret();
+                        break;
+                    case 'railgunt':
+                        hasRailgunTurret = true;
+                        createRailgunTurret();
+                        break;
+                    case 'minigunt':
+                        hasMinigunTurret = true;
+                        createMinigunTurret();
+                        break;
+                    case 'flamethrower':
+                        hasFlamethrowerTurret = true;
+                        createFlamethrowerTurret();
+                        break;
+                    case 'sniper':
+                        hasSniperTurret = true;
+                        createSniperTurret();
+                        break;
+                    case 'shotgunt':
+                        hasShotgunTurret = true;
+                        createShotgunTurret();
+                        break;
+                    case 'cannon':
+                        hasCannonTurret = true;
+                        createCannonTurret();
+                        break;
+                    case 'nuclear':
+                        hasNuclearTurret = true;
+                        createNuclearTurret();
+                        break;
+                    case 'rainbow':
+                        hasRainbowTurret = true;
+                        createRainbowTurret();
+                        break;
+                    case 'healing':
+                        hasHealingTurret = true;
+                        createHealingTurret();
+                        break;
+                    case 'shield':
+                        hasShieldTurret = true;
+                        createShieldTurret();
+                        break;
+                    case 'quantum':
+                        hasQuantumTurret = true;
+                        createQuantumTurret();
+                        break;
+                    case 'blackhole':
+                        hasBlackholeTurret = true;
+                        createBlackholeTurret();
+                        break;
+                    case 'timet':
+                        hasTimeTurret = true;
+                        createTimeTurret();
+                        break;
+                    case 'energyt':
+                        hasEnergyTurret = true;
+                        createEnergyTurret();
+                        break;
+                    case 'meteor':
+                        hasMeteorTurret = true;
+                        createMeteorTurret();
+                        break;
+                    case 'stormt':
+                        hasStormTurret = true;
+                        createStormTurret();
+                        break;
+                    case 'antimatter':
+                        hasAntimatterTurret = true;
+                        createAntimatterTurret();
                         break;
                 }
 
@@ -825,14 +886,41 @@
                 electric: { bg: 'rgba(255, 215, 0, 0.2)', border: 'rgba(255, 215, 0, 0.5)', name: '#ffff00', desc: '#ffffaa' },
                 poison: { bg: 'rgba(34, 139, 34, 0.2)', border: 'rgba(50, 205, 50, 0.5)', name: '#00ff00', desc: '#aaffaa' },
                 explosive: { bg: 'rgba(139, 0, 0, 0.2)', border: 'rgba(255, 69, 0, 0.5)', name: '#ff4500', desc: '#ffaa88' },
-                sonic: { bg: 'rgba(65, 105, 225, 0.2)', border: 'rgba(0, 191, 255, 0.5)', name: '#00bfff', desc: '#aaddff' }
+                sonic: { bg: 'rgba(65, 105, 225, 0.2)', border: 'rgba(0, 191, 255, 0.5)', name: '#00bfff', desc: '#aaddff' },
+                plasma: { bg: 'rgba(138, 43, 226, 0.2)', border: 'rgba(138, 43, 226, 0.5)', name: '#8a2be2', desc: '#dda0ff' },
+                tesla: { bg: 'rgba(75, 0, 130, 0.2)', border: 'rgba(138, 43, 226, 0.5)', name: '#8a2be2', desc: '#ccaaff' },
+                gravityt: { bg: 'rgba(75, 0, 130, 0.2)', border: 'rgba(75, 0, 130, 0.5)', name: '#4b0082', desc: '#aa88cc' },
+                railgunt: { bg: 'rgba(0, 128, 255, 0.2)', border: 'rgba(0, 128, 255, 0.5)', name: '#0080ff', desc: '#aaccff' },
+                minigunt: { bg: 'rgba(255, 69, 0, 0.2)', border: 'rgba(255, 140, 0, 0.5)', name: '#ff4500', desc: '#ffaa77' },
+                flamethrower: { bg: 'rgba(255, 0, 0, 0.2)', border: 'rgba(255, 69, 0, 0.5)', name: '#ff0000', desc: '#ff8888' },
+                sniper: { bg: 'rgba(139, 69, 19, 0.2)', border: 'rgba(210, 105, 30, 0.5)', name: '#d2691e', desc: '#ffbb99' },
+                shotgunt: { bg: 'rgba(184, 134, 11, 0.2)', border: 'rgba(218, 165, 32, 0.5)', name: '#daa520', desc: '#ffdd88' },
+                cannon: { bg: 'rgba(47, 79, 79, 0.2)', border: 'rgba(112, 128, 144, 0.5)', name: '#708090', desc: '#ccdddd' },
+                nuclear: { bg: 'rgba(0, 255, 0, 0.2)', border: 'rgba(0, 255, 0, 0.5)', name: '#00ff00', desc: '#88ff88' },
+                rainbow: { bg: 'linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)', border: 'rgba(255, 255, 255, 0.8)', name: '#ffffff', desc: '#ffffff' },
+                healing: { bg: 'rgba(0, 255, 127, 0.2)', border: 'rgba(0, 255, 127, 0.5)', name: '#00ff7f', desc: '#88ffcc' },
+                shield: { bg: 'rgba(30, 144, 255, 0.2)', border: 'rgba(30, 144, 255, 0.5)', name: '#1e90ff', desc: '#aaccff' },
+                quantum: { bg: 'rgba(138, 43, 226, 0.2)', border: 'rgba(186, 85, 211, 0.5)', name: '#ba55d3', desc: '#ddaaff' },
+                blackhole: { bg: 'rgba(0, 0, 0, 0.4)', border: 'rgba(75, 0, 130, 0.5)', name: '#ffffff', desc: '#aaaaaa' },
+                timet: { bg: 'rgba(255, 215, 0, 0.2)', border: 'rgba(255, 215, 0, 0.5)', name: '#ffd700', desc: '#ffffaa' },
+                energyt: { bg: 'rgba(255, 255, 255, 0.2)', border: 'rgba(255, 255, 255, 0.5)', name: '#ffffff', desc: '#dddddd' },
+                meteor: { bg: 'rgba(205, 92, 92, 0.2)', border: 'rgba(220, 20, 60, 0.5)', name: '#dc143c', desc: '#ff9999' },
+                stormt: { bg: 'rgba(70, 130, 180, 0.2)', border: 'rgba(100, 149, 237, 0.5)', name: '#6495ed', desc: '#aaccff' },
+                antimatter: { bg: 'rgba(139, 0, 0, 0.2)', border: 'rgba(178, 34, 34, 0.5)', name: '#b22222', desc: '#ff8888' }
             };
 
             shopItems.turrets.forEach(item => {
                 const ownedVars = {
                     basic: hasTurret, fire: hasFireTurret, laser: hasLaserTurret, rocket: hasRocketTurret,
                     freeze: hasFreezeTurret, electric: hasElectricTurret, poison: hasPoisonTurret,
-                    explosive: hasExplosiveTurret, sonic: hasSonicTurret
+                    explosive: hasExplosiveTurret, sonic: hasSonicTurret, plasma: hasPlasmaTurret,
+                    tesla: hasTeslaTurret, gravityt: hasGravityTurret, railgunt: hasRailgunTurret,
+                    minigunt: hasMinigunTurret, flamethrower: hasFlamethrowerTurret, sniper: hasSniperTurret,
+                    shotgunt: hasShotgunTurret, cannon: hasCannonTurret, nuclear: hasNuclearTurret,
+                    rainbow: hasRainbowTurret, healing: hasHealingTurret, shield: hasShieldTurret,
+                    quantum: hasQuantumTurret, blackhole: hasBlackholeTurret, timet: hasTimeTurret,
+                    energyt: hasEnergyTurret, meteor: hasMeteorTurret, stormt: hasStormTurret,
+                    antimatter: hasAntimatterTurret
                 };
                 const owned = ownedVars[item.id];
                 const colors = turretColors[item.id] || { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)', name: '#aaaaaa', desc: '#cccccc' };
@@ -854,10 +942,50 @@
             });
         }
 
+            // Отображаем питомцев
+            const petsContainer = document.getElementById('weaponsShopPets');
+            petsContainer.innerHTML = '';
+
+            shopItems.pets.forEach(item => {
+                const owned = ownedPets.includes(item.id);
+                const petColors = {
+                    dog: { bg: 'rgba(139, 69, 19, 0.2)', border: 'rgba(210, 105, 30, 0.5)' },
+                    cat: { bg: 'rgba(255, 228, 181, 0.2)', border: 'rgba(255, 218, 185, 0.5)' },
+                    wolf: { bg: 'rgba(105, 105, 105, 0.2)', border: 'rgba(128, 128, 128, 0.5)' },
+                    bear: { bg: 'rgba(101, 67, 33, 0.2)', border: 'rgba(139, 69, 19, 0.5)' },
+                    eagle: { bg: 'rgba(70, 130, 180, 0.2)', border: 'rgba(100, 149, 237, 0.5)' },
+                    panda: { bg: 'rgba(240, 240, 240, 0.2)', border: 'rgba(255, 255, 255, 0.5)' },
+                    fox: { bg: 'rgba(255, 140, 0, 0.2)', border: 'rgba(255, 165, 0, 0.5)' },
+                    dragon: { bg: 'rgba(220, 20, 60, 0.2)', border: 'rgba(255, 69, 0, 0.5)' },
+                    unicorn: { bg: 'rgba(255, 192, 203, 0.2)', border: 'rgba(255, 182, 193, 0.5)' },
+                    robot: { bg: 'rgba(192, 192, 192, 0.2)', border: 'rgba(169, 169, 169, 0.5)' },
+                    tiger: { bg: 'rgba(255, 127, 80, 0.2)', border: 'rgba(255, 99, 71, 0.5)' },
+                    lion: { bg: 'rgba(218, 165, 32, 0.2)', border: 'rgba(255, 215, 0, 0.5)' }
+                };
+                const colors = petColors[item.id] || { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)' };
+
+                const petItem = document.createElement('div');
+                petItem.className = 'shop-item' + (owned ? ' owned' : '');
+                petItem.style.backgroundColor = colors.bg;
+                petItem.style.border = '3px solid ' + colors.border;
+                petItem.innerHTML = `
+                    <div class="shop-item-icon" style="font-size: 48px;">${item.icon}</div>
+                    <div class="shop-item-name" style="color: #66ff66; font-size: 20px;">${item.name}</div>
+                    <div class="shop-item-desc" style="color: #aaffaa;">${item.description}</div>
+                    <div class="shop-item-price" style="font-size: 20px; color: gold;">${owned ? '✓ Куплен' : '💰 ' + item.price}</div>
+                `;
+                if (!owned) {
+                    petItem.onclick = () => buyPetFromShop(item.id);
+                }
+                petsContainer.appendChild(petItem);
+            });
+
+
         function buyWeaponFromShop(item) {
             if (coins >= item.price) {
                 coins -= item.price;
                 ownedWeapons.push(item.id);
+                localStorage.setItem('cubeGameOwnedWeapons', JSON.stringify(ownedWeapons));
                 updateWeaponsShopDisplay();
                 updateCoinsDisplay();
                 localStorage.setItem('cubeGameCoins', coins);
@@ -920,6 +1048,26 @@
             }
         }
 
+        function buyPetFromShop(type) {
+            const pet = shopItems.pets.find(p => p.id === type);
+            if (!pet) return;
+
+            if (coins >= pet.price) {
+                coins -= pet.price;
+                ownedPets.push(type);
+                localStorage.setItem('cubeGameOwnedPets', JSON.stringify(ownedPets));
+
+                // Создаем питомца
+                createPet(type);
+
+                updateWeaponsShopDisplay();
+                updateCoinsDisplay();
+                localStorage.setItem('cubeGameCoins', coins);
+            } else {
+                alert('Недостаточно монет! Нужно: ' + pet.price + ', у вас: ' + coins);
+            }
+        }
+
         function selectSkin(skin) {
             selectedSkin = skin;
 
@@ -928,7 +1076,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.02; // Медленная скорость зомби
+            obstacleSpeed = 0.015; // Медленная скорость зомби
             spawnRate = 0.03; // Много зомби
             playerVelocityY = 0;
             isJumping = false;
@@ -967,11 +1115,18 @@
             turrets.forEach(turret => scene.remove(turret));
             turrets = [];
 
+            // Очищаем питомцев
+            pets.forEach(pet => scene.remove(pet));
+            pets = [];
+
             // Инициализируем цель взгляда камеры
             cameraLookTarget = new THREE.Vector3(0, 0.7, -10);
 
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb);
+
+            // Градиентное небо
+            const skyColor = new THREE.Color(0x87ceeb);
+            scene.background = skyColor;
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             // Вид от первого лица - камера на уровне глаз персонажа
@@ -980,22 +1135,65 @@
 
             // Создаём renderer только если его еще нет
             if (!renderer) {
-                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer = new THREE.WebGLRenderer({
+                    antialias: true,
+                    powerPreference: "high-performance"
+                });
                 renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                // Улучшенные тени
                 renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                // Улучшенный рендеринг
+                renderer.outputEncoding = THREE.sRGBEncoding;
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1.2;
+
                 document.body.appendChild(renderer.domElement);
             }
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            // Туман для атмосферы и глубины
+            scene.fog = new THREE.Fog(0x87ceeb, 10, 60);
+
+            // Более реалистичное освещение
+            const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 0.5);
+            scene.add(hemisphereLight);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(5, 10, 5);
+            // Основной направленный свет с улучшенными тенями
+            const directionalLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+            directionalLight.position.set(10, 20, 10);
             directionalLight.castShadow = true;
+
+            // Улучшенные настройки теней
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 50;
+            directionalLight.shadow.camera.left = -20;
+            directionalLight.shadow.camera.right = 20;
+            directionalLight.shadow.camera.top = 20;
+            directionalLight.shadow.camera.bottom = -20;
+            directionalLight.shadow.bias = -0.0001;
+
             scene.add(directionalLight);
 
+            // Дополнительный заполняющий свет
+            const fillLight = new THREE.DirectionalLight(0xadd8e6, 0.3);
+            fillLight.position.set(-5, 5, -5);
+            scene.add(fillLight);
+
+            // Улучшенная земля с текстурой
             const groundGeometry = new THREE.PlaneGeometry(10, 100);
-            const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x228b22 });
+            const groundMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2d5a2d,
+                roughness: 0.8,
+                metalness: 0.1
+            });
             ground = new THREE.Mesh(groundGeometry, groundMaterial);
             ground.rotation.x = -Math.PI / 2;
             ground.receiveShadow = true;
@@ -1141,806 +1339,16 @@
             document.getElementById('weaponDisplay').style.display = 'block';
             document.getElementById('weaponDisplay').textContent = '🔫 Пистолет';
 
+            // Запускаем первую волну
+            startNewWave();
+
             // Запускаем игровой цикл
             animate();
         }
 
-
-        function createHouse() {
-            const houseGroup = new THREE.Group();
-
-            // Основание дома
-            const wallGeometry = new THREE.BoxGeometry(2.5, 2, 2);
-            const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
-            const walls = new THREE.Mesh(wallGeometry, wallMaterial);
-            walls.position.y = 1;
-            walls.castShadow = true;
-            walls.receiveShadow = true;
-            houseGroup.add(walls);
-
-            // Крыша
-            const roofGeometry = new THREE.ConeGeometry(1.8, 1.2, 4);
-            const roofMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
-            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-            roof.position.y = 2.6;
-            roof.rotation.y = Math.PI / 4;
-            roof.castShadow = true;
-            houseGroup.add(roof);
-
-            // Дверь
-            const doorGeometry = new THREE.BoxGeometry(0.6, 1.2, 0.1);
-            const doorMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
-            const door = new THREE.Mesh(doorGeometry, doorMaterial);
-            door.position.set(0, 0.6, 1.05);
-            door.castShadow = true;
-            houseGroup.add(door);
-
-            // Окна
-            const windowGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.1);
-            const windowMaterial = new THREE.MeshPhongMaterial({
-                color: 0x87CEEB,
-                emissive: 0x4682B4,
-                emissiveIntensity: 0.3
-            });
-
-            const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
-            window1.position.set(-0.8, 1.2, 1.05);
-            houseGroup.add(window1);
-
-            const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
-            window2.position.set(0.8, 1.2, 1.05);
-            houseGroup.add(window2);
-
-            // Труба
-            const chimneyGeometry = new THREE.BoxGeometry(0.3, 0.8, 0.3);
-            const chimneyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
-            chimney.position.set(0.8, 2.8, 0.5);
-            chimney.castShadow = true;
-            houseGroup.add(chimney);
-
-            return houseGroup;
-        }
-
-        function createHouseCat() {
-            const catGroup = new THREE.Group();
-
-            // Тело кошки
-            const bodyGeometry = new THREE.BoxGeometry(0.5, 0.3, 0.7);
-            const catMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            const body = new THREE.Mesh(bodyGeometry, catMaterial);
-            body.position.y = 0.25;
-            body.castShadow = true;
-            catGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.SphereGeometry(0.18, 16, 16);
-            const head = new THREE.Mesh(headGeometry, catMaterial);
-            head.position.set(0, 0.35, 0.4);
-            head.castShadow = true;
-            catGroup.add(head);
-
-            // Уши
-            const earGeometry = new THREE.ConeGeometry(0.08, 0.15, 4);
-            const ear1 = new THREE.Mesh(earGeometry, catMaterial);
-            ear1.position.set(-0.1, 0.5, 0.4);
-            ear1.rotation.z = -0.3;
-            catGroup.add(ear1);
-
-            const ear2 = new THREE.Mesh(earGeometry, catMaterial);
-            ear2.position.set(0.1, 0.5, 0.4);
-            ear2.rotation.z = 0.3;
-            catGroup.add(ear2);
-
-            // Хвост
-            const tailGeometry = new THREE.CylinderGeometry(0.05, 0.03, 0.6, 8);
-            const tail = new THREE.Mesh(tailGeometry, catMaterial);
-            tail.position.set(0, 0.4, -0.3);
-            tail.rotation.x = Math.PI / 3;
-            tail.castShadow = true;
-            catGroup.add(tail);
-
-            // Лапы
-            const legGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.25, 8);
-            const positions = [
-                [-0.15, 0.12, 0.2],
-                [0.15, 0.12, 0.2],
-                [-0.15, 0.12, -0.2],
-                [0.15, 0.12, -0.2]
-            ];
-
-            positions.forEach(pos => {
-                const leg = new THREE.Mesh(legGeometry, catMaterial);
-                leg.position.set(...pos);
-                leg.castShadow = true;
-                catGroup.add(leg);
-            });
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.04, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({
-                color: 0x00FF00,
-                emissive: 0x00FF00,
-                emissiveIntensity: 0.5
-            });
-
-            const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            eye1.position.set(-0.08, 0.38, 0.52);
-            catGroup.add(eye1);
-
-            const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            eye2.position.set(0.08, 0.38, 0.52);
-            catGroup.add(eye2);
-
-            return catGroup;
-        }
-
-        function createDog() {
-            const dogGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.BoxGeometry(0.8, 0.5, 0.5);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.3, 0);
-            body.castShadow = true;
-            dogGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.35);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0.5, 0.4, 0);
-            head.castShadow = true;
-            dogGroup.add(head);
-
-            // Морда
-            const snoutGeometry = new THREE.BoxGeometry(0.25, 0.2, 0.25);
-            const snoutMaterial = new THREE.MeshPhongMaterial({ color: 0xCD853F });
-            const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-            snout.position.set(0.72, 0.35, 0);
-            snout.castShadow = true;
-            dogGroup.add(snout);
-
-            // Нос
-            const noseGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-            const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0.84, 0.35, 0);
-            nose.castShadow = true;
-            dogGroup.add(nose);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.6, 0.5, -0.12);
-            dogGroup.add(leftEye);
-
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.6, 0.5, 0.12);
-            dogGroup.add(rightEye);
-
-            // Уши
-            const earGeometry = new THREE.BoxGeometry(0.15, 0.3, 0.1);
-            const earMaterial = new THREE.MeshPhongMaterial({ color: 0xA0522D });
-
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(0.5, 0.65, -0.2);
-            leftEar.rotation.z = 0.2;
-            leftEar.castShadow = true;
-            dogGroup.add(leftEar);
-
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.5, 0.65, 0.2);
-            rightEar.rotation.z = -0.2;
-            rightEar.castShadow = true;
-            dogGroup.add(rightEar);
-
-            // Лапы
-            const legGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.35, 8);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
-
-            const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontLeftLeg.position.set(0.3, 0.05, -0.2);
-            frontLeftLeg.castShadow = true;
-            dogGroup.add(frontLeftLeg);
-
-            const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontRightLeg.position.set(0.3, 0.05, 0.2);
-            frontRightLeg.castShadow = true;
-            dogGroup.add(frontRightLeg);
-
-            const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backLeftLeg.position.set(-0.3, 0.05, -0.2);
-            backLeftLeg.castShadow = true;
-            dogGroup.add(backLeftLeg);
-
-            const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backRightLeg.position.set(-0.3, 0.05, 0.2);
-            backRightLeg.castShadow = true;
-            dogGroup.add(backRightLeg);
-
-            // Хвост
-            const tailGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.4, 8);
-            const tailMaterial = new THREE.MeshPhongMaterial({ color: 0xA0522D });
-            const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-            tail.position.set(-0.5, 0.4, 0);
-            tail.rotation.z = Math.PI / 4;
-            tail.castShadow = true;
-            dogGroup.add(tail);
-
-            return dogGroup;
-        }
-
-        function createCat() {
-            const catGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.BoxGeometry(0.7, 0.4, 0.5);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.3, 0);
-            body.castShadow = true;
-            catGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0.45, 0.45, 0);
-            head.castShadow = true;
-            catGroup.add(head);
-
-            // Мордочка
-            const snoutGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-            const snoutMaterial = new THREE.MeshPhongMaterial({ color: 0xFFE4B5 });
-            const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-            snout.position.set(0.65, 0.4, 0);
-            snout.scale.set(0.8, 0.8, 0.6);
-            snout.castShadow = true;
-            catGroup.add(snout);
-
-            // Нос
-            const noseGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const noseMaterial = new THREE.MeshPhongMaterial({ color: 0xFF69B4 });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0.72, 0.4, 0);
-            catGroup.add(nose);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.07, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x90EE90 });
-
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.58, 0.5, -0.12);
-            catGroup.add(leftEye);
-
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.58, 0.5, 0.12);
-            catGroup.add(rightEye);
-
-            // Зрачки
-            const pupilGeometry = new THREE.SphereGeometry(0.03, 8, 8);
-            const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-
-            const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            leftPupil.position.set(0.64, 0.5, -0.12);
-            catGroup.add(leftPupil);
-
-            const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            rightPupil.position.set(0.64, 0.5, 0.12);
-            catGroup.add(rightPupil);
-
-            // Уши треугольные
-            const earGeometry = new THREE.ConeGeometry(0.12, 0.25, 4);
-            const earMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(0.45, 0.65, -0.15);
-            leftEar.rotation.z = Math.PI;
-            leftEar.castShadow = true;
-            catGroup.add(leftEar);
-
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.45, 0.65, 0.15);
-            rightEar.rotation.z = Math.PI;
-            rightEar.castShadow = true;
-            catGroup.add(rightEar);
-
-            // Лапы
-            const legGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.35, 8);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-
-            const frontLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontLeftLeg.position.set(0.25, 0.05, -0.18);
-            frontLeftLeg.castShadow = true;
-            catGroup.add(frontLeftLeg);
-
-            const frontRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            frontRightLeg.position.set(0.25, 0.05, 0.18);
-            frontRightLeg.castShadow = true;
-            catGroup.add(frontRightLeg);
-
-            const backLeftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backLeftLeg.position.set(-0.25, 0.05, -0.18);
-            backLeftLeg.castShadow = true;
-            catGroup.add(backLeftLeg);
-
-            const backRightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            backRightLeg.position.set(-0.25, 0.05, 0.18);
-            backRightLeg.castShadow = true;
-            catGroup.add(backRightLeg);
-
-            // Хвост (выше и изогнутый)
-            const tailGeometry = new THREE.CylinderGeometry(0.04, 0.06, 0.5, 8);
-            const tailMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-            const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-            tail.position.set(-0.5, 0.5, 0);
-            tail.rotation.z = Math.PI / 3;
-            tail.castShadow = true;
-            catGroup.add(tail);
-
-            return catGroup;
-        }
-
-        function createCube() {
-            const cubeGroup = new THREE.Group();
-
-            // Просто кубик
-            const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-            const material = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
-            const cube = new THREE.Mesh(geometry, material);
-            cube.position.y = 0.3;
-            cube.castShadow = true;
-            cubeGroup.add(cube);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.42, 0.4, -0.15);
-            cubeGroup.add(leftEye);
-
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.42, 0.4, 0.15);
-            cubeGroup.add(rightEye);
-
-            // Зрачки
-            const pupilGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-
-            const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            leftPupil.position.set(0.48, 0.4, -0.15);
-            cubeGroup.add(leftPupil);
-
-            const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            rightPupil.position.set(0.48, 0.4, 0.15);
-            cubeGroup.add(rightPupil);
-
-            // Улыбка
-            const smileGeometry = new THREE.TorusGeometry(0.15, 0.02, 8, 16, Math.PI);
-            const smileMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const smile = new THREE.Mesh(smileGeometry, smileMaterial);
-            smile.position.set(0.42, 0.2, 0);
-            smile.rotation.set(0, Math.PI / 2, 0);
-            cubeGroup.add(smile);
-
-            return cubeGroup;
-        }
-
-        function createOval() {
-            const ovalGroup = new THREE.Group();
-
-            // Тело - эллипсоид
-            const bodyGeometry = new THREE.SphereGeometry(0.4, 16, 16);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.3;
-            body.scale.set(1.2, 1, 0.8);
-            body.castShadow = true;
-            ovalGroup.add(body);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.4, 0.4, -0.12);
-            ovalGroup.add(leftEye);
-
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.4, 0.4, 0.12);
-            ovalGroup.add(rightEye);
-
-            // Румянец
-            const blushGeometry = new THREE.CircleGeometry(0.08, 16);
-            const blushMaterial = new THREE.MeshPhongMaterial({
-                color: 0xFFB6C1,
-                transparent: true,
-                opacity: 0.6
-            });
-
-            const leftBlush = new THREE.Mesh(blushGeometry, blushMaterial);
-            leftBlush.position.set(0.38, 0.3, -0.18);
-            leftBlush.rotation.y = -Math.PI / 2;
-            ovalGroup.add(leftBlush);
-
-            const rightBlush = new THREE.Mesh(blushGeometry, blushMaterial);
-            rightBlush.position.set(0.38, 0.3, 0.18);
-            rightBlush.rotation.y = -Math.PI / 2;
-            ovalGroup.add(rightBlush);
-
-            // Улыбка
-            const smileGeometry = new THREE.TorusGeometry(0.12, 0.02, 8, 16, Math.PI);
-            const smileMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const smile = new THREE.Mesh(smileGeometry, smileMaterial);
-            smile.position.set(0.38, 0.22, 0);
-            smile.rotation.set(0, Math.PI / 2, 0);
-            ovalGroup.add(smile);
-
-            // Маленькие ручки
-            const armGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const armMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-
-            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
-            leftArm.position.set(0, 0.3, -0.35);
-            leftArm.scale.set(0.6, 1, 0.6);
-            leftArm.castShadow = true;
-            ovalGroup.add(leftArm);
-
-            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
-            rightArm.position.set(0, 0.3, 0.35);
-            rightArm.scale.set(0.6, 1, 0.6);
-            rightArm.castShadow = true;
-            ovalGroup.add(rightArm);
-
-            return ovalGroup;
-        }
-
-        function createFox() {
-            const foxGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.BoxGeometry(0.7, 0.4, 0.5);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.3, 0);
-            body.castShadow = true;
-            foxGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.BoxGeometry(0.4, 0.35, 0.35);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0.5, 0.45, 0);
-            head.castShadow = true;
-            foxGroup.add(head);
-
-            // Морда белая
-            const snoutGeometry = new THREE.BoxGeometry(0.2, 0.25, 0.3);
-            const snoutMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-            snout.position.set(0.68, 0.4, 0);
-            snout.castShadow = true;
-            foxGroup.add(snout);
-
-            // Нос черный
-            const noseGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0.78, 0.42, 0);
-            foxGroup.add(nose);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.6, 0.52, -0.12);
-            foxGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.6, 0.52, 0.12);
-            foxGroup.add(rightEye);
-
-            // Уши треугольные большие
-            const earGeometry = new THREE.ConeGeometry(0.15, 0.3, 4);
-            const earMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(0.5, 0.7, -0.15);
-            leftEar.rotation.z = Math.PI;
-            leftEar.castShadow = true;
-            foxGroup.add(leftEar);
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.5, 0.7, 0.15);
-            rightEar.rotation.z = Math.PI;
-            rightEar.castShadow = true;
-            foxGroup.add(rightEar);
-
-            // Лапы
-            const legGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.35, 8);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            for (let x of [0.25, -0.25]) {
-                for (let z of [-0.18, 0.18]) {
-                    const leg = new THREE.Mesh(legGeometry, legMaterial);
-                    leg.position.set(x, 0.05, z);
-                    leg.castShadow = true;
-                    foxGroup.add(leg);
-                }
-            }
-
-            // Хвост пушистый
-            const tailGeometry = new THREE.CylinderGeometry(0.06, 0.12, 0.6, 8);
-            const tailMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00 });
-            const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-            tail.position.set(-0.6, 0.5, 0);
-            tail.rotation.z = Math.PI / 2.5;
-            tail.castShadow = true;
-            foxGroup.add(tail);
-
-            return foxGroup;
-        }
-
-        function createPanda() {
-            const pandaGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.SphereGeometry(0.4, 16, 16);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.35, 0);
-            body.scale.set(1, 0.9, 0.8);
-            body.castShadow = true;
-            pandaGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0.3, 0.5, 0);
-            head.castShadow = true;
-            pandaGroup.add(head);
-
-            // Черные пятна вокруг глаз
-            const patchGeometry = new THREE.SphereGeometry(0.12, 16, 16);
-            const patchMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const leftPatch = new THREE.Mesh(patchGeometry, patchMaterial);
-            leftPatch.position.set(0.42, 0.52, -0.15);
-            leftPatch.scale.set(0.9, 1.2, 0.5);
-            pandaGroup.add(leftPatch);
-            const rightPatch = new THREE.Mesh(patchGeometry, patchMaterial);
-            rightPatch.position.set(0.42, 0.52, 0.15);
-            rightPatch.scale.set(0.9, 1.2, 0.5);
-            pandaGroup.add(rightPatch);
-
-            // Глаза белые
-            const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.48, 0.52, -0.15);
-            pandaGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.48, 0.52, 0.15);
-            pandaGroup.add(rightEye);
-
-            // Зрачки
-            const pupilGeometry = new THREE.SphereGeometry(0.03, 8, 8);
-            const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            leftPupil.position.set(0.52, 0.52, -0.15);
-            pandaGroup.add(leftPupil);
-            const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-            rightPupil.position.set(0.52, 0.52, 0.15);
-            pandaGroup.add(rightPupil);
-
-            // Нос черный
-            const noseGeometry = new THREE.SphereGeometry(0.06, 8, 8);
-            const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0.55, 0.42, 0);
-            pandaGroup.add(nose);
-
-            // Уши черные круглые
-            const earGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-            const earMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(0.3, 0.7, -0.2);
-            leftEar.castShadow = true;
-            pandaGroup.add(leftEar);
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.3, 0.7, 0.2);
-            rightEar.castShadow = true;
-            pandaGroup.add(rightEar);
-
-            // Лапы черные
-            const legGeometry = new THREE.CylinderGeometry(0.09, 0.09, 0.35, 8);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            for (let x of [0.2, -0.2]) {
-                for (let z of [-0.25, 0.25]) {
-                    const leg = new THREE.Mesh(legGeometry, legMaterial);
-                    leg.position.set(x, 0.05, z);
-                    leg.castShadow = true;
-                    pandaGroup.add(leg);
-                }
-            }
-
-            return pandaGroup;
-        }
-
-        function createRabbit() {
-            const rabbitGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.SphereGeometry(0.35, 16, 16);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xF5F5DC });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.3, 0);
-            body.scale.set(1, 1.1, 0.9);
-            body.castShadow = true;
-            rabbitGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xF5F5DC });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0.35, 0.5, 0);
-            head.castShadow = true;
-            rabbitGroup.add(head);
-
-            // Морда
-            const snoutGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-            const snoutMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
-            snout.position.set(0.55, 0.45, 0);
-            snout.scale.set(0.8, 0.7, 0.6);
-            rabbitGroup.add(snout);
-
-            // Нос розовый
-            const noseGeometry = new THREE.SphereGeometry(0.04, 8, 8);
-            const noseMaterial = new THREE.MeshPhongMaterial({ color: 0xFFB6C1 });
-            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-            nose.position.set(0.63, 0.46, 0);
-            rabbitGroup.add(nose);
-
-            // Глаза
-            const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.5, 0.55, -0.12);
-            rabbitGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.5, 0.55, 0.12);
-            rabbitGroup.add(rightEye);
-
-            // Длинные уши
-            const earGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.08);
-            const earMaterial = new THREE.MeshPhongMaterial({ color: 0xF5F5DC });
-            const leftEar = new THREE.Mesh(earGeometry, earMaterial);
-            leftEar.position.set(0.35, 0.9, -0.12);
-            leftEar.rotation.z = 0.1;
-            leftEar.castShadow = true;
-            rabbitGroup.add(leftEar);
-            const rightEar = new THREE.Mesh(earGeometry, earMaterial);
-            rightEar.position.set(0.35, 0.9, 0.12);
-            rightEar.rotation.z = -0.1;
-            rightEar.castShadow = true;
-            rabbitGroup.add(rightEar);
-
-            // Лапы
-            const legGeometry = new THREE.CylinderGeometry(0.06, 0.08, 0.25, 8);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0xF5F5DC });
-            for (let x of [0.15, -0.15]) {
-                for (let z of [-0.2, 0.2]) {
-                    const leg = new THREE.Mesh(legGeometry, legMaterial);
-                    leg.position.set(x, 0.05, z);
-                    leg.castShadow = true;
-                    rabbitGroup.add(leg);
-                }
-            }
-
-            // Хвост пушистый
-            const tailGeometry = new THREE.SphereGeometry(0.12, 16, 16);
-            const tailMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
-            const tail = new THREE.Mesh(tailGeometry, tailMaterial);
-            tail.position.set(-0.35, 0.3, 0);
-            tail.castShadow = true;
-            rabbitGroup.add(tail);
-
-            return rabbitGroup;
-        }
-
-        function createRobot() {
-            const robotGroup = new THREE.Group();
-
-            // Тело
-            const bodyGeometry = new THREE.BoxGeometry(0.6, 0.7, 0.4);
-            const bodyMaterial = new THREE.MeshPhongMaterial({
-                color: 0x808080,
-                metalness: 0.8,
-                shininess: 100
-            });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.set(0, 0.4, 0);
-            body.castShadow = true;
-            robotGroup.add(body);
-
-            // Голова
-            const headGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.35);
-            const headMaterial = new THREE.MeshPhongMaterial({
-                color: 0xA9A9A9,
-                metalness: 0.8
-            });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.set(0, 0.85, 0);
-            head.castShadow = true;
-            robotGroup.add(head);
-
-            // Антенна
-            const antennaGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.15, 8);
-            const antennaMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
-            const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
-            antenna.position.set(0, 1.12, 0);
-            robotGroup.add(antenna);
-
-            // Лампочка на антенне
-            const bulbGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const bulbMaterial = new THREE.MeshPhongMaterial({
-                color: 0xFF0000,
-                emissive: 0xFF0000,
-                emissiveIntensity: 0.5
-            });
-            const bulb = new THREE.Mesh(bulbGeometry, bulbMaterial);
-            bulb.position.set(0, 1.22, 0);
-            robotGroup.add(bulb);
-
-            // Глаза (светящиеся)
-            const eyeGeometry = new THREE.BoxGeometry(0.1, 0.08, 0.05);
-            const eyeMaterial = new THREE.MeshPhongMaterial({
-                color: 0x00FFFF,
-                emissive: 0x00FFFF,
-                emissiveIntensity: 0.7
-            });
-            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            leftEye.position.set(0.21, 0.88, -0.1);
-            robotGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-            rightEye.position.set(0.21, 0.88, 0.1);
-            robotGroup.add(rightEye);
-
-            // Рот
-            const mouthGeometry = new THREE.BoxGeometry(0.2, 0.05, 0.05);
-            const mouthMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
-            mouth.position.set(0.21, 0.75, 0);
-            robotGroup.add(mouth);
-
-            // Руки
-            const armGeometry = new THREE.BoxGeometry(0.15, 0.5, 0.15);
-            const armMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
-            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
-            leftArm.position.set(0, 0.35, -0.35);
-            leftArm.castShadow = true;
-            robotGroup.add(leftArm);
-            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
-            rightArm.position.set(0, 0.35, 0.35);
-            rightArm.castShadow = true;
-            robotGroup.add(rightArm);
-
-            // Ноги
-            const legGeometry = new THREE.BoxGeometry(0.18, 0.35, 0.18);
-            const legMaterial = new THREE.MeshPhongMaterial({ color: 0x696969 });
-            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-            leftLeg.position.set(0, 0.075, -0.15);
-            leftLeg.castShadow = true;
-            robotGroup.add(leftLeg);
-            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-            rightLeg.position.set(0, 0.075, 0.15);
-            rightLeg.castShadow = true;
-            robotGroup.add(rightLeg);
-
-            return robotGroup;
-        }
+        // Функции создания персонажей перенесены в js/characters.js
+        // (createHouse, createHouseCat, createDog, createCat, createCube,
+        //  createOval, createFox, createPanda, createRabbit, createRobot)
 
         function createRifle() {
             const rifleGroup = new THREE.Group();
@@ -2014,11 +1422,17 @@
                 pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 30 },
                 rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 30 },
                 machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 80 },
+                shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 25 },
                 laser: { name: '⚡🔫 Лазерная Пушка', cooldown: 100, ammo: 9999 },
                 gravity: { name: '🌀💜 Гравитационная Пушка', cooldown: 150, ammo: 9999 },
                 sniper: { name: '🎯🔭 Снайперка', cooldown: 1000, ammo: 15 },
                 rocket: { name: '🚀💥 Ракетница', cooldown: 1500, ammo: 12 },
                 crossbow: { name: '🏹 Арбалет', cooldown: 400, ammo: 40 },
+                flamethrower: { name: '🔥🔫 Огнемёт', cooldown: 80, ammo: 50 },
+                railgun: { name: '⚡🎯 Рельсотрон', cooldown: 1200, ammo: 10 },
+                minigun: { name: '🔫⚙️ Минигун', cooldown: 50, ammo: 200 },
+                grenade: { name: '💣🔫 Гранатомёт', cooldown: 1800, ammo: 15 },
+                plasma: { name: '⚛️💫 Плазма', cooldown: 200, ammo: 60 },
             };
 
             const config = weaponConfigs[weaponType] || weaponConfigs.pistol;
@@ -2029,409 +1443,30 @@
             updateAmmoDisplay();
         }
 
-        function createTurret() {
-            const turretGroup = new THREE.Group();
 
-            // База турели
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-
-            // Корпус турели
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-
-            // Голова турели (вращающаяся часть)
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-
-            // Ствол
-            const barrelGeometry = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x222222 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.4, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-
-            // Красный огонёк
-            const lightGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({
-                color: 0xff0000,
-                emissive: 0xff0000,
-                emissiveIntensity: 0.8
-            });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-
-            // Устанавливаем турель рядом с игроком
-            turretGroup.position.set(3, 0, 2);
-
-            // Данные турели
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.targetRotation = 0;
-            turretGroup.userData.type = 'basic';
-
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createFireTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4500 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFF6347, emissive: 0xFF4500, emissiveIntensity: 0.3 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.8, 8);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0xFF8C00, emissive: 0xFF6600, emissiveIntensity: 0.4 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.4, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4500, emissive: 0xFF4500, emissiveIntensity: 1.0 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(-3, 0, 2);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'fire';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createLaserTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x003366 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x0066CC });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x00CCFF, emissive: 0x00AAFF, emissiveIntensity: 0.4 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.9, 16);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 0.6 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.45, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 1.2 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(3, 0, -2);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'laser';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createRocketTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4B0082 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.2;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.7, 6);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6A0DAD });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.75;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.6, 0.5, 0.6);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x8B00FF, emissive: 0x6A0DAD, emissiveIntensity: 0.3 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.3;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.BoxGeometry(0.8, 0.15, 0.15);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.position.set(0.4, 1.3, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const rocketGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8);
-            const rocketMaterial = new THREE.MeshPhongMaterial({ color: 0xCC00FF, emissive: 0xAA00CC, emissiveIntensity: 0.5 });
-            const rocket1 = new THREE.Mesh(rocketGeometry, rocketMaterial);
-            rocket1.rotation.z = Math.PI / 2;
-            rocket1.position.set(0.65, 1.4, 0);
-            turretGroup.add(rocket1);
-            const rocket2 = new THREE.Mesh(rocketGeometry, rocketMaterial);
-            rocket2.rotation.z = Math.PI / 2;
-            rocket2.position.set(0.65, 1.2, 0);
-            turretGroup.add(rocket2);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xAA00FF, emissive: 0xAA00FF, emissiveIntensity: 1.0 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.5, 0.3);
-            turretGroup.add(light);
-            turretGroup.position.set(-3, 0, -2);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'rocket';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createFreezeTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x87CEEB });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xADD8E6 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xE0FFFF, emissive: 0x00CED1, emissiveIntensity: 0.5 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.8, 8);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0xB0E0E6, emissive: 0x4682B4, emissiveIntensity: 0.4 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.4, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF, emissiveIntensity: 1.0 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(3, 0, 2);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'freeze';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createElectricTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xFFA500 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, emissive: 0xFFFF00, emissiveIntensity: 0.6 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.BoxGeometry(0.8, 0.1, 0.1);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700, emissive: 0xFFD700, emissiveIntensity: 0.5 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.position.set(0.4, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, emissive: 0xFFFF00, emissiveIntensity: 1.2 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(-4, 0, 3);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'electric';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createPoisonTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 8);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x32CD32 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.5);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, emissive: 0x00FF00, emissiveIntensity: 0.4 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.7, 8);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x7FFF00, emissive: 0x7FFF00, emissiveIntensity: 0.3 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.35, 1.1, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, emissive: 0x00FF00, emissiveIntensity: 1.0 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.3, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(4, 0, -3);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'poison';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createExplosiveTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x2F4F4F });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.2;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.7, 6);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x696969 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.75;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.BoxGeometry(0.6, 0.5, 0.6);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000, emissive: 0xFF4500, emissiveIntensity: 0.3 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.3;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const barrelGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 8);
-            const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
-            const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
-            barrel.rotation.z = Math.PI / 2;
-            barrel.position.set(0.3, 1.3, 0);
-            barrel.castShadow = true;
-            turretGroup.add(barrel);
-            const lightGeometry = new THREE.SphereGeometry(0.12, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4500, emissive: 0xFF4500, emissiveIntensity: 1.0 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.5, 0.3);
-            turretGroup.add(light);
-            turretGroup.position.set(-4, 0, -3);
-            turretGroup.userData.head = head;
-            turretGroup.userData.barrel = barrel;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'explosive';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
-        function createSonicTurret() {
-            const turretGroup = new THREE.Group();
-            const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 12);
-            const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
-            const base = new THREE.Mesh(baseGeometry, baseMaterial);
-            base.position.y = 0.15;
-            base.castShadow = true;
-            turretGroup.add(base);
-            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.6, 12);
-            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6495ED });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.6;
-            body.castShadow = true;
-            turretGroup.add(body);
-            const headGeometry = new THREE.SphereGeometry(0.35, 16, 16);
-            const headMaterial = new THREE.MeshPhongMaterial({ color: 0x00BFFF, emissive: 0x1E90FF, emissiveIntensity: 0.5 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.2;
-            head.castShadow = true;
-            turretGroup.add(head);
-            const speakerGeometry = new THREE.ConeGeometry(0.2, 0.4, 8);
-            const speakerMaterial = new THREE.MeshPhongMaterial({ color: 0x191970, emissive: 0x4169E1, emissiveIntensity: 0.4 });
-            const speaker = new THREE.Mesh(speakerGeometry, speakerMaterial);
-            speaker.rotation.z = -Math.PI / 2;
-            speaker.position.set(0.5, 1.2, 0);
-            speaker.castShadow = true;
-            turretGroup.add(speaker);
-            const lightGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-            const lightMaterial = new THREE.MeshPhongMaterial({ color: 0x00BFFF, emissive: 0x00BFFF, emissiveIntensity: 1.2 });
-            const light = new THREE.Mesh(lightGeometry, lightMaterial);
-            light.position.set(0, 1.4, 0.25);
-            turretGroup.add(light);
-            turretGroup.position.set(0, 0, 4);
-            turretGroup.userData.head = head;
-            turretGroup.userData.speaker = speaker;
-            turretGroup.userData.shootCooldown = 0;
-            turretGroup.userData.type = 'sonic';
-            scene.add(turretGroup);
-            turrets.push(turretGroup);
-        }
-
+        // Функции создания турелей перенесены в js/turrets.js
+        // (createTurret, createFireTurret, createLaserTurret, createRocketTurret,
+        //  createFreezeTurret, createElectricTurret, createPoisonTurret, createExplosiveTurret,
+        //  createSonicTurret, createPlasmaTurret, createTeslaTurret, createGravityTurret,
+        //  createRailgunTurret, createMinigunTurret, createFlamethrowerTurret, createSniperTurret,
+        //  createShotgunTurret, createCannonTurret, createNuclearTurret, createRainbowTurret,
+        //  createHealingTurret, createShieldTurret, createQuantumTurret, createBlackholeTurret,
+        //  createTimeTurret, createEnergyTurret, createMeteorTurret, createStormTurret,
+        //  createAntimatterTurret)
         function createZombie() {
             const zombieGroup = new THREE.Group();
 
-            // Цвет зомби - зеленоватый
-            const zombieMaterial = new THREE.MeshPhongMaterial({ color: 0x4a7c4a });
-            const darkMaterial = new THREE.MeshPhongMaterial({ color: 0x2d4a2d });
+            // Цвет зомби - зеленоватый с улучшенными материалами
+            const zombieMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a7c4a,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            const darkMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2d4a2d,
+                roughness: 0.8,
+                metalness: 0.05
+            });
 
             // Тело
             const bodyGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.3);
@@ -2492,6 +1527,31 @@
             zombieGroup.userData.rightLeg = rightLeg;
             zombieGroup.userData.legPhase = Math.random() * Math.PI * 2; // Случайная фаза анимации
             zombieGroup.userData.zombie = body; // Для обнаружения попаданий
+            // HP зависит от волны
+            const baseHP = window.zombieBaseHP || 1;
+            zombieGroup.userData.hp = baseHP;
+            zombieGroup.userData.maxHp = baseHP;
+            zombieGroup.userData.isBoss = false;
+
+            // Если у зомби больше 1 HP, добавляем маленький HP бар
+            if (baseHP > 1) {
+                const hpBarBg = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.8, 0.1),
+                    new THREE.MeshBasicMaterial({ color: 0x333333 })
+                );
+                hpBarBg.position.set(0, 2.2, 0);
+                zombieGroup.add(hpBarBg);
+
+                const hpBarFg = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.8, 0.08),
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+                );
+                hpBarFg.position.set(0, 2.2, 0.01);
+                zombieGroup.add(hpBarFg);
+
+                zombieGroup.userData.hpBar = hpBarFg;
+                zombieGroup.userData.hpBarBg = hpBarBg;
+            }
 
             // Тень на земле
             const shadowGeometry = new THREE.CircleGeometry(0.4, 16);
@@ -2511,7 +1571,547 @@
             obstacles.push(zombieGroup);
         }
 
+        function createBoss() {
+            const zombieGroup = new THREE.Group();
+
+            // Увеличенный размер и темный цвет
+            const bossMaterial = new THREE.MeshPhongMaterial({ color: 0x8b0000, emissive: 0x8b0000, emissiveIntensity: 0.2 });
+            const darkMaterial = new THREE.MeshPhongMaterial({ color: 0x4a0000 });
+
+            // Тело (больше)
+            const bodyGeometry = new THREE.BoxGeometry(1.2, 1.6, 0.6);
+            const body = new THREE.Mesh(bodyGeometry, bossMaterial);
+            body.position.y = 1.8;
+            body.castShadow = true;
+            zombieGroup.add(body);
+
+            // Голова (больше)
+            const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const head = new THREE.Mesh(headGeometry, bossMaterial);
+            head.position.y = 3.0;
+            head.castShadow = true;
+            zombieGroup.add(head);
+
+            // Корона на голове
+            const crownGeometry = new THREE.ConeGeometry(0.5, 0.6, 6);
+            const crownMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 1.2 });
+            const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+            crown.position.y = 3.7;
+            zombieGroup.add(crown);
+
+            // Пульсирующая аура вокруг босса
+            const auraGeometry = new THREE.SphereGeometry(2, 16, 16);
+            const auraMaterial = new THREE.MeshBasicMaterial({
+                color: 0xff0000,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            });
+            const aura = new THREE.Mesh(auraGeometry, auraMaterial);
+            aura.position.y = 2;
+            zombieGroup.add(aura);
+            zombieGroup.userData.aura = aura;
+
+            // Глаза (красные, светящиеся)
+            const eyeGeometry = new THREE.BoxGeometry(0.16, 0.16, 0.1);
+            const eyeMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff0000,
+                emissive: 0xff0000,
+                emissiveIntensity: 1.5
+            });
+            const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye1.position.set(-0.2, 3.1, 0.4);
+            zombieGroup.add(eye1);
+            const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye2.position.set(0.2, 3.1, 0.4);
+            zombieGroup.add(eye2);
+
+            // Руки (вытянуты вперед, больше)
+            const armGeometry = new THREE.BoxGeometry(0.3, 1.2, 0.3);
+            const leftArm = new THREE.Mesh(armGeometry, darkMaterial);
+            leftArm.position.set(-0.75, 2.0, 0.6);
+            leftArm.rotation.x = -Math.PI / 3;
+            leftArm.castShadow = true;
+            zombieGroup.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeometry, darkMaterial);
+            rightArm.position.set(0.75, 2.0, 0.6);
+            rightArm.rotation.x = -Math.PI / 3;
+            rightArm.castShadow = true;
+            zombieGroup.add(rightArm);
+
+            // Ноги (будут анимированы, больше)
+            const legGeometry = new THREE.BoxGeometry(0.4, 1.0, 0.4);
+            const leftLeg = new THREE.Mesh(legGeometry, darkMaterial);
+            leftLeg.position.set(-0.3, 0.5, 0);
+            leftLeg.castShadow = true;
+            zombieGroup.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeometry, darkMaterial);
+            rightLeg.position.set(0.3, 0.5, 0);
+            rightLeg.castShadow = true;
+            zombieGroup.add(rightLeg);
+
+            // HP бар для босса
+            const hpBarBg = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.2),
+                new THREE.MeshBasicMaterial({ color: 0x333333 })
+            );
+            hpBarBg.position.set(0, 4.2, 0);
+            zombieGroup.add(hpBarBg);
+
+            const hpBarFg = new THREE.Mesh(
+                new THREE.PlaneGeometry(2, 0.18),
+                new THREE.MeshBasicMaterial({ color: 0xff0000 })
+            );
+            hpBarFg.position.set(0, 4.2, 0.01);
+            zombieGroup.add(hpBarFg);
+
+            // Сохраняем ссылки на ноги для анимации
+            zombieGroup.userData.leftLeg = leftLeg;
+            zombieGroup.userData.rightLeg = rightLeg;
+            zombieGroup.userData.legPhase = Math.random() * Math.PI * 2;
+            zombieGroup.userData.zombie = body;
+            zombieGroup.userData.hp = 10 + (wave * 5); // HP растет с волнами
+            zombieGroup.userData.maxHp = 10 + (wave * 5);
+            zombieGroup.userData.isBoss = true;
+            zombieGroup.userData.hpBar = hpBarFg;
+            zombieGroup.userData.hpBarBg = hpBarBg;
+
+            // Тень на земле (больше)
+            const shadowGeometry = new THREE.CircleGeometry(0.8, 16);
+            const shadowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x000000,
+                transparent: true,
+                opacity: 0.4
+            });
+            const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+            shadow.rotation.x = -Math.PI / 2;
+            shadow.position.y = 0.01;
+            zombieGroup.add(shadow);
+
+            zombieGroup.position.set((Math.random() - 0.5) * 5, 0, -50);
+            zombieGroup.scale.set(2.5, 2.5, 2.5); // Увеличиваем размер в 2.5 раза
+
+            scene.add(zombieGroup);
+            obstacles.push(zombieGroup);
+        }
+
         function createObstacle() {
+
+        // Функция создания питомцев
+        function createPet(type) {
+            let petGroup;
+
+            switch(type) {
+                case 'dog':
+                    petGroup = createDogPet();
+                    break;
+                case 'cat':
+                    petGroup = createCatPet();
+                    break;
+                case 'wolf':
+                    petGroup = createWolfPet();
+                    break;
+                case 'bear':
+                    petGroup = createBearPet();
+                    break;
+                case 'eagle':
+                    petGroup = createEaglePet();
+                    break;
+                case 'panda':
+                    petGroup = createPandaPet();
+                    break;
+                case 'fox':
+                    petGroup = createFoxPet();
+                    break;
+                case 'dragon':
+                    petGroup = createDragonPet();
+                    break;
+                case 'unicorn':
+                    petGroup = createUnicornPet();
+                    break;
+                case 'robot':
+                    petGroup = createRobotPet();
+                    break;
+                case 'tiger':
+                    petGroup = createTigerPet();
+                    break;
+                case 'lion':
+                    petGroup = createLionPet();
+                    break;
+                default:
+                    petGroup = createDogPet();
+            }
+
+            if (petGroup) {
+                petGroup.userData.type = type;
+                petGroup.userData.shootCooldown = 0;
+                petGroup.userData.hp = 10;
+                petGroup.userData.maxHp = 10;
+                pets.push(petGroup);
+            }
+        }
+
+        function createDogPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+
+            // Тело
+            const bodyGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.6);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.3;
+            petGroup.add(body);
+
+            // Голова
+            const headGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.4, 0.4);
+            petGroup.add(head);
+
+            // Уши
+            const earGeometry = new THREE.ConeGeometry(0.08, 0.15, 4);
+            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            leftEar.position.set(-0.12, 0.55, 0.4);
+            petGroup.add(leftEar);
+            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            rightEar.position.set(0.12, 0.55, 0.4);
+            petGroup.add(rightEar);
+
+            // Хвост
+            const tailGeometry = new THREE.CylinderGeometry(0.05, 0.02, 0.3);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(0, 0.3, -0.3);
+            tail.rotation.x = Math.PI / 4;
+            petGroup.add(tail);
+
+            petGroup.position.set(2, 0, 0);
+            petGroup.userData.attackType = 'melee'; // Ближний бой
+            petGroup.userData.damage = 2;
+            petGroup.userData.attackRange = 2;
+            petGroup.userData.speed = 0.08;
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        function createCatPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xffa500 });
+
+            // Тело (меньше чем у собаки)
+            const bodyGeometry = new THREE.BoxGeometry(0.3, 0.25, 0.5);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.25;
+            petGroup.add(body);
+
+            // Голова
+            const headGeometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.35, 0.35);
+            petGroup.add(head);
+
+            // Острые уши
+            const earGeometry = new THREE.ConeGeometry(0.06, 0.15, 3);
+            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            leftEar.position.set(-0.1, 0.5, 0.35);
+            petGroup.add(leftEar);
+            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            rightEar.position.set(0.1, 0.5, 0.35);
+            petGroup.add(rightEar);
+
+            // Длинный хвост
+            const tailGeometry = new THREE.CylinderGeometry(0.04, 0.02, 0.4);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(0, 0.35, -0.25);
+            tail.rotation.x = -Math.PI / 6;
+            petGroup.add(tail);
+
+            petGroup.position.set(-2, 0, 0);
+            petGroup.userData.attackType = 'ranged'; // Дальний бой (стрельба)
+            petGroup.userData.damage = 3;
+            petGroup.userData.attackRange = 15;
+            petGroup.userData.speed = 0.06;
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        function createWolfPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
+
+            // Тело (крупнее собаки)
+            const bodyGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.7);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.4;
+            petGroup.add(body);
+
+            // Голова (вытянутая морда)
+            const headGeometry = new THREE.BoxGeometry(0.35, 0.35, 0.4);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.5, 0.5);
+            petGroup.add(head);
+
+            // Острые уши
+            const earGeometry = new THREE.ConeGeometry(0.1, 0.2, 4);
+            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            leftEar.position.set(-0.15, 0.7, 0.5);
+            petGroup.add(leftEar);
+            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            rightEar.position.set(0.15, 0.7, 0.5);
+            petGroup.add(rightEar);
+
+            petGroup.position.set(3, 0, 2);
+            petGroup.userData.attackType = 'melee';
+            petGroup.userData.damage = 4;
+            petGroup.userData.attackRange = 2.5;
+            petGroup.userData.speed = 0.1;
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        function createBearPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+
+            // Большое тело
+            const bodyGeometry = new THREE.BoxGeometry(0.7, 0.6, 0.8);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.6;
+            petGroup.add(body);
+
+            // Большая голова
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.9, 0.5);
+            petGroup.add(head);
+
+            // Круглые уши
+            const earGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+            const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            leftEar.position.set(-0.2, 1.1, 0.5);
+            petGroup.add(leftEar);
+            const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+            rightEar.position.set(0.2, 1.1, 0.5);
+            petGroup.add(rightEar);
+
+            petGroup.position.set(-3, 0, 2);
+            petGroup.userData.attackType = 'melee';
+            petGroup.userData.damage = 6;
+            petGroup.userData.attackRange = 2;
+            petGroup.userData.speed = 0.05;
+            petGroup.userData.hp = 20;
+            petGroup.userData.maxHp = 20;
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        function createDragonPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.3 });
+
+            // Тело дракона
+            const bodyGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.6);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.8;
+            petGroup.add(body);
+
+            // Голова с длинной мордой
+            const headGeometry = new THREE.BoxGeometry(0.3, 0.25, 0.4);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.9, 0.5);
+            petGroup.add(head);
+
+            // Рога
+            const hornGeometry = new THREE.ConeGeometry(0.06, 0.25, 4);
+            const hornMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+            const leftHorn = new THREE.Mesh(hornGeometry, hornMaterial);
+            leftHorn.position.set(-0.1, 1.15, 0.5);
+            petGroup.add(leftHorn);
+            const rightHorn = new THREE.Mesh(hornGeometry, hornMaterial);
+            rightHorn.position.set(0.1, 1.15, 0.5);
+            petGroup.add(rightHorn);
+
+            // Крылья
+            const wingGeometry = new THREE.BoxGeometry(0.5, 0.02, 0.4);
+            const leftWing = new THREE.Mesh(wingGeometry, bodyMaterial);
+            leftWing.position.set(-0.4, 0.9, 0);
+            leftWing.rotation.z = Math.PI / 4;
+            petGroup.add(leftWing);
+            const rightWing = new THREE.Mesh(wingGeometry, bodyMaterial);
+            rightWing.position.set(0.4, 0.9, 0);
+            rightWing.rotation.z = -Math.PI / 4;
+            petGroup.add(rightWing);
+
+            // Хвост
+            const tailGeometry = new THREE.CylinderGeometry(0.08, 0.02, 0.5);
+            const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+            tail.position.set(0, 0.7, -0.4);
+            tail.rotation.x = Math.PI / 3;
+            petGroup.add(tail);
+
+            petGroup.position.set(0, 0, 3);
+            petGroup.userData.attackType = 'fire'; // Дыхание огнём
+            petGroup.userData.damage = 5;
+            petGroup.userData.attackRange = 10;
+            petGroup.userData.speed = 0.07;
+            petGroup.userData.wings = [leftWing, rightWing];
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        function createRobotPet() {
+            const petGroup = new THREE.Group();
+            const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xc0c0c0, metalness: 0.8 });
+
+            // Роботизированное тело
+            const bodyGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.5);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.3;
+            petGroup.add(body);
+
+            // Голова с антеннами
+            const headGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+            const head = new THREE.Mesh(headGeometry, bodyMaterial);
+            head.position.set(0, 0.5, 0.3);
+            petGroup.add(head);
+
+            // Антенны
+            const antennaGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.2);
+            const antenna = new THREE.Mesh(antennaGeometry, bodyMaterial);
+            antenna.position.set(0, 0.75, 0.3);
+            petGroup.add(antenna);
+
+            // Светящиеся глаза
+            const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 1 });
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.08, 0.52, 0.45);
+            petGroup.add(leftEye);
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.08, 0.52, 0.45);
+            petGroup.add(rightEye);
+
+            // Лазерная пушка
+            const gunGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.3);
+            const gunMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.5 });
+            const gun = new THREE.Mesh(gunGeometry, gunMaterial);
+            gun.rotation.z = Math.PI / 2;
+            gun.position.set(0.3, 0.4, 0.3);
+            petGroup.add(gun);
+
+            petGroup.position.set(0, 0, -2);
+            petGroup.userData.attackType = 'laser'; // Лазерная атака
+            petGroup.userData.damage = 4;
+            petGroup.userData.attackRange = 20;
+            petGroup.userData.speed = 0.06;
+            petGroup.userData.gun = gun;
+
+            scene.add(petGroup);
+            return petGroup;
+        }
+
+        // Упрощенные версии остальных питомцев
+        function createEaglePet() {
+            const petGroup = createDogPet(); // Используем базу собаки
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0x8b7355 });
+            });
+            petGroup.position.set(0, 2, 2); // Летает выше
+            petGroup.userData.attackType = 'ranged';
+            petGroup.userData.damage = 3;
+            petGroup.userData.attackRange = 12;
+            petGroup.userData.speed = 0.09;
+            petGroup.userData.canFly = true;
+            return petGroup;
+        }
+
+        function createPandaPet() {
+            const petGroup = createBearPet(); // Используем базу медведя
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            });
+            petGroup.position.set(1, 0, -2);
+            petGroup.userData.attackType = 'heal'; // Лечение
+            petGroup.userData.damage = 0;
+            petGroup.userData.healAmount = 1;
+            petGroup.userData.attackRange = 5;
+            petGroup.userData.speed = 0.04;
+            return petGroup;
+        }
+
+        function createFoxPet() {
+            const petGroup = createDogPet(); // Используем базу собаки
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0xff6600 });
+            });
+            petGroup.position.set(-1, 0, -2);
+            petGroup.userData.attackType = 'melee';
+            petGroup.userData.damage = 3;
+            petGroup.userData.attackRange = 2;
+            petGroup.userData.speed = 0.12; // Очень быстрая
+            return petGroup;
+        }
+
+        function createUnicornPet() {
+            const petGroup = createBearPet(); // Используем базу медведя
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0xffc0cb });
+            });
+            // Добавляем рог
+            const hornGeometry = new THREE.ConeGeometry(0.1, 0.4, 8);
+            const hornMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 0.8 });
+            const horn = new THREE.Mesh(hornGeometry, hornMaterial);
+            horn.position.set(0, 1.3, 0.5);
+            petGroup.add(horn);
+
+            petGroup.position.set(1, 0, 3);
+            petGroup.userData.attackType = 'magic'; // Магическая атака
+            petGroup.userData.damage = 5;
+            petGroup.userData.attackRange = 12;
+            petGroup.userData.speed = 0.07;
+            return petGroup;
+        }
+
+        function createTigerPet() {
+            const petGroup = createWolfPet(); // Используем базу волка
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0xff8c00 });
+            });
+            petGroup.position.set(-1, 0, 3);
+            petGroup.userData.attackType = 'melee';
+            petGroup.userData.damage = 5;
+            petGroup.userData.attackRange = 2.5;
+            petGroup.userData.speed = 0.09;
+            return petGroup;
+        }
+
+        function createLionPet() {
+            const petGroup = createBearPet(); // Используем базу медведя
+            petGroup.children.forEach(child => {
+                child.material = new THREE.MeshPhongMaterial({ color: 0xdaa520 });
+            });
+            // Добавляем гриву
+            const maneGeometry = new THREE.SphereGeometry(0.35, 8, 8);
+            const maneMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+            const mane = new THREE.Mesh(maneGeometry, maneMaterial);
+            mane.position.set(0, 0.9, 0.4);
+            petGroup.add(mane);
+
+            petGroup.position.set(-1, 0, -3);
+            petGroup.userData.attackType = 'melee';
+            petGroup.userData.damage = 7;
+            petGroup.userData.attackRange = 2.5;
+            petGroup.userData.speed = 0.08;
+            petGroup.userData.hp = 25;
+            petGroup.userData.maxHp = 25;
+            return petGroup;
+        }
+
             createZombie(); // Теперь создаём зомби вместо кубиков
         }
 
@@ -2570,23 +2170,37 @@
             if (keys['Digit3'] && unlockedWeapons.includes('laser')) {
                 changeWeapon('laser');
             }
-            if (keys['Digit4'] && unlockedWeapons.includes('gravity')) {
-                changeWeapon('gravity');
+            // Купленные оружия из магазина (клавиши 4-0)
+            if (keys['Digit4'] && ownedWeapons.includes('machinegun')) {
+                changeWeapon('machinegun');
             }
-            if (keys['Digit5'] && ownedWeapons.includes('sniper')) {
+            if (keys['Digit5'] && ownedWeapons.includes('shotgun')) {
+                changeWeapon('shotgun');
+            }
+            if (keys['Digit6'] && ownedWeapons.includes('sniper')) {
                 changeWeapon('sniper');
             }
-            if (keys['Digit6'] && ownedWeapons.includes('laser')) {
-                changeWeapon('laser');
-            }
-            if (keys['Digit7'] && ownedWeapons.includes('rocket')) {
-                changeWeapon('rocket');
-            }
-            if (keys['Digit8'] && ownedWeapons.includes('crossbow')) {
+            if (keys['Digit7'] && ownedWeapons.includes('crossbow')) {
                 changeWeapon('crossbow');
             }
-            if (keys['Digit9'] && ownedWeapons.includes('plasma')) {
+            if (keys['Digit8'] && ownedWeapons.includes('flamethrower')) {
+                changeWeapon('flamethrower');
+            }
+            if (keys['Digit9'] && ownedWeapons.includes('railgun')) {
+                changeWeapon('railgun');
+            }
+            if (keys['Digit0'] && ownedWeapons.includes('minigun')) {
+                changeWeapon('minigun');
+            }
+            // Дополнительные купленные оружия (клавиши Q, E, R)
+            if (keys['KeyQ'] && ownedWeapons.includes('grenade')) {
+                changeWeapon('grenade');
+            }
+            if (keys['KeyE'] && ownedWeapons.includes('plasma')) {
                 changeWeapon('plasma');
+            }
+            if (keys['KeyR'] && ownedWeapons.includes('rocket')) {
+                changeWeapon('rocket');
             }
 
             // Переключение режима камеры на ENTER
@@ -2887,16 +2501,51 @@
                     const distance = bullet.position.distanceTo(cubeWorldPos);
                     if (distance < 1.5) {
                         // Попадание!
-                        scene.remove(obstacleGroup);
-                        obstacles.splice(j, 1);
                         scene.remove(bullet);
                         bullets.splice(i, 1);
-                        score += 10;
-                        coins += 5;
-                        updateCoinsDisplay();
-                        localStorage.setItem('cubeGameCoins', coins);
-                        updateLevel();
-                        updateScoreDisplay();
+
+                        // Отнимаем HP
+                        if (!obstacleGroup.userData.hp) {
+                            obstacleGroup.userData.hp = 1; // Если HP не установлен, считаем что 1
+                        }
+                        obstacleGroup.userData.hp--;
+
+                        // Обновляем HP бар для босса
+                        if (obstacleGroup.userData.isBoss && obstacleGroup.userData.hpBar) {
+                            const hpPercent = obstacleGroup.userData.hp / obstacleGroup.userData.maxHp;
+                            obstacleGroup.userData.hpBar.scale.x = hpPercent;
+                            obstacleGroup.userData.hpBar.position.x = -(1 - hpPercent);
+
+                            // Меняем цвет HP бара
+                            if (hpPercent > 0.5) {
+                                obstacleGroup.userData.hpBar.material.color.setHex(0xff0000);
+                            } else if (hpPercent > 0.25) {
+                                obstacleGroup.userData.hpBar.material.color.setHex(0xff8800);
+                            } else {
+                                obstacleGroup.userData.hpBar.material.color.setHex(0xffff00);
+                            }
+                        }
+
+                        // Если HP <= 0, удаляем зомби
+                        if (obstacleGroup.userData.hp <= 0) {
+                            scene.remove(obstacleGroup);
+                            obstacles.splice(j, 1);
+
+                            // Бонусные награды за босса
+                            if (obstacleGroup.userData.isBoss) {
+                                score += 100;
+                                coins += 50;
+                            } else {
+                                score += 10;
+                                coins += 5;
+                            }
+
+                            updateCoinsDisplay();
+                            localStorage.setItem('cubeGameCoins', coins);
+                            zombiesInCurrentWave--;
+                            updateScoreDisplay();
+                            checkWaveComplete();
+                        }
                         break;
                     }
                 }
@@ -2930,68 +2579,193 @@
             }
         }
 
-        function updateLevel() {
-            const newLevel = Math.floor(score / 50) + 1;
-            if (newLevel > level) {
-                level = newLevel;
-                obstacleSpeed = 0.02 + (level - 1) * 0.005; // Медленная скорость зомби
-                spawnRate = 0.03 + (level - 1) * 0.01; // Много зомби
-
-                // Восстанавливаем патроны каждые 5 уровней
-                if (level % 5 === 0) {
-                    ammo = maxAmmo;
-                    updateAmmoDisplay();
-                }
-                updateScoreDisplay();
-
-                // Эффект при повышении уровня
-                scene.background = new THREE.Color(Math.random() * 0x666666 + 0x6699bb);
-                setTimeout(() => {
-                    scene.background = new THREE.Color(0x87ceeb);
-                }, 300);
-
-                // Разблокировка лазерной пушки на 20 уровне
-                if (level === 20 && !unlockedWeapons.includes('laser')) {
-                    unlockedWeapons.push('laser');
-                    localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
-
-                    // Показываем уведомление
-                    gameActive = false;
-                    const notification = document.createElement('div');
-                    notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);';
-                    notification.innerHTML = '🎉 ПОЗДРАВЛЯЕМ! 🎉<br><br>🔫⚡ РАЗБЛОКИРОВАНА ЛАЗЕРНАЯ ПУШКА! ⚡🔫<br><br>Нажмите 3 для выбора<br><br><span style="font-size: 20px; color: #FFD700;">Бесконечные патроны • Быстрая стрельба</span>';
-                    document.body.appendChild(notification);
-
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                        gameActive = true;
-                    }, 5000);
-                }
-
-                // Обновляем максимальный достигнутый уровень
-                if (level > maxLevelReached) {
-                    maxLevelReached = level;
-                    localStorage.setItem('cubeGameMaxLevel', maxLevelReached);
-                }
-
-                // Каждые 10 уровней - большая награда и магазин
-                if (level % 10 === 0) {
-                    coins += 300;
-                    updateCoinsDisplay();
-                    gameActive = false;
-                    setTimeout(() => {
-                        openShop(true);
-                    }, 500);
-                }
-            }
-        }
+        // Функция updateLevel перенесена в js/game.js как startNewWave()
 
         function updateObstacles() {
+
+        // Обновление питомцев
+        function updatePets() {
             if (!gameActive) return;
 
-            if (Math.random() < spawnRate) {
-                createObstacle();
+            pets.forEach(pet => {
+                // Уменьшаем кулдаун
+                if (pet.userData.shootCooldown > 0) {
+                    pet.userData.shootCooldown--;
+                }
+
+                // Ищем ближайшего зомби
+                let nearestZombie = null;
+                let nearestDistance = pet.userData.attackRange || 10;
+
+                obstacles.forEach(obstacleGroup => {
+                    const zombie = obstacleGroup.userData.zombie || obstacleGroup.userData.cube;
+                    if (!zombie) return;
+
+                    const zombieWorldPos = new THREE.Vector3();
+                    zombie.getWorldPosition(zombieWorldPos);
+
+                    const distance = pet.position.distanceTo(zombieWorldPos);
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestZombie = { pos: zombieWorldPos, group: obstacleGroup };
+                    }
+                });
+
+                // Если есть зомби в радиусе атаки
+                if (nearestZombie) {
+                    // Поворачиваемся к цели
+                    const dx = nearestZombie.pos.x - pet.position.x;
+                    const dz = nearestZombie.pos.z - pet.position.z;
+                    const targetAngle = Math.atan2(dx, dz);
+                    pet.rotation.y = targetAngle;
+
+                    const distanceToZombie = pet.position.distanceTo(nearestZombie.pos);
+
+                    // Атакуем если кулдаун закончился
+                    if (pet.userData.shootCooldown <= 0) {
+                        petAttack(pet, nearestZombie.pos, nearestZombie.group);
+
+                        // Устанавливаем кулдаун в зависимости от типа атаки
+                        const cooldowns = {
+                            melee: 30,
+                            ranged: 20,
+                            fire: 40,
+                            laser: 10,
+                            magic: 25,
+                            heal: 120
+                        };
+                        pet.userData.shootCooldown = cooldowns[pet.userData.attackType] || 30;
+                    }
+
+                    // Если ближний бой, двигаемся к зомби
+                    if (pet.userData.attackType === 'melee' && distanceToZombie > 1.5) {
+                        const moveX = dx * pet.userData.speed * 0.1;
+                        const moveZ = dz * pet.userData.speed * 0.1;
+                        pet.position.x += moveX;
+                        pet.position.z += moveZ;
+                    }
+                } else {
+                    // Нет зомби поблизости - следуем за игроком
+                    if (player) {
+                        const dx = player.position.x - pet.position.x;
+                        const dz = player.position.z - pet.position.z;
+                        const distance = Math.sqrt(dx * dx + dz * dz);
+
+                        // Если далеко от игрока, подходим ближе
+                        if (distance > 3) {
+                            const targetAngle = Math.atan2(dx, dz);
+                            pet.rotation.y = targetAngle;
+
+                            const moveX = dx * pet.userData.speed * 0.1;
+                            const moveZ = dz * pet.userData.speed * 0.1;
+                            pet.position.x += moveX;
+                            pet.position.z += moveZ;
+                        }
+                    }
+                }
+
+                // Анимация крыльев для дракона
+                if (pet.userData.wings) {
+                    const time = Date.now() * 0.003;
+                    pet.userData.wings[0].rotation.z = Math.PI / 4 + Math.sin(time) * 0.3;
+                    pet.userData.wings[1].rotation.z = -Math.PI / 4 - Math.sin(time) * 0.3;
+                }
+
+                // Летающие питомцы колеблются по Y
+                if (pet.userData.canFly) {
+                    const time = Date.now() * 0.002;
+                    pet.position.y = 2 + Math.sin(time + pet.userData.flyOffset || 0) * 0.3;
+                }
+            });
+        }
+
+        // Атака питомца
+        function petAttack(pet, targetPos, targetGroup) {
+            const attackType = pet.userData.attackType;
+
+            if (attackType === 'melee') {
+                // Ближний бой - наносим урон напрямую если достаточно близко
+                const distance = pet.position.distanceTo(targetPos);
+                if (distance < 1.5 && targetGroup.userData.hp) {
+                    targetGroup.userData.hp -= pet.userData.damage || 2;
+
+                    if (targetGroup.userData.hp <= 0) {
+                        scene.remove(targetGroup);
+                        obstacles.splice(obstacles.indexOf(targetGroup), 1);
+                        score += targetGroup.userData.isBoss ? 100 : 10;
+                        coins += targetGroup.userData.isBoss ? 50 : 5;
+                        updateCoinsDisplay();
+                        localStorage.setItem('cubeGameCoins', coins);
+                        zombiesInCurrentWave--;
+                        updateScoreDisplay();
+                        checkWaveComplete();
+                    } else if (targetGroup.userData.hpBar) {
+                        const hpPercent = targetGroup.userData.hp / targetGroup.userData.maxHp;
+                        targetGroup.userData.hpBar.scale.x = hpPercent;
+                        targetGroup.userData.hpBar.position.x = -(1 - hpPercent);
+                    }
+                }
+            } else if (attackType === 'heal') {
+                // Лечение игрока
+                if (lives < 3 && player) {
+                    const distance = pet.position.distanceTo(player.position);
+                    if (distance < 5) {
+                        lives = Math.min(lives + 1, 3);
+                        updateScoreDisplay();
+
+                        // Визуальный эффект лечения
+                        const healParticle = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.2),
+                            new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 })
+                        );
+                        healParticle.position.copy(player.position);
+                        scene.add(healParticle);
+                        setTimeout(() => scene.remove(healParticle), 500);
+                    }
+                }
+            } else {
+                // Дальние атаки - создаем снаряд
+                const bulletGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                let bulletMaterial;
+
+                switch(attackType) {
+                    case 'fire':
+                        bulletMaterial = new THREE.MeshPhongMaterial({ color: 0xff4500, emissive: 0xff4500, emissiveIntensity: 1 });
+                        break;
+                    case 'laser':
+                        bulletMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 1 });
+                        break;
+                    case 'magic':
+                        bulletMaterial = new THREE.MeshPhongMaterial({ color: 0xff00ff, emissive: 0xff00ff, emissiveIntensity: 1 });
+                        break;
+                    default:
+                        bulletMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.8 });
+                }
+
+                const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+                bullet.position.set(
+                    pet.position.x,
+                    pet.position.y + 0.5,
+                    pet.position.z
+                );
+
+                const direction = new THREE.Vector3()
+                    .subVectors(targetPos, bullet.position)
+                    .normalize();
+
+                bullet.userData.direction = direction;
+                bullet.userData.speed = 0.5;
+                bullet.userData.isPetBullet = true;
+                bullet.userData.damage = pet.userData.damage || 2;
+
+                scene.add(bullet);
+                bullets.push(bullet);
             }
+        }
+            if (!gameActive) return;
+
+            // Зомби теперь спавнятся волнами, а не постоянно
+            // Спавн происходит через функцию spawnWaveZombies()
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 const obstacleGroup = obstacles[i];
@@ -3008,6 +2782,22 @@
                     const swingAngle = Math.sin(obstacleGroup.userData.legPhase) * 0.3;
                     leftLeg.rotation.x = swingAngle;
                     rightLeg.rotation.x = -swingAngle;
+                }
+
+                // Обновляем HP бар (всегда смотрит на камеру)
+                if (obstacleGroup.userData.hpBar && camera) {
+                    obstacleGroup.userData.hpBar.lookAt(camera.position);
+                    if (obstacleGroup.userData.hpBarBg) {
+                        obstacleGroup.userData.hpBarBg.lookAt(camera.position);
+                    }
+
+                    // Анимируем ауру босса (пульсация)
+                    if (obstacleGroup.userData.isBoss && obstacleGroup.userData.aura) {
+                        const time = Date.now() * 0.001;
+                        const scale = 1 + Math.sin(time * 2) * 0.2;
+                        obstacleGroup.userData.aura.scale.set(scale, scale, scale);
+                        obstacleGroup.userData.aura.material.opacity = 0.15 + Math.sin(time * 3) * 0.1;
+                    }
                 }
 
                 // Вращаем только кубик внутри группы (для старых объектов)
@@ -3031,8 +2821,9 @@
                     coins += 5;
                     updateCoinsDisplay();
                     localStorage.setItem('cubeGameCoins', coins);
-                    updateLevel();
+                    zombiesInCurrentWave--;
                     updateScoreDisplay();
+                    checkWaveComplete();
                 } else if (obstacleGroup.position.z > 10) {
                     scene.remove(obstacleGroup);
                     obstacles.splice(i, 1);
@@ -3082,7 +2873,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.02; // Медленная скорость зомби
+            obstacleSpeed = 0.015; // Медленная скорость зомби
             spawnRate = 0.03; // Много зомби
             canShoot = true;
             isBurstFiring = false;
@@ -3116,7 +2907,7 @@
             level = 1;
             lives = 3;
             ammo = maxAmmo;
-            obstacleSpeed = 0.025;
+            obstacleSpeed = 0.015;
             spawnRate = 0.01;
             playerVelocityY = 0;
             isJumping = false;
@@ -3270,15 +3061,12 @@
                         turretShoot(turret, nearestZombie.pos);
                         // Разный кулдаун для разных турелей
                         const cooldowns = {
-                            basic: 20,
-                            fire: 40,
-                            laser: 5,
-                            rocket: 60,
-                            freeze: 30,
-                            electric: 15,
-                            poison: 35,
-                            explosive: 50,
-                            sonic: 25
+                            basic: 20, fire: 40, laser: 5, rocket: 60, freeze: 30,
+                            electric: 15, poison: 35, explosive: 50, sonic: 25,
+                            plasma: 12, tesla: 18, gravityt: 35, railgunt: 45, minigunt: 3,
+                            flamethrower: 8, sniper: 50, shotgunt: 22, cannon: 55, nuclear: 100,
+                            rainbow: 10, healing: 60, shield: 70, quantum: 30, blackhole: 80,
+                            timet: 40, energyt: 15, meteor: 65, stormt: 20, antimatter: 90
                         };
                         turret.userData.shootCooldown = cooldowns[turret.userData.type] || 20;
                     }
@@ -3299,7 +3087,27 @@
                 electric: { size: 0.2, color: 0xFFFF00, emissive: 0xFFD700 },
                 poison: { size: 0.3, color: 0x00FF00, emissive: 0x32CD32 },
                 explosive: { size: 0.35, color: 0xFF4500, emissive: 0x8B0000 },
-                sonic: { size: 0.25, color: 0x00BFFF, emissive: 0x1E90FF }
+                sonic: { size: 0.25, color: 0x00BFFF, emissive: 0x1E90FF },
+                plasma: { size: 0.28, color: 0x8a2be2, emissive: 0x9932cc },
+                tesla: { size: 0.22, color: 0x9400d3, emissive: 0x9400d3 },
+                gravityt: { size: 0.3, color: 0x4b0082, emissive: 0x4b0082 },
+                railgunt: { size: 0.18, color: 0x0080ff, emissive: 0x0080ff },
+                minigunt: { size: 0.15, color: 0xff4500, emissive: 0xff4500 },
+                flamethrower: { size: 0.32, color: 0xff0000, emissive: 0xff0000 },
+                sniper: { size: 0.2, color: 0xd2691e, emissive: 0xd2691e },
+                shotgunt: { size: 0.2, color: 0xdaa520, emissive: 0xdaa520 },
+                cannon: { size: 0.4, color: 0x708090, emissive: 0x708090 },
+                nuclear: { size: 0.5, color: 0x00ff00, emissive: 0x00ff00 },
+                rainbow: { size: 0.25, color: 0xffffff, emissive: 0xffffff },
+                healing: { size: 0.25, color: 0x00ff7f, emissive: 0x00ff7f },
+                shield: { size: 0.3, color: 0x1e90ff, emissive: 0x1e90ff },
+                quantum: { size: 0.27, color: 0xba55d3, emissive: 0xba55d3 },
+                blackhole: { size: 0.35, color: 0x000000, emissive: 0x4b0082 },
+                timet: { size: 0.26, color: 0xffd700, emissive: 0xffd700 },
+                energyt: { size: 0.24, color: 0xffffff, emissive: 0xffffff },
+                meteor: { size: 0.45, color: 0xdc143c, emissive: 0xdc143c },
+                stormt: { size: 0.23, color: 0x6495ed, emissive: 0x6495ed },
+                antimatter: { size: 0.38, color: 0xff0000, emissive: 0xb22222 }
             };
 
             const config = bulletConfigs[turretType];
@@ -3337,6 +3145,7 @@
                 updateObstacles();
                 updateBullets();
                 updateTurrets();
+                //updatePets();
                 updateCamera();
             }
             if (renderer && scene && camera) {
@@ -3449,6 +3258,236 @@
         window.selectSkin = selectSkin;
 
         // init() будет вызван после выбора скина
+
+        // ============================================
+        // Поддержка DualShock 4 (PlayStation Controller)
+        // ============================================
+
+        let gamepad = null;
+        let gamepadIndex = null;
+        let lastShootButton = false;
+        let lastJumpButton = false;
+        let lastCameraButton = false;
+        let lastShopButton = false;
+        let lastWeaponButtons = [false, false, false, false];
+
+        // Подключение геймпада
+        window.addEventListener('gamepadconnected', (e) => {
+            console.log('Геймпад подключен:', e.gamepad.id);
+            gamepad = e.gamepad;
+            gamepadIndex = e.gamepad.index;
+
+            // Показываем уведомление
+            const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 40px; border-radius: 15px; font-size: 24px; font-weight: bold; z-index: 1000; border: 3px solid gold;';
+            notification.innerHTML = '🎮 DualShock 4 подключён!';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        });
+
+        // Отключение геймпада
+        window.addEventListener('gamepaddisconnected', (e) => {
+            console.log('Геймпад отключен');
+            if (e.gamepad.index === gamepadIndex) {
+                gamepad = null;
+                gamepadIndex = null;
+            }
+        });
+
+        // Обработка ввода с геймпада
+        function updateGamepad() {
+            if (!gamepad) return;
+
+            // Получаем актуальное состояние геймпада
+            const gamepads = navigator.getGamepads();
+            const gp = gamepads[gamepadIndex];
+            if (!gp) return;
+
+            // DualShock 4 маппинг:
+            // Левый стик: axes[0] = X, axes[1] = Y
+            // Правый стик: axes[2] = X, axes[3] = Y
+            // Кнопки:
+            // 0 = X (прыжок)
+            // 1 = O (назад)
+            // 2 = □ (сменить вид)
+            // 3 = △ (открыть магазин)
+            // 4 = L1 (оружие 1)
+            // 5 = R1 (оружие 2)
+            // 6 = L2 (оружие 3)
+            // 7 = R2 (стрельба)
+            // 12-15 = D-pad
+
+            const deadzone = 0.15;
+
+            // Левый стик - движение
+            const leftStickX = Math.abs(gp.axes[0]) > deadzone ? gp.axes[0] : 0;
+            const leftStickY = Math.abs(gp.axes[1]) > deadzone ? gp.axes[1] : 0;
+
+            // Движение влево-вправо
+            if (leftStickX < -deadzone) {
+                keys['ArrowLeft'] = true;
+                keys['ArrowRight'] = false;
+            } else if (leftStickX > deadzone) {
+                keys['ArrowRight'] = true;
+                keys['ArrowLeft'] = false;
+            } else {
+                if (!gp.buttons[14]?.pressed && !gp.buttons[15]?.pressed) {
+                    keys['ArrowLeft'] = false;
+                    keys['ArrowRight'] = false;
+                }
+            }
+
+            // Движение вперед-назад
+            if (leftStickY < -deadzone) {
+                keys['ArrowUp'] = true;
+                keys['ArrowDown'] = false;
+            } else if (leftStickY > deadzone) {
+                keys['ArrowDown'] = true;
+                keys['ArrowUp'] = false;
+            } else {
+                if (!gp.buttons[12]?.pressed && !gp.buttons[13]?.pressed) {
+                    keys['ArrowUp'] = false;
+                    keys['ArrowDown'] = false;
+                }
+            }
+
+            // D-pad для движения (альтернатива)
+            if (gp.buttons[14] && gp.buttons[14].pressed) { // D-pad Left
+                keys['ArrowLeft'] = true;
+            }
+            if (gp.buttons[15] && gp.buttons[15].pressed) { // D-pad Right
+                keys['ArrowRight'] = true;
+            }
+            if (gp.buttons[12] && gp.buttons[12].pressed) { // D-pad Up
+                keys['ArrowUp'] = true;
+            }
+            if (gp.buttons[13] && gp.buttons[13].pressed) { // D-pad Down
+                keys['ArrowDown'] = true;
+            }
+
+            // Кнопка X - прыжок
+            if (gp.buttons[0] && gp.buttons[0].pressed) {
+                if (!lastJumpButton) {
+                    keys['Space'] = true;
+                    lastJumpButton = true;
+                }
+            } else {
+                keys['Space'] = false;
+                lastJumpButton = false;
+            }
+
+            // R2 - стрельба
+            if (gp.buttons[7] && gp.buttons[7].pressed) {
+                keys['KeyW'] = true;
+            } else {
+                keys['KeyW'] = false;
+            }
+
+            // □ (Square) - смена вида камеры
+            if (gp.buttons[2] && gp.buttons[2].pressed) {
+                if (!lastCameraButton) {
+                    if (cameraMode === 'firstPerson') {
+                        cameraMode = 'thirdPerson';
+                        document.getElementById('crosshair').style.display = 'none';
+                        const camModeEl = document.getElementById('cameraMode');
+                        if (camModeEl) camModeEl.textContent = 'Вид: От третьего лица';
+                    } else {
+                        cameraMode = 'firstPerson';
+                        document.getElementById('crosshair').style.display = 'block';
+                        const camModeEl = document.getElementById('cameraMode');
+                        if (camModeEl) camModeEl.textContent = 'Вид: От первого лица';
+                    }
+                    lastCameraButton = true;
+                }
+            } else {
+                lastCameraButton = false;
+            }
+
+            // △ (Triangle) - открыть магазин
+            if (gp.buttons[3] && gp.buttons[3].pressed) {
+                if (!lastShopButton) {
+                    keys['KeyB'] = true;
+                    lastShopButton = true;
+                    setTimeout(() => {
+                        keys['KeyB'] = false;
+                    }, 100);
+                }
+            } else {
+                lastShopButton = false;
+            }
+
+            // L1 - оружие 1 (пистолет)
+            if (gp.buttons[4] && gp.buttons[4].pressed) {
+                if (!lastWeaponButtons[0]) {
+                    changeWeapon('pistol');
+                    lastWeaponButtons[0] = true;
+                }
+            } else {
+                lastWeaponButtons[0] = false;
+            }
+
+            // R1 - оружие 2 (винтовка)
+            if (gp.buttons[5] && gp.buttons[5].pressed) {
+                if (!lastWeaponButtons[1]) {
+                    changeWeapon('rifle');
+                    lastWeaponButtons[1] = true;
+                }
+            } else {
+                lastWeaponButtons[1] = false;
+            }
+
+            // L2 - оружие 3 (лазер)
+            if (gp.buttons[6] && gp.buttons[6].pressed && gp.buttons[6].value > 0.5) {
+                if (!lastWeaponButtons[2]) {
+                    if (unlockedWeapons.includes('laser')) {
+                        changeWeapon('laser');
+                    }
+                    lastWeaponButtons[2] = true;
+                }
+            } else {
+                lastWeaponButtons[2] = false;
+            }
+
+            // O (Circle) - оружие 4 (гравитация)
+            if (gp.buttons[1] && gp.buttons[1].pressed) {
+                if (!lastWeaponButtons[3]) {
+                    if (unlockedWeapons.includes('gravity')) {
+                        changeWeapon('gravity');
+                    }
+                    lastWeaponButtons[3] = true;
+                }
+            } else {
+                lastWeaponButtons[3] = false;
+            }
+        }
+
+        // Вызываем updateGamepad в игровом цикле через requestAnimationFrame
+        function gamepadLoop() {
+            updateGamepad();
+            requestAnimationFrame(gamepadLoop);
+        }
+        gamepadLoop();
+
+        // Показываем подсказку при запуске
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 25px; border-radius: 10px; font-size: 16px; z-index: 1000; border: 2px solid #667eea;';
+                hint.innerHTML = '🎮 Подключите DualShock 4 для управления!<br>🕹️ Левый стик: движение | R2: стрельба | ✖️ X: прыжок<br>🔲 Square: вид | 🔺 Triangle: магазин | L1/R1: оружие';
+                document.body.appendChild(hint);
+
+                setTimeout(() => {
+                    if (hint.parentNode) {
+                        document.body.removeChild(hint);
+                    }
+                }, 8000);
+            }, 2000);
+        });
     </script>
 
     <!-- Прицел для вида от первого лица -->
