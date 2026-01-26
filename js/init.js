@@ -132,40 +132,8 @@ function init() {
 
     console.log('Высококачественное освещение добавлено в FPS сцену');
 
-    // Реалистичное градиентное небо (как в Far Cry)
-    const vertexShader = `
-        varying vec3 vWorldPosition;
-        void main() {
-            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-            vWorldPosition = worldPosition.xyz;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `;
-    const fragmentShader = `
-        uniform vec3 topColor;
-        uniform vec3 bottomColor;
-        uniform float offset;
-        uniform float exponent;
-        varying vec3 vWorldPosition;
-        void main() {
-            float h = normalize(vWorldPosition + offset).y;
-            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
-        }
-    `;
-    const skyGeo = new THREE.SphereGeometry(500, 32, 15);
-    const skyMat = new THREE.ShaderMaterial({
-        uniforms: {
-            topColor: { value: new THREE.Color(0x0077ff) },    // Яркое синее небо
-            bottomColor: { value: new THREE.Color(0xffffff) }, // Белый горизонт
-            offset: { value: 33 },
-            exponent: { value: 0.6 }
-        },
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        side: THREE.BackSide
-    });
-    const sky = new THREE.Mesh(skyGeo, skyMat);
-    scene.add(sky);
+    // Простое небо (обычный цвет фона)
+    scene.background = new THREE.Color(0x87ceeb); // Голубое небо
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
     // Вид от первого лица - камера на уровне глаз персонажа
@@ -185,56 +153,32 @@ function init() {
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // Улучшенный рендеринг
+        // Обычный рендеринг
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 2.0; // Увеличена яркость
+        renderer.toneMappingExposure = 1.0; // Нормальная яркость
 
         document.body.appendChild(renderer.domElement);
-
-        // Инициализация постобработки для основной сцены
-        composer = new THREE.EffectComposer(renderer);
-        const renderPass = new THREE.RenderPass(scene, camera);
-        composer.addPass(renderPass);
-
-        // Bloom эффект для свечения (умеренный)
-        const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.3,  // strength (умеренная интенсивность)
-            0.4,  // radius
-            0.4   // threshold (низкий порог = больше объектов светится)
-        );
-        composer.addPass(bloomPass);
-
-        // Composer для FPS сцены (оружие)
-        fpsComposer = new THREE.EffectComposer(renderer);
-        const fpsRenderPass = new THREE.RenderPass(fpsScene, camera);
-        fpsComposer.addPass(fpsRenderPass);
-
-        // Умеренный bloom для оружия (подсветка деталей без ослепления)
-        const fpsBloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.5,  // умеренное свечение для металла и прицелов
-            0.4,
-            0.3   // низкий порог чтобы детали были видны
-        );
-        fpsComposer.addPass(fpsBloomPass);
-
-        console.log('✨ Постобработка с bloom эффектом инициализирована');
+        console.log('✅ Renderer создан');
     }
+
+    // Постобработка ОТКЛЮЧЕНА для лучшей производительности и видимости
+    composer = null;
+    fpsComposer = null;
+    console.log('⚡ Постобработка отключена - используется обычный рендеринг');
 
     // Легкий туман для атмосферы (дальний план)
     scene.fog = new THREE.Fog(0x87ceeb, 30, 80);
 
-    // Яркое освещение (дневное время)
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 1.0);
+    // Сбалансированное освещение
+    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 0.6);
     scene.add(hemisphereLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Сильный ambient для видимости
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
     // Основной направленный свет (солнце)
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Яркое солнце
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
 
@@ -252,47 +196,14 @@ function init() {
     scene.add(directionalLight);
 
     // Дополнительный заполняющий свет (убирает темные тени)
-    const fillLight = new THREE.DirectionalLight(0xadd8e6, 1.0);
+    const fillLight = new THREE.DirectionalLight(0xadd8e6, 0.4);
     fillLight.position.set(-5, 5, -5);
     scene.add(fillLight);
 
-    // Дополнительный задний свет для еще большей видимости
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    backLight.position.set(0, 10, -10);
-    scene.add(backLight);
-
-    // Улучшенная земля с процедурной текстурой травы (как в Far Cry)
-    const groundGeometry = new THREE.PlaneGeometry(10, 100, 100, 100);
-
-    // Создаем процедурную текстуру травы
-    const groundCanvas = document.createElement('canvas');
-    groundCanvas.width = 512;
-    groundCanvas.height = 512;
-    const groundCtx = groundCanvas.getContext('2d');
-
-    // Базовый цвет травы
-    groundCtx.fillStyle = '#2d5a2d';
-    groundCtx.fillRect(0, 0, 512, 512);
-
-    // Добавляем шум для реалистичности
-    for (let i = 0; i < 10000; i++) {
-        const x = Math.random() * 512;
-        const y = Math.random() * 512;
-        const brightness = 0.8 + Math.random() * 0.4;
-        groundCtx.fillStyle = `rgba(${30 * brightness}, ${90 * brightness}, ${30 * brightness}, 0.3)`;
-        groundCtx.fillRect(x, y, 2, 2);
-    }
-
-    const groundTexture = new THREE.CanvasTexture(groundCanvas);
-    groundTexture.wrapS = THREE.RepeatWrapping;
-    groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(20, 20);
-
-    const groundMaterial = new THREE.MeshStandardMaterial({
-        map: groundTexture,
-        color: 0x2d5a2d,
-        roughness: 0.95,
-        metalness: 0.0
+    // Простая земля (без процедурных текстур)
+    const groundGeometry = new THREE.PlaneGeometry(10, 100);
+    const groundMaterial = new THREE.MeshLambertMaterial({
+        color: 0x2d5a2d
     });
 
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
