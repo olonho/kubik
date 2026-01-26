@@ -33,7 +33,10 @@ function selectSkin(skin) {
 
     // Загружаем сохранённые параметры игры или используем дефолтные
     score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
-    wave = parseInt(localStorage.getItem('cubeGameWave')) || 18; // СТАРТ С 18 ВОЛНЫ
+
+    // ВСЕГДА СТАРТУЕМ С 18 ВОЛНЫ (игнорируем сохранение)
+    wave = 18;
+
     lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
     ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
     coins = parseInt(localStorage.getItem('cubeGameCoins')) || 50000;
@@ -67,10 +70,8 @@ function selectSkin(skin) {
     if (typeof updateCoinsDisplay === 'function') updateCoinsDisplay();
     if (typeof updateWoodDisplay === 'function') updateWoodDisplay();
 
-    // Показываем кнопку поглаживания если есть собака
-    if (ownedPets && ownedPets.includes('dog')) {
-        document.getElementById('petDogBtn').style.display = 'block';
-    }
+    // Показываем кнопку поглаживания (собака всегда есть)
+    document.getElementById('petDogBtn').style.display = 'block';
 }
 
 // Делаем функцию selectSkin глобальной сразу после определения
@@ -597,13 +598,19 @@ function init() {
         document.getElementById('buildBedBtn').style.display = 'none';
     }
 
-    // Восстанавливаем питомцев если были куплены
-    if (ownedPets && ownedPets.length > 0) {
-        console.log('🐾 Восстанавливаем питомцев:', ownedPets);
-        ownedPets.forEach(petType => {
-            const petName = petNames && petNames[petType] ? petNames[petType] : null;
-            createPet(petType, petName);
-        });
+    // В начале игры создаем только собаку
+    // Проверяем есть ли уже имя для собаки
+    const dogName = petNames && petNames['dog'] ? petNames['dog'] : null;
+
+    if (!dogName) {
+        // Первый запуск - просим дать имя собаке
+        setTimeout(() => {
+            showDogNamingDialog();
+        }, 500);
+    } else {
+        // Создаем собаку с сохраненным именем
+        createPet('dog', dogName);
+        console.log('🐾 Собака создана с именем:', dogName);
     }
 
     // Запускаем первую волну

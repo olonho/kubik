@@ -133,12 +133,7 @@ function updatePlayerHPDisplay() {
 }
 
 function petDog() {
-    // Проверяем есть ли собака среди питомцев
-    if (!ownedPets.includes('dog')) {
-        alert('❌ У вас нет собаки! Купите собаку в магазине оружия.');
-        return;
-    }
-
+    // Собака всегда с игроком с самого начала
     if (hasCompanion) {
         alert('💚 Ваш напарник уже с вами!');
         return;
@@ -177,6 +172,83 @@ function petDog() {
         // Скрываем кнопку поглаживания
         document.getElementById('petDogBtn').style.display = 'none';
     }
+}
+
+function showDogNamingDialog() {
+    const dialog = document.getElementById('petNameDialog');
+    const input = document.getElementById('petNameInput');
+    const icon = document.getElementById('petDialogIcon');
+    const title = document.getElementById('petDialogTitle');
+    const desc = document.getElementById('petDialogDesc');
+
+    // Настраиваем диалог
+    icon.textContent = '🐕';
+    title.textContent = 'Дайте имя вашей собаке!';
+    desc.textContent = 'Ваш верный друг будет с вами с самого начала приключения';
+    input.value = '';
+
+    // Показываем диалог
+    dialog.style.display = 'flex';
+    setTimeout(() => input.focus(), 100);
+
+    // Обработчик подтверждения
+    const confirmHandler = () => {
+        const dogName = input.value.trim();
+        if (!dogName || dogName === '') {
+            alert('Пожалуйста, введите имя для собаки!');
+            input.focus();
+            return;
+        }
+
+        // Сохраняем имя собаки
+        if (!petNames) window.petNames = {};
+        petNames['dog'] = dogName;
+        localStorage.setItem('cubeGamePetNames', JSON.stringify(petNames));
+
+        // Создаем собаку
+        createPet('dog', dogName);
+        console.log('🐾 Собака создана с именем:', dogName);
+
+        // Показываем уведомление
+        const notif = document.createElement('div');
+        notif.style.cssText = 'position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(139, 69, 19, 0.95); color: white; padding: 30px 50px; border-radius: 15px; font-size: 28px; font-weight: bold; z-index: 999; border: 3px solid #8B4513; box-shadow: 0 0 30px rgba(139, 69, 19, 0.8);';
+        notif.innerHTML = '🐕 ' + dogName + ' присоединился к вам!';
+        document.body.appendChild(notif);
+        setTimeout(() => {
+            if (document.body.contains(notif)) {
+                document.body.removeChild(notif);
+            }
+        }, 3000);
+
+        // Скрываем диалог
+        dialog.style.display = 'none';
+        cleanup();
+    };
+
+    // Обработчик отмены
+    const cancelHandler = () => {
+        // Нельзя отменить - собака обязательна
+        alert('Вы должны дать имя собаке, чтобы начать игру!');
+    };
+
+    // Обработчик Enter
+    const enterHandler = (e) => {
+        if (e.key === 'Enter') {
+            confirmHandler();
+        }
+    };
+
+    // Функция очистки обработчиков
+    const cleanup = () => {
+        document.getElementById('petNameConfirm').removeEventListener('click', confirmHandler);
+        document.getElementById('petNameCancel').removeEventListener('click', cancelHandler);
+        input.removeEventListener('keypress', enterHandler);
+    };
+
+    // Добавляем обработчики
+    document.getElementById('petNameConfirm').addEventListener('click', confirmHandler);
+    document.getElementById('petNameCancel').addEventListener('click', cancelHandler);
+    input.addEventListener('keypress', enterHandler);
 }
 
 function spawnCompanion() {

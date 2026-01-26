@@ -329,13 +329,10 @@ function updateWeaponsShopDisplay() {
     const petsContainer = document.getElementById('weaponsShopPets');
     petsContainer.innerHTML = '';
 
-    // Проверяем, есть ли у игрока хотя бы один питомец
-    const hasAnyPet = ownedPets && ownedPets.length > 0;
-
     shopItems.pets.forEach(item => {
-        // Если у игрока нет питомцев, показываем только собачку
-        if (!hasAnyPet && item.id !== 'dog') {
-            return; // Пропускаем всех питомцев кроме собачки
+        // Пропускаем собаку - она дается с самого начала
+        if (item.id === 'dog') {
+            return;
         }
 
         const owned = ownedPets.includes(item.id);
@@ -379,14 +376,6 @@ function updateWeaponsShopDisplay() {
         }
         petsContainer.appendChild(petItem);
     });
-
-    // Добавляем подсказку если питомцев еще нет
-    if (!hasAnyPet) {
-        const hintDiv = document.createElement('div');
-        hintDiv.style.cssText = 'color: #ffaa66; font-size: 16px; text-align: center; width: 100%; max-width: 600px; padding: 20px; background: rgba(255, 170, 102, 0.15); border-radius: 15px; border: 3px dashed rgba(255, 170, 102, 0.6); margin: 20px auto 0 auto; box-shadow: 0 4px 15px rgba(255, 170, 102, 0.3);';
-        hintDiv.innerHTML = '💡 <strong>Сначала купите собачку и дайте ей имя!</strong><br>После этого откроются все остальные питомцы.';
-        petsContainer.appendChild(hintDiv);
-    }
 }
 
 function buyWeaponFromShop(item) {
