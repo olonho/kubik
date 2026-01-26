@@ -336,6 +336,10 @@ function init() {
     // Позиционирование зависит от режима камеры
     console.log('Проверяем режим камеры. cameraMode =', cameraMode);
     if (cameraMode === 'firstPerson') {
+        // Скрываем персонажа в режиме от первого лица (камера внутри головы)
+        player.visible = false;
+        console.log('Персонаж скрыт для FPS вида');
+
         // Создаем руки для FPS вида (как в CS:GO)
         console.log('Режим камеры - первое лицо! Создаем FPS руки...');
         console.log('Функция createFPSHands доступна?', typeof createFPSHands);

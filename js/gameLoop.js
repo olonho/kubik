@@ -177,6 +177,9 @@ function updatePlayer() {
             document.getElementById('crosshair').style.display = 'none';
             document.getElementById('cameraMode').textContent = 'Вид: От третьего лица';
 
+            // Показываем персонажа в режиме третьего лица
+            player.visible = true;
+
             // Переносим оружие от рук/камеры к игроку
             if (currentWeapon) {
                 if (fpsHands) {
@@ -197,6 +200,9 @@ function updatePlayer() {
             cameraMode = 'firstPerson';
             document.getElementById('crosshair').style.display = 'block';
             document.getElementById('cameraMode').textContent = 'Вид: От первого лица';
+
+            // Скрываем персонажа в режиме первого лица
+            player.visible = false;
 
             // Переносим оружие от игрока к рукам
             if (currentWeapon) {
