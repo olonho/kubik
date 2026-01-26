@@ -169,6 +169,66 @@ function init() {
     if (hasSonicTurret) {
         createSonicTurret();
     }
+    if (hasPlasmaTurret) {
+        createPlasmaTurret();
+    }
+    if (hasTeslaTurret) {
+        createTeslaTurret();
+    }
+    if (hasGravityTurret) {
+        createGravityTurret();
+    }
+    if (hasRailgunTurret) {
+        createRailgunTurret();
+    }
+    if (hasMinigunTurret) {
+        createMinigunTurret();
+    }
+    if (hasFlamethrowerTurret) {
+        createFlamethrowerTurret();
+    }
+    if (hasSniperTurret) {
+        createSniperTurret();
+    }
+    if (hasShotgunTurret) {
+        createShotgunTurret();
+    }
+    if (hasCannonTurret) {
+        createCannonTurret();
+    }
+    if (hasNuclearTurret) {
+        createNuclearTurret();
+    }
+    if (hasRainbowTurret) {
+        createRainbowTurret();
+    }
+    if (hasHealingTurret) {
+        createHealingTurret();
+    }
+    if (hasShieldTurret) {
+        createShieldTurret();
+    }
+    if (hasQuantumTurret) {
+        createQuantumTurret();
+    }
+    if (hasBlackholeTurret) {
+        createBlackholeTurret();
+    }
+    if (hasTimeTurret) {
+        createTimeTurret();
+    }
+    if (hasEnergyTurret) {
+        createEnergyTurret();
+    }
+    if (hasMeteorTurret) {
+        createMeteorTurret();
+    }
+    if (hasStormTurret) {
+        createStormTurret();
+    }
+    if (hasAntimatterTurret) {
+        createAntimatterTurret();
+    }
 
     // Добавляем траву
     for (let i = 0; i < 50; i++) {
@@ -276,6 +336,22 @@ function init() {
     updateAmmoDisplay();
     document.getElementById('weaponDisplay').style.display = 'block';
     document.getElementById('weaponDisplay').textContent = '🔫 Пистолет';
+
+    // Восстанавливаем дом если был построен
+    const savedHousePos = localStorage.getItem('cubeGameHousePosition');
+    if (savedHousePos) {
+        try {
+            const pos = JSON.parse(savedHousePos);
+            playerHouse = createHouse();
+            playerHouse.position.set(pos.x, pos.y, pos.z);
+            playerHouse.userData.isHouse = true;
+            playerHouse.userData.canEnter = true;
+            scene.add(playerHouse);
+            console.log('Дом восстановлен на позиции:', pos);
+        } catch (e) {
+            console.error('Ошибка восстановления дома:', e);
+        }
+    }
 
     // Запускаем первую волну
     startNewWave();

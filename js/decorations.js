@@ -650,47 +650,53 @@ function createHouse() {
 }
 
 function createTrees() {
-    // Увеличиваем количество деревьев до 100 с каждой стороны
+    // Деревья по центру поля для удобной рубки (вдоль дороги)
     for (let i = 0; i < 100; i++) {
         const tree = createTree();
-        tree.position.set(-5.5, 0, -i * 5 - 5);
-        tree.userData.isTree = true; // Помечаем как дерево для рубки
-        tree.userData.canChop = true; // Можно рубить
+        // Слева от центра (-2 до -1)
+        tree.position.set(-1.5 + Math.random() * 0.5, 0, -i * 5 - 5);
+        tree.userData.isTree = true;
+        tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
     for (let i = 0; i < 100; i++) {
         const tree = createTree();
-        tree.position.set(5.5, 0, -i * 5 - 5);
-        tree.userData.isTree = true; // Помечаем как дерево для рубки
-        tree.userData.canChop = true; // Можно рубить
-        scene.add(tree);
-        decorations.push(tree);
-    }
-
-    // Добавляем деревья в разных местах карты для разнообразия
-    for (let i = 0; i < 50; i++) {
-        const tree = createTree();
-        const side = Math.random() > 0.5 ? -7 : 7;
-        tree.position.set(side + (Math.random() - 0.5) * 2, 0, -i * 8 - Math.random() * 10);
+        // Справа от центра (1 до 2)
+        tree.position.set(1.5 - Math.random() * 0.5, 0, -i * 5 - 5);
         tree.userData.isTree = true;
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
 
-    // Добавляем МНОГО деревьев по всему полю в случайных местах
+    // Дополнительные деревья в центре для разнообразия
+    for (let i = 0; i < 50; i++) {
+        const tree = createTree();
+        // Центральная зона от -2 до 2
+        tree.position.set((Math.random() - 0.5) * 4, 0, -i * 8 - Math.random() * 10);
+        tree.userData.isTree = true;
+        tree.userData.canChop = true;
+        scene.add(tree);
+        decorations.push(tree);
+    }
+
+    // Добавляем деревья по всему полю, но с приоритетом к центру
     for (let i = 0; i < 200; i++) {
         const tree = createTree();
 
-        // Случайная позиция X (избегаем центральной дороги от -3 до 3)
+        // Случайная позиция X с приоритетом к центру (от -4 до 4)
         let randomX;
-        if (Math.random() > 0.5) {
-            // Справа от дороги (от 3.5 до 9)
-            randomX = 3.5 + Math.random() * 5.5;
+        if (Math.random() > 0.3) {
+            // 70% деревьев в центральной зоне (от -4 до 4)
+            randomX = (Math.random() - 0.5) * 8;
         } else {
-            // Слева от дороги (от -9 до -3.5)
-            randomX = -9 + Math.random() * 5.5;
+            // 30% деревьев по краям
+            if (Math.random() > 0.5) {
+                randomX = 4 + Math.random() * 5;
+            } else {
+                randomX = -4 - Math.random() * 5;
+            }
         }
 
         // Случайная позиция Z по всей длине карты

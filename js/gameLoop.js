@@ -1049,20 +1049,40 @@ function updateTurrets() {
 
         // Если нашли зомби, поворачиваемся к нему и стреляем
         if (nearestZombie) {
-            const head = turret.userData.head;
-            const barrel = turret.userData.barrel;
-
             // Вычисляем угол к цели
             const dx = nearestZombie.pos.x - turret.position.x;
             const dz = nearestZombie.pos.z - turret.position.z;
             const targetAngle = Math.atan2(dx, dz);
 
-            // Плавно поворачиваем голову
-            if (head) {
-                head.rotation.y = targetAngle;
+            // Поворачиваем части турели в зависимости от типа
+            const turretType = turret.userData.type;
+
+            // Стандартные части (head, barrel)
+            if (turret.userData.head) {
+                turret.userData.head.rotation.y = targetAngle;
             }
-            if (barrel) {
-                barrel.rotation.y = targetAngle;
+            if (turret.userData.barrel) {
+                turret.userData.barrel.rotation.y = targetAngle;
+            }
+
+            // Специфичные части для разных типов турелей
+            if (turret.userData.speaker) { // sonic
+                turret.userData.speaker.rotation.y = targetAngle;
+            }
+            if (turret.userData.sphere) { // gravity
+                turret.userData.sphere.rotation.y = targetAngle;
+            }
+            if (turret.userData.nozzle) { // flamethrower
+                turret.userData.nozzle.rotation.y = targetAngle;
+            }
+
+            // Для турелей без вращающихся частей (tesla, rainbow, healing и др.)
+            // - они стреляют во всех направлениях или автоматически
+            // Поворачиваем всю турель если нет вращающихся частей
+            if (!turret.userData.head && !turret.userData.barrel &&
+                !turret.userData.speaker && !turret.userData.sphere &&
+                !turret.userData.nozzle) {
+                turret.rotation.y = targetAngle;
             }
 
             // Стреляем если кулдаун закончился
@@ -1156,6 +1176,7 @@ function animate() {
         updateTurrets();
         updatePets();
         updateCamera();
+        checkHouseProximity(); // Проверяем близость к дому
     }
     if (renderer && scene && camera) {
         renderer.render(scene, camera);

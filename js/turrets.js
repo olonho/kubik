@@ -228,7 +228,7 @@ function createFreezeTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(3, 0, 2);
+    turretGroup.position.set(4, 0, 3); // Изменена позиция чтобы не конфликтовать
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;

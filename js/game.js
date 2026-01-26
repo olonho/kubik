@@ -105,13 +105,15 @@ function buildHouse() {
         wood -= woodRequired;
         updateWoodDisplay();
 
-        // Создаем дом рядом с игроком
+        // Создаем дом на позиции игрока
         playerHouse = createHouse();
-        playerHouse.position.set(-10, 0, player.position.z - 5); // Ставим слева от дорожки
+        playerHouse.position.set(player.position.x, 0, player.position.z);
+        playerHouse.userData.isHouse = true; // Помечаем как дом игрока
+        playerHouse.userData.canEnter = true; // Можно войти
         scene.add(playerHouse);
 
         // Показываем уведомление
-        showNotification('🏠 Дом построен! Отличная работа!', 'success');
+        showNotification('🏠 Дом построен! Зайдите внутрь (подойдите близко) для сохранения прогресса!', 'success');
 
         // Даем бонус за постройку дома
         coins += 500;
@@ -121,6 +123,102 @@ function buildHouse() {
 
     } else {
         showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
+    }
+}
+
+function enterHouse() {
+    // Сохраняем весь прогресс
+    localStorage.setItem('cubeGameCoins', coins);
+    localStorage.setItem('cubeGameWood', wood);
+    localStorage.setItem('cubeGameWave', wave);
+    localStorage.setItem('cubeGameScore', score);
+    localStorage.setItem('cubeGameLives', lives);
+    localStorage.setItem('cubeGameMaxWave', maxWaveReached);
+    localStorage.setItem('cubeGameAmmo', ammo);
+    localStorage.setItem('cubeGameHousePosition', JSON.stringify({
+        x: playerHouse.position.x,
+        y: playerHouse.position.y,
+        z: playerHouse.position.z
+    }));
+
+    // Восстанавливаем HP и патроны
+    lives = Math.min(lives + 1, 5);
+    ammo = maxAmmo;
+    updateScoreDisplay();
+    updateAmmoDisplay();
+
+    // Показываем уведомление
+    showNotification('💾 Прогресс сохранён! HP и патроны восстановлены!', 'success');
+}
+
+function eatInHouse() {
+    const foodCost = 50;
+
+    if (coins >= foodCost) {
+        coins -= foodCost;
+        updateCoinsDisplay();
+        localStorage.setItem('cubeGameCoins', coins);
+
+        // Добавляем жизнь (максимум 10)
+        lives = Math.min(lives + 1, 10);
+        updateScoreDisplay();
+
+        showNotification('🍖 Вы поели! +1 HP. Осталось монет: ' + coins, 'success');
+    } else {
+        showNotification('❌ Недостаточно монет для еды! Нужно: 50, есть: ' + coins, 'error');
+    }
+}
+
+function checkHouseProximity() {
+    if (!playerHouse || !player) return;
+
+    const distance = player.position.distanceTo(playerHouse.position);
+
+    // Если игрок близко к дому (в радиусе 3 единиц)
+    if (distance < 3) {
+        if (!playerHouse.userData.showingPrompt) {
+            playerHouse.userData.showingPrompt = true;
+
+            // Показываем подсказку
+            const prompt = document.createElement('div');
+            prompt.id = 'housePrompt';
+            prompt.style.cssText = `
+                position: fixed;
+                bottom: 150px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 20px 40px;
+                border-radius: 15px;
+                font-size: 20px;
+                font-weight: bold;
+                z-index: 500;
+                text-align: center;
+                background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                color: white;
+                border: 3px solid gold;
+            `;
+            prompt.innerHTML = '🏠 E - Сохранить | F - Поесть (50💰, +1❤️)';
+            document.body.appendChild(prompt);
+        }
+
+        // Проверяем нажатие E (сохранение)
+        if (keys['KeyE']) {
+            enterHouse();
+            keys['KeyE'] = false; // Сбрасываем чтобы не вызывалось много раз
+        }
+
+        // Проверяем нажатие F (еда)
+        if (keys['KeyF']) {
+            eatInHouse();
+            keys['KeyF'] = false; // Сбрасываем чтобы не вызывалось много раз
+        }
+    } else {
+        // Убираем подсказку если игрок ушёл
+        if (playerHouse.userData.showingPrompt) {
+            const prompt = document.getElementById('housePrompt');
+            if (prompt) document.body.removeChild(prompt);
+            playerHouse.userData.showingPrompt = false;
+        }
     }
 }
 
