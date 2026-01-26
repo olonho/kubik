@@ -91,6 +91,7 @@ var hasStormTurret = false;
 var hasAntimatterTurret = false;
 var pets = [];
 var ownedPets = JSON.parse(localStorage.getItem('cubeGameOwnedPets')) || [];
+var petNames = JSON.parse(localStorage.getItem('cubeGamePetNames')) || {};
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);

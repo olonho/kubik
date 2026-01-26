@@ -3,23 +3,25 @@
 function createPistol() {
     const pistolGroup = new THREE.Group();
 
-    // Реалистичные материалы оружия (как в Far Cry 3)
+    // Ультра реалистичные материалы оружия (AAA качество)
     const metalMaterial = new THREE.MeshStandardMaterial({
-        color: 0x2A2A2A,
-        roughness: 0.3,
-        metalness: 0.9
+        color: 0x333333,
+        roughness: 0.25,
+        metalness: 0.95,
+        envMapIntensity: 1.5
     });
 
     const darkMetalMaterial = new THREE.MeshStandardMaterial({
         color: 0x1A1A1A,
-        roughness: 0.4,
-        metalness: 0.85
+        roughness: 0.35,
+        metalness: 0.9,
+        envMapIntensity: 1.3
     });
 
     const gripMaterial = new THREE.MeshStandardMaterial({
         color: 0x2C1810,
-        roughness: 0.95,
-        metalness: 0.05
+        roughness: 0.98,
+        metalness: 0.02
     });
 
     // Рукоятка с текстурой

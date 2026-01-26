@@ -1,7 +1,7 @@
 // Логика питомцев
 
 // Функция создания питомцев
-function createPet(type) {
+function createPet(type, customName) {
     let petGroup;
 
     switch(type) {
@@ -50,8 +50,43 @@ function createPet(type) {
         petGroup.userData.shootCooldown = 0;
         petGroup.userData.hp = 10;
         petGroup.userData.maxHp = 10;
+        petGroup.userData.petName = customName || '';
+
+        // Создаем текстовый спрайт с именем питомца над ним
+        if (customName) {
+            createPetNameTag(petGroup, customName);
+        }
+
         pets.push(petGroup);
     }
+}
+
+// Функция создания бирки с именем питомца
+function createPetNameTag(petGroup, name) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 64;
+
+    // Фон
+    context.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Текст
+    context.font = 'bold 32px Arial';
+    context.fillStyle = '#FFD700';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(name, canvas.width / 2, canvas.height / 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(1.5, 0.4, 1);
+    sprite.position.set(0, 1.2, 0);
+
+    petGroup.add(sprite);
+    petGroup.userData.nameTag = sprite;
 }
 
 function createDogPet() {

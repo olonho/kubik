@@ -132,8 +132,41 @@ function init() {
 
     console.log('Высококачественное освещение добавлено в FPS сцену');
 
-    // Простое небо (обычный цвет фона)
-    scene.background = new THREE.Color(0x87ceeb); // Голубое небо
+    // Реалистичное градиентное небо (AAA качество)
+    const vertexShader = `
+        varying vec3 vWorldPosition;
+        void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `;
+    const fragmentShader = `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+        varying vec3 vWorldPosition;
+        void main() {
+            float h = normalize(vWorldPosition + offset).y;
+            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+        }
+    `;
+    const skyGeo = new THREE.SphereGeometry(500, 64, 64);
+    const skyMat = new THREE.ShaderMaterial({
+        uniforms: {
+            topColor: { value: new THREE.Color(0x0055AA) },    // Глубокое синее небо
+            bottomColor: { value: new THREE.Color(0xE8F4FF) }, // Светлый горизонт
+            offset: { value: 33 },
+            exponent: { value: 0.5 }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        side: THREE.BackSide
+    });
+    const sky = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(sky);
+    console.log('🌅 Реалистичное небо с градиентом создано');
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
     // Вид от первого лица - камера на уровне глаз персонажа
@@ -144,22 +177,27 @@ function init() {
     if (!renderer) {
         renderer = new THREE.WebGLRenderer({
             antialias: true,
-            powerPreference: "high-performance"
+            powerPreference: "high-performance",
+            alpha: false,
+            stencil: false,
+            depth: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Оптимизация
 
-        // Улучшенные тени
+        // Ультра качественные тени
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.autoUpdate = true;
 
-        // Обычный рендеринг
+        // Максимальное качество рендеринга
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0; // Нормальная яркость
+        renderer.toneMappingExposure = 1.1; // Слегка ярче для красоты
+        renderer.physicallyCorrectLights = true; // Физически правильное освещение
 
         document.body.appendChild(renderer.domElement);
-        console.log('✅ Renderer создан');
+        console.log('✅ Renderer с ультра настройками создан');
     }
 
     // Постобработка ОТКЛЮЧЕНА для лучшей производительности и видимости
@@ -167,51 +205,126 @@ function init() {
     fpsComposer = null;
     console.log('⚡ Постобработка отключена - используется обычный рендеринг');
 
-    // Легкий туман для атмосферы (как в Far Cry 3 - тропический остров)
-    scene.fog = new THREE.Fog(0xa0c8e8, 40, 100);
+    // Атмосферный туман (дальний план)
+    scene.fog = new THREE.FogExp2(0xb8d4f0, 0.015);
 
-    // Освещение как в Far Cry 3 (солнечный тропический день)
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x3a6b35, 0.8);
+    // Реалистичное многослойное освещение (AAA стандарт)
+
+    // 1. Hemisphere Light - имитация неба и отражения от земли
+    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x4a7c59, 1.0);
     scene.add(hemisphereLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    // 2. Ambient Light - базовое освещение сцены
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    // Яркое тропическое солнце
-    const directionalLight = new THREE.DirectionalLight(0xffffee, 1.2);
-    directionalLight.position.set(10, 20, 10);
-    directionalLight.castShadow = true;
+    // 3. Главное солнце (key light) - яркое направленное освещение
+    const sunLight = new THREE.DirectionalLight(0xfff5e1, 1.5);
+    sunLight.position.set(30, 40, 20);
+    sunLight.castShadow = true;
 
-    // Улучшенные настройки теней
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
-    directionalLight.shadow.camera.left = -20;
-    directionalLight.shadow.camera.right = 20;
-    directionalLight.shadow.camera.top = 20;
-    directionalLight.shadow.camera.bottom = -20;
-    directionalLight.shadow.bias = -0.0001;
+    // Ультра качественные тени
+    sunLight.shadow.mapSize.width = 4096;
+    sunLight.shadow.mapSize.height = 4096;
+    sunLight.shadow.camera.near = 1;
+    sunLight.shadow.camera.far = 100;
+    sunLight.shadow.camera.left = -30;
+    sunLight.shadow.camera.right = 30;
+    sunLight.shadow.camera.top = 30;
+    sunLight.shadow.camera.bottom = -30;
+    sunLight.shadow.bias = -0.00001;
+    sunLight.shadow.radius = 2; // Мягкие тени
 
-    scene.add(directionalLight);
+    scene.add(sunLight);
 
-    // Дополнительный заполняющий свет (убирает темные тени)
-    const fillLight = new THREE.DirectionalLight(0xadd8e6, 0.4);
-    fillLight.position.set(-5, 5, -5);
+    // 4. Fill Light - заполняющий свет для мягких теней
+    const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.6);
+    fillLight.position.set(-10, 15, -10);
     scene.add(fillLight);
 
-    // Реалистичная земля (как в Far Cry 3)
-    const groundGeometry = new THREE.PlaneGeometry(10, 100);
+    // 5. Rim Light - контурный свет для объема
+    const rimLight = new THREE.DirectionalLight(0xffd7a3, 0.4);
+    rimLight.position.set(-5, 10, 15);
+    scene.add(rimLight);
+
+    // 6. Sky Light - дополнительный свет сверху
+    const skyLight = new THREE.DirectionalLight(0xd4e6f1, 0.3);
+    skyLight.position.set(0, 30, 0);
+    scene.add(skyLight);
+
+    console.log('💡 Многослойное AAA освещение настроено');
+
+    // Ультра реалистичная земля с процедурной текстурой
+    const groundGeometry = new THREE.PlaneGeometry(10, 100, 200, 200);
+
+    // Создаем высококачественную процедурную текстуру травы
+    const grassCanvas = document.createElement('canvas');
+    grassCanvas.width = 1024;
+    grassCanvas.height = 1024;
+    const ctx = grassCanvas.getContext('2d');
+
+    // Базовый цвет травы (несколько оттенков зеленого)
+    const grassColors = ['#3a7c3a', '#2d5a2d', '#4a8c4a', '#356b35', '#3d753d'];
+
+    // Рисуем базовый слой
+    ctx.fillStyle = grassColors[0];
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    // Добавляем вариацию цвета (большие пятна)
+    for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 1024;
+        const y = Math.random() * 1024;
+        const size = 50 + Math.random() * 100;
+        const color = grassColors[Math.floor(Math.random() * grassColors.length)];
+
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x - size, y - size, size * 2, size * 2);
+    }
+
+    // Добавляем детальный шум (травинки)
+    for (let i = 0; i < 30000; i++) {
+        const x = Math.random() * 1024;
+        const y = Math.random() * 1024;
+        const brightness = 0.7 + Math.random() * 0.6;
+        ctx.fillStyle = `rgba(${40 * brightness}, ${100 * brightness}, ${40 * brightness}, ${0.3 + Math.random() * 0.3})`;
+        ctx.fillRect(x, y, 1 + Math.random(), 1 + Math.random());
+    }
+
+    // Добавляем грязные пятна для реализма
+    for (let i = 0; i < 30; i++) {
+        const x = Math.random() * 1024;
+        const y = Math.random() * 1024;
+        const size = 20 + Math.random() * 40;
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+        gradient.addColorStop(0, 'rgba(101, 67, 33, 0.3)');
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x - size, y - size, size * 2, size * 2);
+    }
+
+    const grassTexture = new THREE.CanvasTexture(grassCanvas);
+    grassTexture.wrapS = THREE.RepeatWrapping;
+    grassTexture.wrapT = THREE.RepeatWrapping;
+    grassTexture.repeat.set(10, 10);
+    grassTexture.anisotropy = 16; // Максимальная фильтрация для четкости
+
     const groundMaterial = new THREE.MeshStandardMaterial({
-        color: 0x3a6b35,
-        roughness: 0.9,
-        metalness: 0.0
+        map: grassTexture,
+        color: 0xffffff, // Белый чтобы текстура показывалась правильно
+        roughness: 0.95,
+        metalness: 0.0,
+        side: THREE.DoubleSide
     });
 
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+
+    console.log('🌿 Ультра реалистичная земля с процедурной текстурой создана');
 
     // Добавляем деревья по краям
     decorations = [];
@@ -464,6 +577,15 @@ function init() {
 
         // Скрываем кнопку постройки кровати
         document.getElementById('buildBedBtn').style.display = 'none';
+    }
+
+    // Восстанавливаем питомцев если были куплены
+    if (ownedPets && ownedPets.length > 0) {
+        console.log('🐾 Восстанавливаем питомцев:', ownedPets);
+        ownedPets.forEach(petType => {
+            const petName = petNames && petNames[petType] ? petNames[petType] : null;
+            createPet(petType, petName);
+        });
     }
 
     // Запускаем первую волну

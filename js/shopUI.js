@@ -300,12 +300,12 @@ function updateWeaponsShopDisplay() {
         const turretItem = document.createElement('div');
         turretItem.className = 'shop-item' + (owned ? ' owned' : '');
         turretItem.style.backgroundColor = colors.bg;
-        turretItem.style.border = '3px solid ' + colors.border;
+        turretItem.style.border = '4px solid ' + colors.border;
         turretItem.innerHTML = `
-            <div class="shop-item-icon" style="font-size: 48px;">${item.icon}</div>
-            <div class="shop-item-name" style="color: ${colors.name}; font-size: 20px;">${item.name}</div>
+            <div class="shop-item-icon">${item.icon}</div>
+            <div class="shop-item-name" style="color: ${colors.name};">${item.name}</div>
             <div class="shop-item-desc" style="color: ${colors.desc};">${item.description}</div>
-            <div class="shop-item-price" style="font-size: 20px; color: gold;">${owned ? '✓ Установлена' : '💰 ' + item.price}</div>
+            <div class="shop-item-price">${owned ? '✓ Установлена' : '💰 ' + item.price}</div>
         `;
         if (!owned) {
             turretItem.onclick = () => buyTurretFromShop(item.id);
@@ -317,7 +317,15 @@ function updateWeaponsShopDisplay() {
     const petsContainer = document.getElementById('weaponsShopPets');
     petsContainer.innerHTML = '';
 
+    // Проверяем, есть ли у игрока хотя бы один питомец
+    const hasAnyPet = ownedPets && ownedPets.length > 0;
+
     shopItems.pets.forEach(item => {
+        // Если у игрока нет питомцев, показываем только собачку
+        if (!hasAnyPet && item.id !== 'dog') {
+            return; // Пропускаем всех питомцев кроме собачки
+        }
+
         const owned = ownedPets.includes(item.id);
         const petColors = {
             dog: { bg: 'rgba(139, 69, 19, 0.2)', border: 'rgba(210, 105, 30, 0.5)' },
@@ -335,21 +343,32 @@ function updateWeaponsShopDisplay() {
         };
         const colors = petColors[item.id] || { bg: 'rgba(100, 100, 100, 0.2)', border: 'rgba(150, 150, 150, 0.5)' };
 
+        // Показываем имя питомца если он куплен
+        const petNameDisplay = owned && petNames && petNames[item.id] ? `"${petNames[item.id]}"` : item.name;
+
         const petItem = document.createElement('div');
         petItem.className = 'shop-item' + (owned ? ' owned' : '');
         petItem.style.backgroundColor = colors.bg;
-        petItem.style.border = '3px solid ' + colors.border;
+        petItem.style.border = '4px solid ' + colors.border;
         petItem.innerHTML = `
-            <div class="shop-item-icon" style="font-size: 48px;">${item.icon}</div>
-            <div class="shop-item-name" style="color: #66ff66; font-size: 20px;">${item.name}</div>
+            <div class="shop-item-icon">${item.icon}</div>
+            <div class="shop-item-name" style="color: #66ff66;">${petNameDisplay}</div>
             <div class="shop-item-desc" style="color: #aaffaa;">${item.description}</div>
-            <div class="shop-item-price" style="font-size: 20px; color: gold;">${owned ? '✓ Куплен' : '💰 ' + item.price}</div>
+            <div class="shop-item-price">${owned ? '✓ Куплен' : '💰 ' + item.price}</div>
         `;
         if (!owned) {
             petItem.onclick = () => buyPetFromShop(item.id);
         }
         petsContainer.appendChild(petItem);
     });
+
+    // Добавляем подсказку если питомцев еще нет
+    if (!hasAnyPet) {
+        const hintDiv = document.createElement('div');
+        hintDiv.style.cssText = 'color: #ffaa66; font-size: 16px; text-align: center; width: 100%; max-width: 600px; padding: 20px; background: rgba(255, 170, 102, 0.15); border-radius: 15px; border: 3px dashed rgba(255, 170, 102, 0.6); margin: 20px auto 0 auto; box-shadow: 0 4px 15px rgba(255, 170, 102, 0.3);';
+        hintDiv.innerHTML = '💡 <strong>Сначала купите собачку и дайте ей имя!</strong><br>После этого откроются все остальные питомцы.';
+        petsContainer.appendChild(hintDiv);
+    }
 }
 
 function buyWeaponFromShop(item) {
@@ -409,6 +428,86 @@ function buyTurretFromShop(type) {
                 hasSonicTurret = true;
                 createSonicTurret();
                 break;
+            case 'plasma':
+                hasPlasmaTurret = true;
+                createPlasmaTurret();
+                break;
+            case 'tesla':
+                hasTeslaTurret = true;
+                createTeslaTurret();
+                break;
+            case 'gravityt':
+                hasGravityTurret = true;
+                createGravityTurret();
+                break;
+            case 'railgunt':
+                hasRailgunTurret = true;
+                createRailgunTurret();
+                break;
+            case 'minigunt':
+                hasMinigunTurret = true;
+                createMinigunTurret();
+                break;
+            case 'flamethrower':
+                hasFlamethrowerTurret = true;
+                createFlamethrowerTurret();
+                break;
+            case 'sniper':
+                hasSniperTurret = true;
+                createSniperTurret();
+                break;
+            case 'shotgunt':
+                hasShotgunTurret = true;
+                createShotgunTurret();
+                break;
+            case 'cannon':
+                hasCannonTurret = true;
+                createCannonTurret();
+                break;
+            case 'nuclear':
+                hasNuclearTurret = true;
+                createNuclearTurret();
+                break;
+            case 'rainbow':
+                hasRainbowTurret = true;
+                createRainbowTurret();
+                break;
+            case 'healing':
+                hasHealingTurret = true;
+                createHealingTurret();
+                break;
+            case 'shield':
+                hasShieldTurret = true;
+                createShieldTurret();
+                break;
+            case 'quantum':
+                hasQuantumTurret = true;
+                createQuantumTurret();
+                break;
+            case 'blackhole':
+                hasBlackholeTurret = true;
+                createBlackholeTurret();
+                break;
+            case 'timet':
+                hasTimeTurret = true;
+                createTimeTurret();
+                break;
+            case 'energyt':
+                hasEnergyTurret = true;
+                createEnergyTurret();
+                break;
+            case 'meteor':
+                hasMeteorTurret = true;
+                createMeteorTurret();
+                break;
+            case 'stormt':
+                hasStormTurret = true;
+                createStormTurret();
+                break;
+            case 'antimatter':
+                hasAntimatterTurret = true;
+                createAntimatterTurret();
+                break;
         }
 
         updateWeaponsShopDisplay();
@@ -424,29 +523,83 @@ function buyPetFromShop(type) {
     if (!pet) return;
 
     if (coins >= pet.price) {
-        // Просим ввести имя для питомца
-        const petName = prompt('Дайте имя вашему питомцу:', pet.name);
-        if (!petName || petName.trim() === '') {
-            alert('Вы не дали имя питомцу. Покупка отменена.');
+        // Показываем красивый диалог для ввода имени
+        showPetNameDialog(type, pet);
+    } else {
+        alert('Недостаточно монет! Нужно: ' + pet.price + ', у вас: ' + coins);
+    }
+}
+
+function showPetNameDialog(type, pet) {
+    const dialog = document.getElementById('petNameDialog');
+    const input = document.getElementById('petNameInput');
+    const icon = document.getElementById('petDialogIcon');
+    const title = document.getElementById('petDialogTitle');
+    const desc = document.getElementById('petDialogDesc');
+
+    // Настраиваем диалог
+    icon.textContent = pet.icon;
+    title.textContent = `Дайте имя вашему питомцу!`;
+    desc.textContent = pet.description;
+    input.value = '';
+
+    // Показываем диалог
+    dialog.style.display = 'flex';
+    setTimeout(() => input.focus(), 100);
+
+    // Обработчик подтверждения
+    const confirmHandler = () => {
+        const petName = input.value.trim();
+        if (!petName || petName === '') {
+            alert('Пожалуйста, введите имя для питомца!');
+            input.focus();
             return;
         }
 
+        // Покупаем питомца
         coins -= pet.price;
         ownedPets.push(type);
         localStorage.setItem('cubeGameOwnedPets', JSON.stringify(ownedPets));
 
         // Сохраняем имя питомца
         if (!petNames) window.petNames = {};
-        petNames[type] = petName.trim();
+        petNames[type] = petName;
         localStorage.setItem('cubeGamePetNames', JSON.stringify(petNames));
 
         // Создаем питомца
-        createPet(type, petName.trim());
+        createPet(type, petName);
 
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
         localStorage.setItem('cubeGameCoins', coins);
-    } else {
-        alert('Недостаточно монет! Нужно: ' + pet.price + ', у вас: ' + coins);
-    }
+
+        // Скрываем диалог
+        dialog.style.display = 'none';
+        cleanup();
+    };
+
+    // Обработчик отмены
+    const cancelHandler = () => {
+        dialog.style.display = 'none';
+        cleanup();
+    };
+
+    // Обработчик Enter
+    const enterHandler = (e) => {
+        if (e.key === 'Enter') {
+            confirmHandler();
+        }
+    };
+
+    // Функция очистки обработчиков
+    const cleanup = () => {
+        document.getElementById('petNameConfirm').removeEventListener('click', confirmHandler);
+        document.getElementById('petNameCancel').removeEventListener('click', cancelHandler);
+        input.removeEventListener('keypress', enterHandler);
+    };
+
+    // Добавляем обработчики
+    document.getElementById('petNameConfirm').addEventListener('click', confirmHandler);
+    document.getElementById('petNameCancel').addEventListener('click', cancelHandler);
+    input.addEventListener('keypress', enterHandler);
 }
