@@ -251,9 +251,44 @@ document.addEventListener('touchend', () => {
 // Управление камерой мышью (для тачпада на ноутбуках) - Pointer Lock API
 let pointerLocked = false;
 
+// Создаем индикатор для клика
+let clickIndicator = null;
+
+function createClickIndicator() {
+    if (clickIndicator) return;
+
+    clickIndicator = document.createElement('div');
+    clickIndicator.id = 'clickIndicator';
+    clickIndicator.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.7); color: white; padding: 30px 50px; border-radius: 20px; font-size: 24px; font-weight: bold; z-index: 999; border: 3px solid #667eea; cursor: pointer; animation: pulse 2s infinite;';
+    clickIndicator.innerHTML = '🖱️ КЛИКНИТЕ для управления камерой<br><span style="font-size: 16px; opacity: 0.8;">Двигайте мышь/тачпад чтобы осматриваться</span>';
+    document.body.appendChild(clickIndicator);
+
+    // Добавляем CSS анимацию
+    const style = document.createElement('style');
+    style.textContent = '@keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }';
+    document.head.appendChild(style);
+}
+
+function removeClickIndicator() {
+    if (clickIndicator && clickIndicator.parentNode) {
+        clickIndicator.parentNode.removeChild(clickIndicator);
+        clickIndicator = null;
+    }
+}
+
+// Показываем индикатор при начале игры
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (gameActive && !pointerLocked) {
+            createClickIndicator();
+        }
+    }, 3000);
+});
+
 // Захват указателя при клике на canvas
 document.addEventListener('click', () => {
     if (gameActive && !pointerLocked && renderer && renderer.domElement) {
+        removeClickIndicator();
         renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock ||
                                                  renderer.domElement.mozRequestPointerLock ||
                                                  renderer.domElement.webkitRequestPointerLock;
@@ -270,13 +305,28 @@ document.addEventListener('pointerlockchange', () => {
     if (pointerLocked) {
         console.log('Pointer locked - управление камерой активно');
         manualCameraControl = true;
+        removeClickIndicator();
     } else {
         console.log('Pointer unlocked - автоприцеливание восстановлено');
         // Возвращаем автоприцеливание при освобождении мыши
         setTimeout(() => {
             manualCameraControl = false;
         }, 1000);
+        // Показываем индикатор снова
+        if (gameActive) {
+            setTimeout(() => {
+                createClickIndicator();
+            }, 500);
+        }
     }
+});
+
+// Добавляем обработчики для других вендоров
+document.addEventListener('mozpointerlockchange', () => {
+    document.dispatchEvent(new Event('pointerlockchange'));
+});
+document.addEventListener('webkitpointerlockchange', () => {
+    document.dispatchEvent(new Event('pointerlockchange'));
 });
 
 // Обработка движения мыши когда указатель захвачен
