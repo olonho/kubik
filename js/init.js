@@ -77,13 +77,31 @@ function init() {
     fpsScene = new THREE.Scene();
     console.log('FPS сцена создана для viewmodel');
 
-    // Добавляем освещение в FPS сцену
-    const fpsAmbientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    // Улучшенное освещение в FPS сцене (как в Chicken Gun)
+    const fpsAmbientLight = new THREE.AmbientLight(0xffffff, 1.2);
     fpsScene.add(fpsAmbientLight);
-    const fpsDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    fpsDirectionalLight.position.set(1, 1, 1);
-    fpsScene.add(fpsDirectionalLight);
-    console.log('Освещение добавлено в FPS сцену');
+
+    // Основной свет спереди (подсвечивает оружие)
+    const fpsMainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    fpsMainLight.position.set(0, 0.5, 1);
+    fpsScene.add(fpsMainLight);
+
+    // Боковой свет для бликов на металле
+    const fpsSideLight = new THREE.DirectionalLight(0xaaccff, 0.8);
+    fpsSideLight.position.set(1, 0.2, 0);
+    fpsScene.add(fpsSideLight);
+
+    // Задний свет для контура (rim light)
+    const fpsRimLight = new THREE.DirectionalLight(0xffeecc, 0.6);
+    fpsRimLight.position.set(-0.5, 0.5, -1);
+    fpsScene.add(fpsRimLight);
+
+    // Точечный свет для усиления деталей
+    const fpsPointLight = new THREE.PointLight(0xffffff, 1.0, 3);
+    fpsPointLight.position.set(0, 0, 0.5);
+    fpsScene.add(fpsPointLight);
+
+    console.log('Высококачественное освещение добавлено в FPS сцену');
 
     // Градиентное небо
     const skyColor = new THREE.Color(0x87ceeb);

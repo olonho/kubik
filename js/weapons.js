@@ -3,96 +3,164 @@
 function createPistol() {
     const pistolGroup = new THREE.Group();
 
-    // Рукоятка (более детализированная)
-    const handleGeometry = new THREE.BoxGeometry(0.12, 0.25, 0.08);
-    const handleMaterial = new THREE.MeshStandardMaterial({
-        color: 0x2C1810,
-        roughness: 0.8,
-        metalness: 0.1
+    // Высококачественные материалы как в Chicken Gun
+    const metalMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1A1A1A,
+        roughness: 0.25,
+        metalness: 0.95,
+        envMapIntensity: 1.5 // Блики
     });
-    const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+
+    const darkMetalMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0A0A0A,
+        roughness: 0.15,
+        metalness: 1.0,
+        envMapIntensity: 2.0
+    });
+
+    const gripMaterial = new THREE.MeshStandardMaterial({
+        color: 0x2C1810,
+        roughness: 0.95,
+        metalness: 0.05
+    });
+
+    // Рукоятка с текстурой
+    const handleGeometry = new THREE.BoxGeometry(0.12, 0.25, 0.08);
+    const handle = new THREE.Mesh(handleGeometry, gripMaterial);
     handle.position.set(0, -0.15, 0);
     handle.castShadow = true;
     pistolGroup.add(handle);
 
-    // Текстура рукоятки (насечки)
-    const gripGeometry = new THREE.BoxGeometry(0.125, 0.18, 0.085);
-    const gripMaterial = new THREE.MeshStandardMaterial({
-        color: 0x1A0F08,
-        roughness: 1.0
-    });
-    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
-    grip.position.set(0, -0.15, 0);
-    pistolGroup.add(grip);
+    // Насечки на рукоятке (детализация)
+    for (let i = 0; i < 8; i++) {
+        const notchGeometry = new THREE.BoxGeometry(0.122, 0.015, 0.082);
+        const notchMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1A0F08,
+            roughness: 1.0
+        });
+        const notch = new THREE.Mesh(notchGeometry, notchMaterial);
+        notch.position.set(0, -0.24 + i * 0.025, 0);
+        pistolGroup.add(notch);
+    }
 
-    // Ствол (длинный и детализированный)
-    const barrelGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.4, 12);
-    const barrelMaterial = new THREE.MeshStandardMaterial({
-        color: 0x1A1A1A,
-        roughness: 0.3,
-        metalness: 0.9
-    });
-    const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    // Ствол высокого качества (больше сегментов)
+    const barrelGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.4, 32);
+    const barrel = new THREE.Mesh(barrelGeometry, darkMetalMaterial);
     barrel.rotation.z = Math.PI / 2;
     barrel.position.set(0.2, -0.02, 0);
     barrel.castShadow = true;
     pistolGroup.add(barrel);
 
-    // Дульный тормоз
-    const muzzleGeometry = new THREE.CylinderGeometry(0.05, 0.04, 0.06, 8);
-    const muzzleMaterial = new THREE.MeshStandardMaterial({
-        color: 0x0A0A0A,
-        roughness: 0.2,
-        metalness: 1.0
-    });
-    const muzzle = new THREE.Mesh(muzzleGeometry, muzzleMaterial);
-    muzzle.rotation.z = Math.PI / 2;
-    muzzle.position.set(0.43, -0.02, 0);
-    pistolGroup.add(muzzle);
+    // Компенсатор с отверстиями
+    const compensatorGeometry = new THREE.CylinderGeometry(0.048, 0.042, 0.08, 16);
+    const compensator = new THREE.Mesh(compensatorGeometry, metalMaterial);
+    compensator.rotation.z = Math.PI / 2;
+    compensator.position.set(0.44, -0.02, 0);
+    pistolGroup.add(compensator);
 
-    // Затвор
+    // Отверстия в компенсаторе (4 шт)
+    for (let i = 0; i < 4; i++) {
+        const holeGeometry = new THREE.CylinderGeometry(0.008, 0.008, 0.05, 8);
+        const holeMaterial = new THREE.MeshStandardMaterial({
+            color: 0x000000,
+            roughness: 0.9
+        });
+        const hole = new THREE.Mesh(holeGeometry, holeMaterial);
+        hole.rotation.x = Math.PI / 2;
+        const angle = (i / 4) * Math.PI * 2;
+        hole.position.set(0.44, -0.02 + Math.sin(angle) * 0.035, Math.cos(angle) * 0.035);
+        pistolGroup.add(hole);
+    }
+
+    // Затвор с насечками
     const slideGeometry = new THREE.BoxGeometry(0.35, 0.08, 0.09);
-    const slideMaterial = new THREE.MeshStandardMaterial({
-        color: 0x2A2A2A,
-        roughness: 0.4,
-        metalness: 0.8
-    });
-    const slide = new THREE.Mesh(slideGeometry, slideMaterial);
+    const slide = new THREE.Mesh(slideGeometry, metalMaterial);
     slide.position.set(0.175, 0.01, 0);
     slide.castShadow = true;
     pistolGroup.add(slide);
-    pistolGroup.userData.slide = slide; // Сохраняем для анимации отдачи
+    pistolGroup.userData.slide = slide;
 
-    // Мушка
-    const sightGeometry = new THREE.BoxGeometry(0.02, 0.04, 0.02);
-    const sightMaterial = new THREE.MeshStandardMaterial({
-        color: 0xFF3300,
-        emissive: 0xFF3300,
-        emissiveIntensity: 0.5
+    // Насечки на затворе для захвата
+    for (let i = 0; i < 6; i++) {
+        const serrationGeometry = new THREE.BoxGeometry(0.01, 0.082, 0.005);
+        const serration = new THREE.Mesh(serrationGeometry, darkMetalMaterial);
+        serration.position.set(0.05 + i * 0.02, 0.01, 0.048);
+        pistolGroup.add(serration);
+
+        const serration2 = new THREE.Mesh(serrationGeometry, darkMetalMaterial);
+        serration2.position.set(0.05 + i * 0.02, 0.01, -0.048);
+        pistolGroup.add(serration2);
+    }
+
+    // Выбрасыватель патронов
+    const ejectorGeometry = new THREE.BoxGeometry(0.015, 0.02, 0.01);
+    const ejector = new THREE.Mesh(ejectorGeometry, darkMetalMaterial);
+    ejector.position.set(0.25, 0.04, 0.05);
+    pistolGroup.add(ejector);
+
+    // Мушка светящаяся (как в Chicken Gun)
+    const frontSightGeometry = new THREE.BoxGeometry(0.02, 0.04, 0.02);
+    const frontSightMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00FF00,
+        emissive: 0x00FF00,
+        emissiveIntensity: 0.8,
+        metalness: 0.3,
+        roughness: 0.4
     });
-    const frontSight = new THREE.Mesh(sightGeometry, sightMaterial);
+    const frontSight = new THREE.Mesh(frontSightGeometry, frontSightMaterial);
     frontSight.position.set(0.35, 0.06, 0);
     pistolGroup.add(frontSight);
 
+    // Точка подсветки на мушке
+    const sightLight = new THREE.PointLight(0x00FF00, 0.5, 1);
+    sightLight.position.set(0.35, 0.06, 0);
+    pistolGroup.add(sightLight);
+
     // Целик
-    const rearSightGeometry = new THREE.BoxGeometry(0.03, 0.04, 0.03);
-    const rearSight = new THREE.Mesh(rearSightGeometry, slideMaterial);
+    const rearSightGeometry = new THREE.BoxGeometry(0.035, 0.045, 0.035);
+    const rearSight = new THREE.Mesh(rearSightGeometry, metalMaterial);
     rearSight.position.set(0.05, 0.05, 0);
     pistolGroup.add(rearSight);
 
-    // Спусковая скоба
-    const triggerGuardGeometry = new THREE.TorusGeometry(0.08, 0.01, 8, 16, Math.PI);
-    const triggerGuard = new THREE.Mesh(triggerGuardGeometry, barrelMaterial);
+    // Спусковая скоба с высокой детализацией
+    const triggerGuardGeometry = new THREE.TorusGeometry(0.08, 0.012, 16, 32, Math.PI);
+    const triggerGuard = new THREE.Mesh(triggerGuardGeometry, metalMaterial);
     triggerGuard.rotation.y = Math.PI / 2;
     triggerGuard.rotation.z = Math.PI;
     triggerGuard.position.set(0, -0.05, 0);
     pistolGroup.add(triggerGuard);
 
     // Курок
-    const triggerGeometry = new THREE.BoxGeometry(0.02, 0.05, 0.02);
-    const trigger = new THREE.Mesh(triggerGeometry, slideMaterial);
+    const triggerGeometry = new THREE.BoxGeometry(0.025, 0.06, 0.02);
+    const trigger = new THREE.Mesh(triggerGeometry, metalMaterial);
     trigger.position.set(0, -0.06, 0);
+    trigger.rotation.z = -0.2;
     pistolGroup.add(trigger);
+
+    // Винты (детали)
+    for (let i = 0; i < 3; i++) {
+        const screwGeometry = new THREE.CylinderGeometry(0.008, 0.008, 0.01, 8);
+        const screwMaterial = new THREE.MeshStandardMaterial({
+            color: 0x3A3A3A,
+            metalness: 0.8,
+            roughness: 0.3
+        });
+        const screw = new THREE.Mesh(screwGeometry, screwMaterial);
+        screw.rotation.x = Math.PI / 2;
+        screw.position.set(0.05 + i * 0.1, -0.1 + i * 0.05, 0.042);
+        pistolGroup.add(screw);
+    }
+
+    // Направляющая для лазера/фонаря (пикатинни)
+    const railGeometry = new THREE.BoxGeometry(0.15, 0.008, 0.025);
+    const railMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1A1A1A,
+        roughness: 0.5,
+        metalness: 0.9
+    });
+    const rail = new THREE.Mesh(railGeometry, railMaterial);
+    rail.position.set(0.25, -0.065, 0);
+    pistolGroup.add(rail);
 
     pistolGroup.scale.set(2.5, 2.5, 2.5);
     return pistolGroup;
