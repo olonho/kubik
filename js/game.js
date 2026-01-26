@@ -2,7 +2,7 @@
 
 // Глобальные переменные (используем var для совместимости с inline скриптом)
 var scene, camera, renderer;
-var player, ground, currentWeapon;
+var player, ground, currentWeapon, fpsHands;
 var obstacles = [];
 var bullets = [];
 var score = 0;
@@ -149,16 +149,25 @@ function buildBed() {
         updateWoodDisplay();
         hasBed = true;
 
-        // Создаем кровать внутри дома
+        // Создаем кровать
         playerBed = createBed();
-        // Позиционируем кровать относительно дома (внутри, в углу)
-        playerBed.position.set(
-            playerHouse.position.x - 1.2, // Слева внутри дома
-            playerHouse.position.y + 0.3,   // На полу
-            playerHouse.position.z - 0.5    // Задняя часть дома
-        );
         playerBed.rotation.y = Math.PI / 2; // Поворачиваем вдоль стены
-        scene.add(playerBed);
+
+        // Если игрок внутри дома, добавляем кровать в интерьер
+        if (isInsideHouse && houseInterior) {
+            playerBed.position.set(-1.2, 0.3, -0.5); // Позиция внутри интерьера
+            playerBed.visible = true;
+            houseInterior.add(playerBed);
+        } else {
+            // Если снаружи, добавляем в сцену но скрываем
+            playerBed.position.set(
+                playerHouse.position.x - 1.2,
+                playerHouse.position.y + 0.3,
+                playerHouse.position.z - 0.5
+            );
+            playerBed.visible = false; // Не видна снаружи
+            scene.add(playerBed);
+        }
 
         // Сохраняем в localStorage
         localStorage.setItem('cubeGameHasBed', 'true');
@@ -181,8 +190,55 @@ function buildBed() {
     }
 }
 
-function enterHouse() {
-    // Сохраняем весь прогресс
+function enterHouseInterior() {
+    if (isInsideHouse) return;
+
+    isInsideHouse = true;
+    waveActive = false; // Останавливаем волны зомби
+
+    // Сохраняем позицию игрока на улице
+    savedOutdoorPosition = {
+        x: player.position.x,
+        y: player.position.y,
+        z: player.position.z
+    };
+
+    // Скрываем внешние объекты
+    ground.visible = false;
+    decorations.forEach(dec => dec.visible = false);
+    obstacles.forEach(obs => obs.visible = false);
+    bullets.forEach(bullet => bullet.visible = false);
+    turrets.forEach(turret => turret.visible = false);
+    if (playerHouse) playerHouse.visible = false;
+
+    // Создаем интерьер если его еще нет
+    if (!houseInterior) {
+        houseInterior = createHouseInterior();
+        scene.add(houseInterior);
+    }
+    houseInterior.visible = true;
+
+    // Показываем кровать внутри (относительно внутреннего пространства)
+    if (playerBed && hasBed) {
+        playerBed.visible = true;
+        playerBed.position.set(-1.2, 0.3, -0.5); // Позиция внутри интерьера
+        playerBed.rotation.y = Math.PI / 2;
+        // Добавляем кровать в интерьер если её там нет
+        if (playerBed.parent !== houseInterior) {
+            scene.remove(playerBed);
+            houseInterior.add(playerBed);
+        }
+    }
+
+    // Перемещаем игрока внутрь дома
+    player.position.set(0, 0.5, 1);
+    player.rotation.y = -Math.PI; // Смотрит внутрь дома
+
+    // Меняем фон на более темный
+    scene.background = new THREE.Color(0x4a3f35);
+    scene.fog = new THREE.Fog(0x4a3f35, 5, 15);
+
+    // Сохраняем прогресс
     localStorage.setItem('cubeGameCoins', coins);
     localStorage.setItem('cubeGameWood', wood);
     localStorage.setItem('cubeGameWave', wave);
@@ -190,11 +246,6 @@ function enterHouse() {
     localStorage.setItem('cubeGameLives', lives);
     localStorage.setItem('cubeGameMaxWave', maxWaveReached);
     localStorage.setItem('cubeGameAmmo', ammo);
-    localStorage.setItem('cubeGameHousePosition', JSON.stringify({
-        x: playerHouse.position.x,
-        y: playerHouse.position.y,
-        z: playerHouse.position.z
-    }));
 
     // Восстанавливаем HP и патроны
     lives = Math.min(lives + 1, 5);
@@ -202,8 +253,67 @@ function enterHouse() {
     updateScoreDisplay();
     updateAmmoDisplay();
 
-    // Показываем уведомление
-    showNotification('💾 Прогресс сохранён! HP и патроны восстановлены!', 'success');
+    showNotification('🏠 Вы вошли в дом! Нажмите E чтобы выйти', 'success');
+}
+
+function exitHouseInterior() {
+    if (!isInsideHouse) return;
+
+    isInsideHouse = false;
+
+    // Скрываем интерьер
+    if (houseInterior) {
+        houseInterior.visible = false;
+    }
+
+    // Показываем внешние объекты
+    ground.visible = true;
+    decorations.forEach(dec => dec.visible = true);
+    obstacles.forEach(obs => obs.visible = true);
+    bullets.forEach(bullet => bullet.visible = true);
+    turrets.forEach(turret => turret.visible = true);
+    if (playerHouse) playerHouse.visible = true;
+
+    // Возвращаем кровать на внешнюю позицию (снаружи дома не видна)
+    if (playerBed && hasBed) {
+        // Убираем из интерьера и возвращаем в основную сцену
+        if (playerBed.parent === houseInterior) {
+            houseInterior.remove(playerBed);
+            scene.add(playerBed);
+        }
+        playerBed.visible = false; // Кровать не видна снаружи
+        playerBed.position.set(
+            playerHouse.position.x - 1.2,
+            playerHouse.position.y + 0.3,
+            playerHouse.position.z - 0.5
+        );
+        playerBed.rotation.y = Math.PI / 2;
+    }
+
+    // Возвращаем игрока на улицу (рядом с дверью)
+    if (savedOutdoorPosition) {
+        player.position.set(
+            savedOutdoorPosition.x,
+            savedOutdoorPosition.y,
+            savedOutdoorPosition.z
+        );
+    } else if (playerHouse) {
+        player.position.set(
+            playerHouse.position.x,
+            0.5,
+            playerHouse.position.z + 3
+        );
+    }
+    player.rotation.y = -Math.PI / 2; // Смотрит вперед
+
+    // Возвращаем небо
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x87ceeb, 10, 60);
+
+    // Возобновляем волны зомби
+    waveActive = true;
+
+    showNotification('🏠 Вы вышли из дома!', 'info');
 }
 
 function eatInHouse() {
@@ -227,6 +337,49 @@ function eatInHouse() {
 function checkHouseProximity() {
     if (!playerHouse || !player) return;
 
+    // Если игрок внутри дома
+    if (isInsideHouse) {
+        // Показываем подсказку выхода
+        let prompt = document.getElementById('housePrompt');
+        if (!prompt) {
+            prompt = document.createElement('div');
+            prompt.id = 'housePrompt';
+            prompt.style.cssText = `
+                position: fixed;
+                bottom: 150px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 20px 40px;
+                border-radius: 15px;
+                font-size: 20px;
+                font-weight: bold;
+                z-index: 500;
+                text-align: center;
+                background: linear-gradient(135deg, #FF6347 0%, #FF4500 100%);
+                color: white;
+                border: 3px solid gold;
+            `;
+            document.body.appendChild(prompt);
+        }
+        prompt.innerHTML = '🚪 E - Выйти из дома | F - Поесть (50💰, +1❤️)';
+
+        // Проверяем нажатие E (выход)
+        if (keys['KeyE']) {
+            exitHouseInterior();
+            keys['KeyE'] = false;
+            const p = document.getElementById('housePrompt');
+            if (p) document.body.removeChild(p);
+        }
+
+        // Проверяем нажатие F (еда)
+        if (keys['KeyF']) {
+            eatInHouse();
+            keys['KeyF'] = false;
+        }
+        return;
+    }
+
+    // Если игрок на улице - проверяем расстояние до дома
     const distance = player.position.distanceTo(playerHouse.position);
 
     // Если игрок близко к дому (в радиусе 3 единиц)
@@ -252,13 +405,13 @@ function checkHouseProximity() {
                 color: white;
                 border: 3px solid gold;
             `;
-            prompt.innerHTML = '🏠 E - Сохранить | F - Поесть (50💰, +1❤️)';
+            prompt.innerHTML = '🏠 E - Войти в дом';
             document.body.appendChild(prompt);
         }
 
-        // Проверяем нажатие E (сохранение)
+        // Проверяем нажатие E (вход в дом)
         if (keys['KeyE']) {
-            enterHouse();
+            enterHouseInterior();
             keys['KeyE'] = false; // Сбрасываем чтобы не вызывалось много раз
         }
 

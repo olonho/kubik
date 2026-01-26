@@ -330,12 +330,17 @@ function init() {
 
     // Позиционирование зависит от режима камеры
     if (cameraMode === 'firstPerson') {
-        // Вид от первого лица - оружие к камере (как в Chicken Gun)
-        currentWeapon.position.set(0.3, -0.25, -0.5);
-        currentWeapon.rotation.y = -Math.PI / 12;
-        currentWeapon.rotation.x = Math.PI / 24;
-        currentWeapon.rotation.z = -Math.PI / 16;
-        camera.add(currentWeapon);
+        // Создаем руки для FPS вида (как в CS:GO)
+        fpsHands = createFPSHands();
+        camera.add(fpsHands);
+
+        // Вид от первого лица - оружие в руки
+        currentWeapon.position.set(0.05, -0.2, -0.45);
+        currentWeapon.rotation.y = Math.PI / 24;
+        currentWeapon.rotation.x = -Math.PI / 24;
+        currentWeapon.rotation.z = 0;
+        currentWeapon.scale.set(1.2, 1.2, 1.2);
+        fpsHands.add(currentWeapon);
     } else {
         // Вид от третьего лица - оружие к игроку
         currentWeapon.position.set(0.15, 0.2, -0.4);
