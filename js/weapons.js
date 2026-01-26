@@ -157,6 +157,173 @@ function createRifle() {
     return rifleGroup;
 }
 
+function createAK47() {
+    const ak47Group = new THREE.Group();
+
+    // Материалы
+    const woodMaterial = new THREE.MeshStandardMaterial({
+        color: 0x8B4513, // Коричневое дерево
+        roughness: 0.9,
+        metalness: 0.1
+    });
+    const metalMaterial = new THREE.MeshStandardMaterial({
+        color: 0x1A1A1A, // Черный металл
+        roughness: 0.3,
+        metalness: 0.9
+    });
+    const darkMetalMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0A0A0A,
+        roughness: 0.2,
+        metalness: 1.0
+    });
+
+    // Ствол (длинный цилиндр)
+    const barrelGeometry = new THREE.CylinderGeometry(0.018, 0.02, 0.42, 16);
+    const barrel = new THREE.Mesh(barrelGeometry, darkMetalMaterial);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.set(0.21, 0, 0);
+    barrel.castShadow = true;
+    ak47Group.add(barrel);
+
+    // Пламегаситель АК-47 (характерный наклонный)
+    const muzzleGeometry = new THREE.CylinderGeometry(0.025, 0.022, 0.06, 8);
+    const muzzle = new THREE.Mesh(muzzleGeometry, darkMetalMaterial);
+    muzzle.rotation.z = Math.PI / 2;
+    muzzle.position.set(0.45, 0, 0);
+    ak47Group.add(muzzle);
+
+    // Газовая трубка над стволом
+    const gasTubeGeometry = new THREE.CylinderGeometry(0.012, 0.012, 0.35, 8);
+    const gasTube = new THREE.Mesh(gasTubeGeometry, metalMaterial);
+    gasTube.rotation.z = Math.PI / 2;
+    gasTube.position.set(0.15, 0.035, 0);
+    ak47Group.add(gasTube);
+
+    // Цевье (деревянное, под стволом)
+    const handguardGeometry = new THREE.BoxGeometry(0.3, 0.05, 0.08);
+    const handguard = new THREE.Mesh(handguardGeometry, woodMaterial);
+    handguard.position.set(0.1, -0.025, 0);
+    handguard.castShadow = true;
+    ak47Group.add(handguard);
+
+    // Ресивер (металлический корпус)
+    const receiverGeometry = new THREE.BoxGeometry(0.25, 0.08, 0.075);
+    const receiver = new THREE.Mesh(receiverGeometry, metalMaterial);
+    receiver.position.set(-0.05, 0.01, 0);
+    receiver.castShadow = true;
+    ak47Group.add(receiver);
+    ak47Group.userData.receiver = receiver; // Для анимации отдачи
+
+    // Крышка ствольной коробки (верхняя часть)
+    const coverGeometry = new THREE.BoxGeometry(0.22, 0.02, 0.08);
+    const cover = new THREE.Mesh(coverGeometry, metalMaterial);
+    cover.position.set(-0.04, 0.05, 0);
+    ak47Group.add(cover);
+
+    // Рукоятка взведения (справа)
+    const chargingHandleGeometry = new THREE.BoxGeometry(0.04, 0.015, 0.02);
+    const chargingHandle = new THREE.Mesh(chargingHandleGeometry, metalMaterial);
+    chargingHandle.position.set(0.03, 0.03, 0.055);
+    ak47Group.add(chargingHandle);
+
+    // Прицельная планка
+    const sightRailGeometry = new THREE.BoxGeometry(0.15, 0.015, 0.015);
+    const sightRail = new THREE.Mesh(sightRailGeometry, metalMaterial);
+    sightRail.position.set(0.02, 0.06, 0);
+    ak47Group.add(sightRail);
+
+    // Мушка (передний прицел)
+    const frontSightPostGeometry = new THREE.BoxGeometry(0.008, 0.03, 0.008);
+    const frontSightPost = new THREE.Mesh(frontSightPostGeometry, darkMetalMaterial);
+    frontSightPost.position.set(0.35, 0.05, 0);
+    ak47Group.add(frontSightPost);
+
+    // Целик (задний прицел)
+    const rearSightGeometry = new THREE.BoxGeometry(0.02, 0.025, 0.025);
+    const rearSight = new THREE.Mesh(rearSightGeometry, metalMaterial);
+    rearSight.position.set(-0.05, 0.055, 0);
+    ak47Group.add(rearSight);
+
+    // Деревянная пистолетная рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.045, 0.12, 0.055);
+    const grip = new THREE.Mesh(gripGeometry, woodMaterial);
+    grip.position.set(-0.08, -0.08, 0);
+    grip.rotation.z = -0.15;
+    grip.castShadow = true;
+    ak47Group.add(grip);
+
+    // Спусковая скоба
+    const triggerGuardGeometry = new THREE.TorusGeometry(0.05, 0.008, 8, 16, Math.PI);
+    const triggerGuard = new THREE.Mesh(triggerGuardGeometry, metalMaterial);
+    triggerGuard.rotation.y = Math.PI / 2;
+    triggerGuard.rotation.z = Math.PI;
+    triggerGuard.position.set(-0.05, -0.04, 0);
+    ak47Group.add(triggerGuard);
+
+    // Курок
+    const triggerGeometry = new THREE.BoxGeometry(0.015, 0.04, 0.015);
+    const trigger = new THREE.Mesh(triggerGeometry, metalMaterial);
+    trigger.position.set(-0.05, -0.05, 0);
+    ak47Group.add(trigger);
+
+    // Магазин (изогнутый, характерный для АК-47)
+    const magazineGroup = new THREE.Group();
+
+    // Верхняя часть магазина
+    const magTopGeometry = new THREE.BoxGeometry(0.035, 0.08, 0.055);
+    const magTop = new THREE.Mesh(magTopGeometry, darkMetalMaterial);
+    magTop.position.set(0, 0, 0);
+    magazineGroup.add(magTop);
+
+    // Средняя изогнутая часть
+    const magMidGeometry = new THREE.BoxGeometry(0.035, 0.12, 0.06);
+    const magMid = new THREE.Mesh(magMidGeometry, darkMetalMaterial);
+    magMid.position.set(0.01, -0.1, 0);
+    magMid.rotation.z = 0.1;
+    magMid.castShadow = true;
+    magazineGroup.add(magMid);
+
+    // Нижняя часть магазина
+    const magBottomGeometry = new THREE.BoxGeometry(0.035, 0.05, 0.055);
+    const magBottom = new THREE.Mesh(magBottomGeometry, darkMetalMaterial);
+    magBottom.position.set(0.02, -0.19, 0);
+    magazineGroup.add(magBottom);
+
+    magazineGroup.position.set(-0.05, -0.1, 0);
+    magazineGroup.castShadow = true;
+    ak47Group.add(magazineGroup);
+
+    // Приклад (деревянный)
+    const stockGeometry = new THREE.BoxGeometry(0.22, 0.055, 0.065);
+    const stock = new THREE.Mesh(stockGeometry, woodMaterial);
+    stock.position.set(-0.28, 0, 0);
+    stock.castShadow = true;
+    ak47Group.add(stock);
+
+    // Затыльник приклада
+    const buttplateGeometry = new THREE.BoxGeometry(0.015, 0.08, 0.08);
+    const buttplate = new THREE.Mesh(buttplateGeometry, darkMetalMaterial);
+    buttplate.position.set(-0.4, 0, 0);
+    ak47Group.add(buttplate);
+
+    // Антабка (крепление ремня)
+    const slingMountGeometry = new THREE.TorusGeometry(0.015, 0.005, 8, 12);
+    const slingMount = new THREE.Mesh(slingMountGeometry, metalMaterial);
+    slingMount.rotation.y = Math.PI / 2;
+    slingMount.position.set(-0.38, -0.03, 0);
+    ak47Group.add(slingMount);
+
+    // Переключатель огня
+    const selectorGeometry = new THREE.BoxGeometry(0.04, 0.01, 0.005);
+    const selector = new THREE.Mesh(selectorGeometry, metalMaterial);
+    selector.position.set(-0.1, 0.01, 0.04);
+    selector.rotation.z = -0.5;
+    ak47Group.add(selector);
+
+    ak47Group.scale.set(2, 2, 2);
+    return ak47Group;
+}
+
 function createLaserGun() {
     const laserGroup = new THREE.Group();
     
@@ -408,6 +575,7 @@ function createGrenade() {
 function createWeapon(type) {
     if (type === 'pistol') return createPistol();
     else if (type === 'rifle') return createRifle();
+    else if (type === 'ak47') return createAK47();
     else if (type === 'laser') return createLaserGun();
     else if (type === 'gravity') return createGravityGun();
     else if (type === 'machinegun') return createMachinegun();

@@ -52,6 +52,7 @@ function changeWeapon(weaponType) {
     const weaponConfigs = {
         pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 30 },
         rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 30 },
+        ak47: { name: '🔫⚡ АК-47 (Калаш)', cooldown: 150, ammo: 30 },
         machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 80 },
         shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 25 },
         laser: { name: '⚡🔫 Лазерная Пушка', cooldown: 100, ammo: 9999 },
@@ -126,7 +127,10 @@ function updatePlayer() {
     if (keys['Digit2']) {
         changeWeapon('rifle');
     }
-    if (keys['Digit3'] && unlockedWeapons.includes('laser')) {
+    if (keys['Digit3']) {
+        changeWeapon('ak47');
+    }
+    if (keys['KeyT'] && unlockedWeapons.includes('laser')) {
         changeWeapon('laser');
     }
     // Купленные оружия из магазина (клавиши 4-0)
