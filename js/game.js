@@ -42,6 +42,7 @@ var burstCount = 0;
 var burstMax = 3;
 var cameraMode = 'firstPerson';
 var lastPlayerDirection = -Math.PI / 2; // Последнее направление персонажа (по умолчанию вперед)
+var handsSway = { x: 0, y: 0 }; // Покачивание рук от движения мыши (эффект инерции)
 var obstacleSpeed = 0.015;
 var spawnRate = 0.03;
 var gravity = -0.015;
@@ -883,6 +884,12 @@ function checkWaveComplete() {
     if (waveActive && zombiesInCurrentWave <= 0 && obstacles.length === 0) {
         waveActive = false;
 
+        // Проверка на победу (20 волна)
+        if (wave >= 20) {
+            victoryScene();
+            return;
+        }
+
         // Показываем уведомление о завершении волны
         const waveCompleteNotification = document.createElement('div');
         waveCompleteNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 30px 50px; border-radius: 15px; font-size: 36px; font-weight: bold; z-index: 500; text-align: center; border: 3px solid white;';
@@ -894,6 +901,322 @@ function checkWaveComplete() {
             startNewWave();
         }, 1500);
     }
+}
+
+// Функция воспроизведения победной музыки
+function playVictoryMusic() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Торжественная мелодия (простая победная фанфара)
+        const notes = [
+            { freq: 523.25, time: 0, duration: 0.3 },    // C
+            { freq: 523.25, time: 0.3, duration: 0.3 },  // C
+            { freq: 523.25, time: 0.6, duration: 0.3 },  // C
+            { freq: 659.25, time: 0.9, duration: 0.6 },  // E
+            { freq: 783.99, time: 1.5, duration: 0.9 },  // G
+            { freq: 1046.50, time: 2.4, duration: 1.2 }, // C верхняя
+        ];
+
+        notes.forEach(note => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = note.freq;
+            oscillator.type = 'triangle'; // Мягкий звук
+
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime + note.time);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + note.time + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + note.time + note.duration);
+
+            oscillator.start(audioContext.currentTime + note.time);
+            oscillator.stop(audioContext.currentTime + note.time + note.duration);
+        });
+
+        // Добавляем барабанный эффект (низкие частоты для драматизма)
+        const drumBeats = [0, 0.3, 0.6, 0.9, 1.5, 2.4];
+        drumBeats.forEach(time => {
+            const drumOsc = audioContext.createOscillator();
+            const drumGain = audioContext.createGain();
+
+            drumOsc.connect(drumGain);
+            drumGain.connect(audioContext.destination);
+
+            drumOsc.frequency.value = 100;
+            drumOsc.type = 'sine';
+
+            drumGain.gain.setValueAtTime(0.5, audioContext.currentTime + time);
+            drumGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + time + 0.2);
+
+            drumOsc.start(audioContext.currentTime + time);
+            drumOsc.stop(audioContext.currentTime + time + 0.2);
+        });
+
+        console.log('🎵 Музыка победы запущена!');
+    } catch (e) {
+        console.error('Ошибка воспроизведения музыки:', e);
+    }
+}
+
+// Катсцена победы на 20-й волне
+function victoryScene() {
+    gameActive = false;
+    waveActive = false;
+
+    console.log('🎉 ПОБЕДА! Запуск катсцены...');
+
+    // Запускаем победную музыку
+    playVictoryMusic();
+
+    // Переключаем камеру в режим третьего лица чтобы видеть персонажа
+    const wasFirstPerson = cameraMode === 'firstPerson';
+    if (wasFirstPerson) {
+        cameraMode = 'thirdPerson';
+        player.visible = true;
+
+        // Убираем оружие из FPS рук и добавляем к персонажу
+        if (currentWeapon && fpsHands) {
+            fpsHands.remove(currentWeapon);
+            if (fpsScene) fpsScene.remove(fpsHands);
+            fpsHands = null;
+            currentWeapon.position.set(0.15, 0.2, -0.4);
+            currentWeapon.rotation.y = 0;
+            currentWeapon.rotation.x = 0;
+            currentWeapon.rotation.z = -Math.PI / 6;
+            currentWeapon.scale.set(1, 1, 1);
+            player.add(currentWeapon);
+        }
+    }
+
+    // Камера отдаляется для лучшего обзора
+    camera.position.set(player.position.x + 5, player.position.y + 3, player.position.z + 8);
+    camera.lookAt(player.position);
+
+    // Через 1 секунду персонаж поднимает оружие к голове
+    setTimeout(() => {
+        if (currentWeapon) {
+            currentWeapon.position.set(-0.2, 0.6, 0.1); // К голове
+            currentWeapon.rotation.set(0, Math.PI / 2, Math.PI / 2); // Развернуто к голове
+        }
+
+        // Ещё через секунду - выстрел
+        setTimeout(() => {
+            // Эффект выстрела - белая вспышка
+            scene.background = new THREE.Color(0xFFFFFF);
+            setTimeout(() => {
+                scene.background = new THREE.Color(0x87ceeb);
+            }, 100);
+
+            // Создаём эффект дыма от выстрела
+            for (let i = 0; i < 10; i++) {
+                const smoke = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.1, 8, 8),
+                    new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 })
+                );
+                smoke.position.set(player.position.x - 0.2, player.position.y + 0.6, player.position.z);
+                scene.add(smoke);
+
+                setTimeout(() => {
+                    scene.remove(smoke);
+                }, 1000);
+            }
+
+            // Персонаж начинает падать
+            let fallSpeed = 0;
+            const fallInterval = setInterval(() => {
+                fallSpeed += 0.02;
+                player.position.y -= fallSpeed;
+                player.rotation.x += 0.05; // Падает вперёд
+                player.rotation.z += 0.02; // Немного вбок
+
+                if (player.position.y <= 0.2) {
+                    player.position.y = 0.2;
+                    clearInterval(fallInterval);
+
+                    // Персонаж лежит на земле
+                    player.rotation.x = Math.PI / 2;
+                    player.rotation.z = Math.PI / 4;
+                }
+            }, 16);
+
+            // Сразу после выстрела начинается салют!
+            setTimeout(() => {
+                startVictoryFireworks();
+            }, 500);
+
+            // Показываем экран победы с чёрным юмором
+            setTimeout(() => {
+                const victoryScreen = document.createElement('div');
+                victoryScreen.id = 'victoryScreen';
+                victoryScreen.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.85); padding: 50px; border-radius: 20px; z-index: 1000; text-align: center; color: white; border: 5px solid gold; box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);';
+
+                victoryScreen.innerHTML = `
+                    <h1 style="font-size: 72px; margin: 20px; text-shadow: 0 0 20px #FFD700;">🎉 ПОБЕДА! 🎉</h1>
+                    <p style="font-size: 36px; margin: 10px;">Вы прошли 20 волн!</p>
+                    <p style="font-size: 28px; margin: 10px; color: #FFD700;">Счёт: ${score}</p>
+                    <p style="font-size: 22px; margin: 20px; opacity: 0.7; font-style: italic;">Герой отдыхает... навсегда 💀</p>
+                    <p style="font-size: 20px; margin: 10px;">🎆 Праздничный салют в честь героя! 🎆</p>
+                `;
+                document.body.appendChild(victoryScreen);
+
+                // Показываем кнопки через 8 секунд (после салюта)
+                setTimeout(() => {
+                    victoryScreen.innerHTML += `
+                        <button onclick="restartGame(); document.getElementById('victoryScreen').remove();"
+                                style="margin: 20px; padding: 20px 40px; font-size: 24px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: transform 0.2s;"
+                                onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            🔄 Воскресить и играть снова
+                        </button>
+                        <button onclick="returnToSkinMenu(); document.getElementById('victoryScreen').remove();"
+                                style="margin: 20px; padding: 20px 40px; font-size: 24px; background: #f44336; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: transform 0.2s;"
+                                onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            🏠 В главное меню
+                        </button>
+                    `;
+                }, 8000);
+            }, 1000);
+
+        }, 1000);
+    }, 1000);
+}
+
+// Запуск салюта для катсцены
+function startVictoryFireworks() {
+    let shotCount = 0;
+    const maxShots = 15; // Больше фейерверков!
+
+    const shootInterval = setInterval(() => {
+        if (shotCount >= maxShots) {
+            clearInterval(shootInterval);
+            return;
+        }
+
+        // Создаём фейерверк
+        createFirework();
+        shotCount++;
+    }, 400); // Чаще запускаем
+}
+
+// Функция создания фейерверка
+function createFirework() {
+    const colors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0xFF00FF, 0x00FFFF, 0xFFD700, 0xFF69B4];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // Стартовая позиция - от персонажа вверх
+    const startX = player.position.x + (Math.random() - 0.5) * 5;
+    const startZ = player.position.z - 5 + (Math.random() - 0.5) * 5;
+
+    // Ракета летит вверх
+    const rocketGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const rocketMaterial = new THREE.MeshBasicMaterial({
+        color: color,
+        emissive: color,
+        emissiveIntensity: 1
+    });
+    const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
+    rocket.position.set(startX, 0.5, startZ);
+    scene.add(rocket);
+
+    // Свет от ракеты
+    const rocketLight = new THREE.PointLight(color, 2, 10);
+    rocketLight.position.copy(rocket.position);
+    scene.add(rocketLight);
+
+    let rocketSpeed = 0.3;
+    const targetHeight = 8 + Math.random() * 3;
+
+    const rocketInterval = setInterval(() => {
+        rocket.position.y += rocketSpeed;
+        rocketLight.position.copy(rocket.position);
+
+        // Когда ракета достигла высоты - взрыв
+        if (rocket.position.y >= targetHeight) {
+            clearInterval(rocketInterval);
+            scene.remove(rocket);
+            scene.remove(rocketLight);
+
+            // Создаём частицы взрыва
+            explodeFirework(rocket.position.clone(), color);
+        }
+    }, 16);
+}
+
+// Функция взрыва фейерверка
+function explodeFirework(position, color) {
+    const particleCount = 50;
+    const particles = [];
+
+    // Звук взрыва (визуальный эффект - вспышка)
+    scene.background = new THREE.Color(color);
+    setTimeout(() => {
+        scene.background = new THREE.Color(0x87ceeb);
+    }, 50);
+
+    for (let i = 0; i < particleCount; i++) {
+        const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
+        const particleMaterial = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 1
+        });
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        particle.position.copy(position);
+        scene.add(particle);
+
+        // Случайное направление
+        const velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3,
+            (Math.random() - 0.5) * 0.3
+        );
+
+        particle.userData = {
+            velocity: velocity,
+            life: 100
+        };
+
+        particles.push(particle);
+    }
+
+    // Свет от взрыва
+    const explosionLight = new THREE.PointLight(color, 5, 20);
+    explosionLight.position.copy(position);
+    scene.add(explosionLight);
+
+    setTimeout(() => {
+        scene.remove(explosionLight);
+    }, 200);
+
+    // Анимация частиц
+    const particleInterval = setInterval(() => {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const particle = particles[i];
+
+            // Двигаем частицу
+            particle.position.add(particle.userData.velocity);
+
+            // Гравитация
+            particle.userData.velocity.y -= 0.01;
+
+            // Уменьшаем время жизни
+            particle.userData.life--;
+            particle.material.opacity = particle.userData.life / 100;
+
+            // Удаляем мёртвые частицы
+            if (particle.userData.life <= 0) {
+                scene.remove(particle);
+                particles.splice(i, 1);
+            }
+        }
+
+        // Если все частицы умерли - останавливаем интервал
+        if (particles.length === 0) {
+            clearInterval(particleInterval);
+        }
+    }, 16);
 }
 
 function gameOver() {

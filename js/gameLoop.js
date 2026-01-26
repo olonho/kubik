@@ -37,8 +37,9 @@ function changeWeapon(weaponType) {
 
         // Вид от первого лица - оружие в ПРАВОЙ руке (как в CS:GO)
         currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
+        // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
         currentWeapon.rotation.x = 0;
-        currentWeapon.rotation.y = -Math.PI / 16; // Небольшой поворот к центру
+        currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
         currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
         currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
         fpsHands.add(currentWeapon);
@@ -242,8 +243,9 @@ function updatePlayer() {
                 }
 
                 currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
+                // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
                 currentWeapon.rotation.x = 0;
-                currentWeapon.rotation.y = -Math.PI / 16; // Небольшой поворот к центру
+                currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
                 currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
                 currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
                 fpsHands.add(currentWeapon);
@@ -689,7 +691,7 @@ function updateBullets() {
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);
-    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | Уровень: ' + level + ' | Жизни: ' + heartsDisplay;
+    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | 🌊 Волна: ' + wave + ' (' + zombiesInCurrentWave + '/' + zombiesPerWave + ' зомби) | Жизни: ' + heartsDisplay;
 }
 
 function loseLife() {
@@ -1407,11 +1409,25 @@ function animate() {
 
         // Обновляем позицию FPS рук чтобы они следовали за камерой
         if (fpsHands && cameraMode === 'firstPerson') {
+            // Базовая позиция - камера
             fpsHands.position.copy(camera.position);
+
+            // Добавляем покачивание рук от движения мыши (эффект инерции)
+            fpsHands.position.x += handsSway.x * 0.15;
+            fpsHands.position.y += handsSway.y * 0.15;
+
             // Копируем только горизонтальный поворот (yaw), игнорируем pitch (вверх-вниз)
             fpsHands.rotation.x = 0;
             fpsHands.rotation.y = camera.rotation.y;
             fpsHands.rotation.z = 0;
+
+            // Затухание покачивания (возврат к исходной позиции)
+            handsSway.x *= 0.85; // Быстро затухает
+            handsSway.y *= 0.85;
+
+            // Обнуление очень маленьких значений
+            if (Math.abs(handsSway.x) < 0.001) handsSway.x = 0;
+            if (Math.abs(handsSway.y) < 0.001) handsSway.y = 0;
         }
     }
     if (renderer && scene && camera) {

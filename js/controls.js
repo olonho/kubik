@@ -233,6 +233,12 @@ document.addEventListener('touchmove', (e) => {
     const maxPitch = Math.PI / 3; // 60 градусов
     cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
 
+    // Обновляем покачивание рук (эффект инерции)
+    if (cameraMode === 'firstPerson') {
+        handsSway.x += deltaX * 0.0005;
+        handsSway.y += deltaY * 0.0005;
+    }
+
     // Включаем ручное управление камерой
     manualCameraControl = true;
 
@@ -348,6 +354,12 @@ document.addEventListener('mousemove', (e) => {
     const maxPitch = Math.PI / 3; // 60 градусов
     cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
 
+    // Обновляем покачивание рук (эффект инерции как в CS:GO)
+    if (cameraMode === 'firstPerson') {
+        handsSway.x += deltaX * 0.0005; // Горизонтальное покачивание
+        handsSway.y += deltaY * 0.0005; // Вертикальное покачивание
+    }
+
     // Включаем ручное управление камерой
     manualCameraControl = true;
 });
@@ -379,6 +391,12 @@ document.addEventListener('mousemove', (e) => {
 
     const maxPitch = Math.PI / 3;
     cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
+
+    // Обновляем покачивание рук
+    if (cameraMode === 'firstPerson') {
+        handsSway.x += deltaX * 0.0008;
+        handsSway.y += deltaY * 0.0008;
+    }
 
     manualCameraControl = true;
 
