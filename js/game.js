@@ -48,6 +48,13 @@ var cameraLookTarget;
 var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
 var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle', 'ak47'];
 var turrets = [];
+// Управление камерой через тач
+var cameraYaw = 0; // Горизонтальный поворот камеры (влево-вправо)
+var cameraPitch = 0; // Вертикальный поворот камеры (вверх-вниз)
+var touchStartX = 0;
+var touchStartY = 0;
+var isTouching = false;
+var manualCameraControl = false; // Ручное управление камерой (отключает автоприцеливание)
 var hasTurret = false;
 var hasFireTurret = false;
 var hasLaserTurret = false;

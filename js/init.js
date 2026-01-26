@@ -331,8 +331,11 @@ function init() {
     // Позиционирование зависит от режима камеры
     if (cameraMode === 'firstPerson') {
         // Создаем руки для FPS вида (как в CS:GO)
+        console.log('Создаем FPS руки...');
         fpsHands = createFPSHands();
+        console.log('FPS руки созданы:', fpsHands);
         camera.add(fpsHands);
+        console.log('FPS руки добавлены к камере');
 
         // Вид от первого лица - оружие в руки
         currentWeapon.position.set(0.05, -0.2, -0.45);

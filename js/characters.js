@@ -5,6 +5,7 @@
 
 // Создание рук для FPS вида (как в CS:GO)
 function createFPSHands() {
+    console.log('createFPSHands() вызвана');
     const handsGroup = new THREE.Group();
 
     // Левая рука

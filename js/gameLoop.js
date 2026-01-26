@@ -28,8 +28,11 @@ function changeWeapon(weaponType) {
     if (cameraMode === 'firstPerson') {
         // Создаем руки если их еще нет
         if (!fpsHands) {
+            console.log('Создаем FPS руки в changeWeapon...');
             fpsHands = createFPSHands();
+            console.log('FPS руки созданы:', fpsHands);
             camera.add(fpsHands);
+            console.log('FPS руки добавлены к камере');
         }
 
         // Вид от первого лица - оружие в руки (как в CS:GO)
