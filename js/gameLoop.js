@@ -455,13 +455,13 @@ function updateBullets() {
         // Проверяем столкновение с препятствиями
         for (let j = obstacles.length - 1; j >= 0; j--) {
             const obstacleGroup = obstacles[j];
-            const cube = obstacleGroup.userData.cube;
-            if (!cube) continue;
+            const target = obstacleGroup.userData.zombie || obstacleGroup.userData.cube;
+            if (!target) continue;
 
-            const cubeWorldPos = new THREE.Vector3();
-            cube.getWorldPosition(cubeWorldPos);
+            const targetWorldPos = new THREE.Vector3();
+            target.getWorldPosition(targetWorldPos);
 
-            const distance = bullet.position.distanceTo(cubeWorldPos);
+            const distance = bullet.position.distanceTo(targetWorldPos);
             if (distance < 1.5) {
                 // Попадание!
                 scene.remove(bullet);
@@ -836,90 +836,16 @@ function petAttack(pet, targetPos, targetGroup) {
         bullets.push(bullet);
     }
 }
-    if (!gameActive) return;
-
-    // Зомби теперь спавнятся волнами, а не постоянно
-    // Спавн происходит через функцию spawnWaveZombies()
-
-    for (let i = obstacles.length - 1; i >= 0; i--) {
-        const obstacleGroup = obstacles[i];
-        obstacleGroup.position.z += obstacleSpeed;
-
-        // Анимация ног зомби
-        const leftLeg = obstacleGroup.userData.leftLeg;
-        const rightLeg = obstacleGroup.userData.rightLeg;
-        if (leftLeg && rightLeg) {
-            // Обновляем фазу анимации
-            obstacleGroup.userData.legPhase += 0.1;
-
-            // Качание ног вперёд-назад
-            const swingAngle = Math.sin(obstacleGroup.userData.legPhase) * 0.3;
-            leftLeg.rotation.x = swingAngle;
-            rightLeg.rotation.x = -swingAngle;
-        }
-
-        // Обновляем HP бар (всегда смотрит на камеру)
-        if (obstacleGroup.userData.hpBar && camera) {
-            obstacleGroup.userData.hpBar.lookAt(camera.position);
-            if (obstacleGroup.userData.hpBarBg) {
-                obstacleGroup.userData.hpBarBg.lookAt(camera.position);
-            }
-
-            // Анимируем ауру босса (пульсация)
-            if (obstacleGroup.userData.isBoss && obstacleGroup.userData.aura) {
-                const time = Date.now() * 0.001;
-                const scale = 1 + Math.sin(time * 2) * 0.2;
-                obstacleGroup.userData.aura.scale.set(scale, scale, scale);
-                obstacleGroup.userData.aura.material.opacity = 0.15 + Math.sin(time * 3) * 0.1;
-            }
-        }
-
-        // Вращаем только кубик внутри группы (для старых объектов)
-        const cube = obstacleGroup.userData.cube;
-        if (cube && obstacleGroup.rotationSpeed) {
-            cube.rotation.x += obstacleGroup.rotationSpeed.x;
-            cube.rotation.y += obstacleGroup.rotationSpeed.y;
-            cube.rotation.z += obstacleGroup.rotationSpeed.z;
-        }
-
-        // Для зомби - используем тело для коллизий
-        const zombie = obstacleGroup.userData.zombie;
-        if (zombie && !obstacleGroup.userData.cube) {
-            obstacleGroup.userData.cube = zombie;
-        }
-
-        if (checkCollision(player, obstacleGroup)) {
-            scene.remove(obstacleGroup);
-            obstacles.splice(i, 1);
-            score += 10;
-            coins += 5;
-            updateCoinsDisplay();
-            localStorage.setItem('cubeGameCoins', coins);
-            zombiesInCurrentWave--;
-            updateScoreDisplay();
-            checkWaveComplete();
-        } else if (obstacleGroup.position.z > 10) {
-            scene.remove(obstacleGroup);
-            obstacles.splice(i, 1);
-            loseLife();
-        }
-    }
-}
 
 function checkCollision(obj1, obstacleGroup) {
-    // Получаем мировую позицию кубика в группе
-    const cube = obstacleGroup.userData.cube;
-    if (!cube) return false;
+    // Получаем мировую позицию зомби или кубика в группе
+    const target = obstacleGroup.userData.zombie || obstacleGroup.userData.cube;
+    if (!target) return false;
 
-    const cubeWorldPos = new THREE.Vector3();
-    cube.getWorldPosition(cubeWorldPos);
+    const targetWorldPos = new THREE.Vector3();
+    target.getWorldPosition(targetWorldPos);
 
-    // Обновляем рекорд
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('cubeGameHighScore', highScore);
-    }
-    const distance = obj1.position.distanceTo(cubeWorldPos);
+    const distance = obj1.position.distanceTo(targetWorldPos);
     return distance < 1.2;
 }
 
@@ -1016,33 +942,33 @@ function findNearestObstacle() {
     let bestScore = Infinity;
 
     obstacles.forEach(obstacleGroup => {
-        const cube = obstacleGroup.userData.cube;
-        if (!cube) return;
+        const target = obstacleGroup.userData.zombie || obstacleGroup.userData.cube;
+        if (!target) return;
 
-        const cubeWorldPos = new THREE.Vector3();
-        cube.getWorldPosition(cubeWorldPos);
+        const targetWorldPos = new THREE.Vector3();
+        target.getWorldPosition(targetWorldPos);
 
-        // Рассматриваем только кубики впереди игрока
-        if (cubeWorldPos.z < player.position.z) {
-            const distance = player.position.distanceTo(cubeWorldPos);
+        // Рассматриваем только цели впереди игрока
+        if (targetWorldPos.z < player.position.z) {
+            const distance = player.position.distanceTo(targetWorldPos);
 
-            // Вектор направления от игрока к кубику
-            const directionToCube = new THREE.Vector3()
-                .subVectors(cubeWorldPos, player.position)
+            // Вектор направления от игрока к цели
+            const directionToTarget = new THREE.Vector3()
+                .subVectors(targetWorldPos, player.position)
                 .normalize();
 
             // Направление взгляда (вперед по -Z)
             const forward = new THREE.Vector3(0, 0, -1);
 
             // Угловое отклонение (чем меньше, тем лучше)
-            const angle = Math.acos(directionToCube.dot(forward));
+            const angle = Math.acos(directionToTarget.dot(forward));
 
             // Комбинированная оценка: расстояние + угол (приоритет центральным целям)
             const score = distance + angle * 5;
 
             if (score < bestScore) {
                 bestScore = score;
-                nearest = cubeWorldPos;
+                nearest = targetWorldPos;
             }
         }
     });
@@ -1245,6 +1171,9 @@ function onWindowResize() {
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 }
+
+// Регистрируем обработчик изменения размера окна
+window.addEventListener('resize', onWindowResize);
 
 // Инициализируем event listeners один раз при загрузке страницы
 // Обработка ввода с геймпада

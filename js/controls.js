@@ -200,7 +200,7 @@ window.addEventListener('load', () => {
         }, 8000);
     }, 2000);
 });
-window.addEventListener('resize', onWindowResize);
+
 document.addEventListener('keydown', (e) => keys[e.code] = true);
 document.addEventListener('keyup', (e) => keys[e.code] = false);
 

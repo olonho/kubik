@@ -668,7 +668,7 @@ function createTrees() {
         decorations.push(tree);
     }
 
-    // Добавляем еще деревья в разных местах карты для разнообразия
+    // Добавляем деревья в разных местах карты для разнообразия
     for (let i = 0; i < 50; i++) {
         const tree = createTree();
         const side = Math.random() > 0.5 ? -7 : 7;
@@ -677,6 +677,58 @@ function createTrees() {
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
+    }
+
+    // Добавляем МНОГО деревьев по всему полю в случайных местах
+    for (let i = 0; i < 200; i++) {
+        const tree = createTree();
+
+        // Случайная позиция X (избегаем центральной дороги от -3 до 3)
+        let randomX;
+        if (Math.random() > 0.5) {
+            // Справа от дороги (от 3.5 до 9)
+            randomX = 3.5 + Math.random() * 5.5;
+        } else {
+            // Слева от дороги (от -9 до -3.5)
+            randomX = -9 + Math.random() * 5.5;
+        }
+
+        // Случайная позиция Z по всей длине карты
+        const randomZ = -Math.random() * 500 - 10;
+
+        tree.position.set(randomX, 0, randomZ);
+        tree.userData.isTree = true;
+        tree.userData.canChop = true;
+        scene.add(tree);
+        decorations.push(tree);
+    }
+
+    // Добавляем группы деревьев (леса)
+    for (let i = 0; i < 10; i++) {
+        // Центр группы деревьев
+        const centerX = (Math.random() > 0.5 ? 1 : -1) * (4 + Math.random() * 4);
+        const centerZ = -Math.random() * 400 - 20;
+
+        // Создаем группу из 8-15 деревьев вокруг центра
+        const treesInGroup = 8 + Math.floor(Math.random() * 8);
+        for (let j = 0; j < treesInGroup; j++) {
+            const tree = createTree();
+
+            // Деревья в радиусе 3-5 единиц от центра
+            const angle = (j / treesInGroup) * Math.PI * 2 + Math.random();
+            const distance = 1.5 + Math.random() * 3.5;
+
+            tree.position.set(
+                centerX + Math.cos(angle) * distance,
+                0,
+                centerZ + Math.sin(angle) * distance
+            );
+
+            tree.userData.isTree = true;
+            tree.userData.canChop = true;
+            scene.add(tree);
+            decorations.push(tree);
+        }
     }
     
     for (let i = 0; i < 20; i++) {
