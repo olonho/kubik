@@ -217,6 +217,16 @@ function init() {
     decorations = [];
     createTrees();
 
+    // Добавляем красивое солнце (как на Pinterest)
+    const sun = createSun();
+    scene.add(sun);
+    decorations.push(sun);
+    console.log('☀️ Солнце добавлено в сцену');
+
+    // Добавляем пушистые облака (как на Pinterest)
+    createClouds();
+    console.log('☁️ Облака добавлены в сцену');
+
     // Создаём турели если были куплены
     if (hasTurret) {
         createTurret();

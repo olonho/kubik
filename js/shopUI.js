@@ -424,12 +424,24 @@ function buyPetFromShop(type) {
     if (!pet) return;
 
     if (coins >= pet.price) {
+        // Просим ввести имя для питомца
+        const petName = prompt('Дайте имя вашему питомцу:', pet.name);
+        if (!petName || petName.trim() === '') {
+            alert('Вы не дали имя питомцу. Покупка отменена.');
+            return;
+        }
+
         coins -= pet.price;
         ownedPets.push(type);
         localStorage.setItem('cubeGameOwnedPets', JSON.stringify(ownedPets));
 
+        // Сохраняем имя питомца
+        if (!petNames) window.petNames = {};
+        petNames[type] = petName.trim();
+        localStorage.setItem('cubeGamePetNames', JSON.stringify(petNames));
+
         // Создаем питомца
-        createPet(type);
+        createPet(type, petName.trim());
 
         updateWeaponsShopDisplay();
         updateCoinsDisplay();

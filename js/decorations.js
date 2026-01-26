@@ -1281,3 +1281,106 @@ function createTrees() {
         decorations.push(boulder);
     }
 }
+
+// Создание красивого солнца (как на Pinterest)
+function createSun() {
+    const sunGroup = new THREE.Group();
+
+    // Основное солнце (яркое светящееся)
+    const sunGeometry = new THREE.SphereGeometry(8, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        transparent: true,
+        opacity: 1.0
+    });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    sunGroup.add(sun);
+
+    // Внутреннее свечение (белое ядро)
+    const glowGeometry = new THREE.SphereGeometry(6, 32, 32);
+    const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    sunGroup.add(glow);
+
+    // Внешнее свечение (атмосфера)
+    const haloGeometry = new THREE.SphereGeometry(12, 32, 32);
+    const haloMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffaa00,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+    });
+    const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+    sunGroup.add(halo);
+
+    // Позиция солнца в небе (как на рассвете/закате)
+    sunGroup.position.set(30, 25, -50);
+
+    return sunGroup;
+}
+
+// Создание пушистого облака (как на Pinterest)
+function createCloud() {
+    const cloudGroup = new THREE.Group();
+
+    // Материал облака (белый, полупрозрачный)
+    const cloudMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.9,
+        roughness: 1.0,
+        metalness: 0.0
+    });
+
+    // Создаем облако из нескольких сфер для объемности
+    const numPuffs = 5 + Math.floor(Math.random() * 3); // 5-7 шариков
+    for (let i = 0; i < numPuffs; i++) {
+        const size = 2 + Math.random() * 2; // Размер от 2 до 4
+        const puffGeometry = new THREE.SphereGeometry(size, 16, 16);
+        const puff = new THREE.Mesh(puffGeometry, cloudMaterial);
+
+        // Располагаем шарики облака случайно но близко друг к другу
+        puff.position.set(
+            (Math.random() - 0.5) * 6,
+            (Math.random() - 0.5) * 2,
+            (Math.random() - 0.5) * 3
+        );
+
+        // Немного сплющиваем для реалистичности
+        puff.scale.set(1 + Math.random() * 0.3, 0.8 + Math.random() * 0.2, 1 + Math.random() * 0.3);
+
+        cloudGroup.add(puff);
+    }
+
+    return cloudGroup;
+}
+
+// Добавление облаков в сцену
+function createClouds() {
+    const numClouds = 15; // Количество облаков
+
+    for (let i = 0; i < numClouds; i++) {
+        const cloud = createCloud();
+
+        // Распределяем облака по небу
+        cloud.position.set(
+            (Math.random() - 0.5) * 80, // X: -40 до 40
+            15 + Math.random() * 15,     // Y: 15 до 30 (высота в небе)
+            (Math.random() - 0.5) * 100  // Z: -50 до 50
+        );
+
+        // Случайный размер облака
+        const scale = 0.8 + Math.random() * 0.6; // от 0.8 до 1.4
+        cloud.scale.set(scale, scale, scale);
+
+        // Небольшой случайный поворот
+        cloud.rotation.y = Math.random() * Math.PI * 2;
+
+        scene.add(cloud);
+        decorations.push(cloud);
+    }
+}

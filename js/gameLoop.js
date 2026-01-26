@@ -1508,6 +1508,23 @@ function animate() {
             if (Math.abs(handsSway.y) < 0.001) handsSway.y = 0;
         }
     }
+
+    // Анимация облаков (медленное движение по небу)
+    if (decorations && decorations.length > 0) {
+        decorations.forEach(decoration => {
+            // Проверяем является ли это облаком (в небе и белого цвета)
+            if (decoration.position.y > 10 && decoration.children.length > 0) {
+                // Медленное движение облака по оси X
+                decoration.position.x += 0.01;
+
+                // Если облако улетело далеко, возвращаем его обратно
+                if (decoration.position.x > 50) {
+                    decoration.position.x = -50;
+                }
+            }
+        });
+    }
+
     if (renderer && scene && camera) {
         // Рендерим основную сцену БЕЗ постобработки (обычный рендеринг)
         renderer.render(scene, camera);

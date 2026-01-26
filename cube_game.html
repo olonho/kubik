@@ -556,37 +556,51 @@
     </div>
 
     <!-- Магазин оружия -->
-    <div id="weaponsShopMenu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 400; overflow-y: auto;">
-        <div style="max-width: 1400px; margin: 50px auto; padding: 40px;">
-            <h2 style="color: #ff6633; font-size: 48px; text-align: center; margin-bottom: 10px;">🔫 Магазин оружия 🔫</h2>
-            <div style="color: white; font-size: 24px; text-align: center; margin-bottom: 30px;">
-                💰 Ваши монеты: <span id="weaponsShopCoins" style="color: gold; font-weight: bold;">0</span>
+    <div id="weaponsShopMenu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 10, 0, 0.98) 100%); z-index: 400; overflow-y: auto;">
+        <div style="max-width: 1600px; margin: 30px auto; padding: 40px 20px;">
+            <h2 style="color: #ff6633; font-size: 56px; text-align: center; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255, 102, 51, 0.8), 3px 3px 6px rgba(0, 0, 0, 0.9); font-weight: bold;">🔫 МАГАЗИН ОРУЖИЯ 🔫</h2>
+            <div style="color: white; font-size: 28px; text-align: center; margin-bottom: 40px; background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2)); padding: 15px 30px; border-radius: 15px; border: 3px solid rgba(255, 215, 0, 0.5); display: inline-block; position: relative; left: 50%; transform: translateX(-50%);">
+                💰 Ваши монеты: <span id="weaponsShopCoins" style="color: gold; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);">0</span>
             </div>
 
             <!-- Оружие -->
-            <h3 style="color: #ffaa66; font-size: 36px; margin: 30px 0 20px 0; text-align: center;">⚔️ Арсенал ⚔️</h3>
-            <div id="weaponsShopWeapons" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 50px;"></div>
+            <div style="background: linear-gradient(135deg, rgba(255, 170, 102, 0.15), rgba(255, 100, 50, 0.15)); padding: 30px; border-radius: 25px; border: 3px solid rgba(255, 170, 102, 0.4); margin-bottom: 40px; box-shadow: 0 0 30px rgba(255, 100, 50, 0.3);">
+                <h3 style="color: #ffaa66; font-size: 42px; margin: 0 0 25px 0; text-align: center; text-shadow: 0 0 15px rgba(255, 170, 102, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.9); font-weight: bold;">⚔️ БОЕВОЙ АРСЕНАЛ ⚔️</h3>
+                <div id="weaponsShopWeapons" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap;"></div>
+            </div>
 
             <!-- Турели -->
-            <h3 style="color: #ff5555; font-size: 36px; margin: 40px 0 20px 0; text-align: center;">⚡ Боевые Турели ⚡</h3>
-            <div id="weaponsShopTurrets" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
+            <div style="background: linear-gradient(135deg, rgba(255, 85, 85, 0.15), rgba(255, 50, 50, 0.15)); padding: 30px; border-radius: 25px; border: 3px solid rgba(255, 85, 85, 0.4); margin-bottom: 40px; box-shadow: 0 0 30px rgba(255, 50, 50, 0.3);">
+                <h3 style="color: #ff5555; font-size: 42px; margin: 0 0 25px 0; text-align: center; text-shadow: 0 0 15px rgba(255, 85, 85, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.9); font-weight: bold;">⚡ АВТОМАТИЧЕСКИЕ ТУРЕЛИ ⚡</h3>
+                <div id="weaponsShopTurrets" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap;"></div>
+            </div>
 
             <!-- Питомцы -->
-            <h3 style="color: #55ff55; font-size: 36px; margin: 40px 0 20px 0; text-align: center;">🐾 Боевые Питомцы 🐾</h3>
-            <div id="weaponsShopPets" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;"></div>
+            <div style="background: linear-gradient(135deg, rgba(85, 255, 85, 0.15), rgba(50, 255, 50, 0.15)); padding: 30px; border-radius: 25px; border: 3px solid rgba(85, 255, 85, 0.4); margin-bottom: 40px; box-shadow: 0 0 30px rgba(50, 255, 50, 0.3);">
+                <h3 style="color: #55ff55; font-size: 42px; margin: 0 0 25px 0; text-align: center; text-shadow: 0 0 15px rgba(85, 255, 85, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.9); font-weight: bold;">🐾 БОЕВЫЕ ПИТОМЦЫ 🐾</h3>
+                <div id="weaponsShopPets" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap;"></div>
+            </div>
 
-            <div style="text-align: center; margin-top: 40px;">
-                <button id="continueWeaponsShopBtn" style="padding: 15px 40px; background-color: #4CAF50; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
-                    Продолжить игру
+            <div style="text-align: center; margin-top: 50px; padding: 20px;">
+                <button id="continueWeaponsShopBtn" style="padding: 18px 50px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #4CAF50; border-radius: 15px; color: white; font-size: 26px; font-weight: bold; cursor: pointer; margin: 0 15px; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">
+                    ✅ Продолжить игру
                 </button>
-                <button id="exitWeaponsShopBtn" style="padding: 15px 40px; background-color: #f44336; border: none; border-radius: 10px; color: white; font-size: 24px; font-weight: bold; cursor: pointer; margin: 0 10px;">
-                    Выйти в меню
+                <button id="exitWeaponsShopBtn" style="padding: 18px 50px; background: linear-gradient(135deg, #f44336, #e53935); border: 3px solid #f44336; border-radius: 15px; color: white; font-size: 26px; font-weight: bold; cursor: pointer; margin: 0 15px; box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">
+                    🚪 Выйти в меню
                 </button>
             </div>
         </div>
     </div>
 
     <style>
+        #continueWeaponsShopBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.7);
+        }
+        #exitWeaponsShopBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.7);
+        }
         .shop-item {
             background: linear-gradient(135deg, rgba(60, 60, 60, 0.95), rgba(30, 30, 30, 0.95));
             padding: 25px;
