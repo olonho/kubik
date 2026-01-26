@@ -253,6 +253,7 @@ function createObstacle() {
 
 // Финальный босс для 20 волны
 function createFinalBoss() {
+    console.log('🦹 Функция createFinalBoss() вызвана');
     const bossGroup = new THREE.Group();
 
     // Огромный размер и черно-красный цвет
@@ -425,13 +426,6 @@ function createFinalBoss() {
     hpBarFg.position.set(0, 6.5, 0.01);
     bossGroup.add(hpBarFg);
 
-    // Текст "FINAL BOSS"
-    const bossLabel = document.createElement('div');
-    bossLabel.id = 'finalBossLabel';
-    bossLabel.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #8B0000 0%, #FF0000 100%); color: white; padding: 20px 50px; border-radius: 20px; font-size: 48px; font-weight: bold; z-index: 1000; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); animation: pulse 1s infinite;';
-    bossLabel.innerHTML = '👹 FINAL BOSS 👹';
-    document.body.appendChild(bossLabel);
-
     // Сохраняем данные
     bossGroup.userData.leftLeg = leftLeg;
     bossGroup.userData.rightLeg = rightLeg;
@@ -463,6 +457,9 @@ function createFinalBoss() {
 
     scene.add(bossGroup);
     obstacles.push(bossGroup);
+
+    console.log('✅ Финальный босс создан! Позиция:', bossGroup.position, 'HP:', bossGroup.userData.hp, 'isFinalBoss:', bossGroup.userData.isFinalBoss);
+    console.log('📊 Всего препятствий на сцене:', obstacles.length);
 
     return bossGroup;
 }

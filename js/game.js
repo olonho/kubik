@@ -21,6 +21,14 @@ var ammo = 80;
 var maxAmmo = 80;
 var coins = 50000; // Всегда начинаем с 50000 монет
 var wood = 0; // Собранная древесина для постройки дома
+
+// Система голода и жажды
+var hunger = 100; // Голод (0-100)
+var maxHunger = 100;
+var thirst = 100; // Жажда (0-100)
+var maxThirst = 100;
+var foodItem = null; // Объект еды в доме
+var sodaItem = null; // Объект газировки в доме
 var playerHouse = null; // Построенный дом игрока
 var playerBed = null; // Кровать в доме
 var hasBed = false; // Есть ли кровать
@@ -211,14 +219,14 @@ function showDogNamingDialog() {
 
         // Показываем уведомление
         const notif = document.createElement('div');
-        notif.style.cssText = 'position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(139, 69, 19, 0.95); color: white; padding: 30px 50px; border-radius: 15px; font-size: 28px; font-weight: bold; z-index: 999; border: 3px solid #8B4513; box-shadow: 0 0 30px rgba(139, 69, 19, 0.8);';
-        notif.innerHTML = '🐕 ' + dogName + ' присоединился к вам!';
+        notif.style.cssText = 'position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(139, 69, 19, 0.98), rgba(101, 67, 33, 0.98)); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 999; border: 5px solid #8B4513; box-shadow: 0 0 40px rgba(139, 69, 19, 0.9); text-align: center;';
+        notif.innerHTML = '🐕 ' + dogName + ' присоединился к вам!<br><br><span style="font-size: 20px; color: #FFD700;">Ваша собака будет сражаться рядом с вами!<br>Вы играете за Dani Rojas 🤠</span>';
         document.body.appendChild(notif);
         setTimeout(() => {
             if (document.body.contains(notif)) {
                 document.body.removeChild(notif);
             }
-        }, 3000);
+        }, 4000);
 
         // Скрываем диалог
         dialog.style.display = 'none';
@@ -287,6 +295,74 @@ function spawnCompanion() {
 
 function updateWoodDisplay() {
     document.getElementById('woodDisplay').textContent = '🪵 Древесина: ' + wood;
+}
+
+function updateHungerDisplay() {
+    const hungerPercent = Math.floor((hunger / maxHunger) * 100);
+    const hungerEl = document.getElementById('hungerDisplay');
+    if (hungerEl) {
+        hungerEl.textContent = '🍖 Голод: ' + hungerPercent + '%';
+
+        // Меняем цвет в зависимости от уровня голода
+        if (hungerPercent < 20) {
+            hungerEl.style.background = 'linear-gradient(135deg, rgba(139, 0, 0, 0.95), rgba(139, 0, 0, 0.85))';
+        } else if (hungerPercent < 50) {
+            hungerEl.style.background = 'linear-gradient(135deg, rgba(255, 69, 0, 0.85), rgba(178, 34, 34, 0.75))';
+        } else {
+            hungerEl.style.background = 'linear-gradient(135deg, rgba(255, 140, 0, 0.85), rgba(255, 99, 71, 0.75))';
+        }
+    }
+}
+
+function updateThirstDisplay() {
+    const thirstPercent = Math.floor((thirst / maxThirst) * 100);
+    const thirstEl = document.getElementById('thirstDisplay');
+    if (thirstEl) {
+        thirstEl.textContent = '💧 Жажда: ' + thirstPercent + '%';
+
+        // Меняем цвет в зависимости от уровня жажды
+        if (thirstPercent < 20) {
+            thirstEl.style.background = 'linear-gradient(135deg, rgba(0, 0, 139, 0.95), rgba(0, 0, 139, 0.85))';
+        } else if (thirstPercent < 50) {
+            thirstEl.style.background = 'linear-gradient(135deg, rgba(30, 144, 255, 0.85), rgba(65, 105, 225, 0.75))';
+        } else {
+            thirstEl.style.background = 'linear-gradient(135deg, rgba(135, 206, 250, 0.85), rgba(100, 149, 237, 0.75))';
+        }
+    }
+}
+
+function buyAndEatFood() {
+    const cost = 50;
+    if (coins >= cost) {
+        if (hunger >= maxHunger) {
+            showNotification('🍖 Вы не голодны!', 'info');
+            return;
+        }
+        coins -= cost;
+        hunger = Math.min(hunger + 50, maxHunger);
+        updateCoinsDisplay();
+        updateHungerDisplay();
+        showNotification('🍖 Вы съели еду! Голод восстановлен на 50%', 'success');
+    } else {
+        showNotification('❌ Недостаточно денег! Нужно: ' + cost + ' монет', 'error');
+    }
+}
+
+function buyAndDrinkSoda() {
+    const cost = 50;
+    if (coins >= cost) {
+        if (thirst >= maxThirst) {
+            showNotification('💧 Вы не испытываете жажду!', 'info');
+            return;
+        }
+        coins -= cost;
+        thirst = Math.min(thirst + 50, maxThirst);
+        updateCoinsDisplay();
+        updateThirstDisplay();
+        showNotification('💧 Вы выпили газировку! Жажда утолена на 50%', 'success');
+    } else {
+        showNotification('❌ Недостаточно денег! Нужно: ' + cost + ' монет', 'error');
+    }
 }
 
 function buildHouse() {
@@ -804,7 +880,13 @@ function startNewWave() {
 
     // Увеличиваем количество зомби с каждой волной (более агрессивная прогрессия)
     zombiesPerWave = 5 + (wave - 1) * 4; // 5, 9, 13, 17, 21, 25...
-    zombiesInCurrentWave = zombiesPerWave;
+
+    // ВАЖНО: Для волны 20 (финальный босс) НЕ спавним обычных зомби
+    if (wave === 20) {
+        zombiesInCurrentWave = 0; // Только босс, без обычных зомби
+    } else {
+        zombiesInCurrentWave = zombiesPerWave;
+    }
 
     // Увеличиваем скорость зомби с каждой волной (более агрессивная прогрессия)
     obstacleSpeed = 0.02 + (wave - 1) * 0.008;
@@ -1001,21 +1083,25 @@ function startNewWave() {
 function spawnWaveZombies() {
     // ФИНАЛЬНЫЙ БОСС на 20 волне
     if (wave === 20) {
-        // Спавним только финального босса, без обычных зомби
+        console.log('🎮 Запуск 20 волны - ФИНАЛЬНЫЙ БОСС!');
+
+        // Драматичное уведомление
+        const notification = document.createElement('div');
+        notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #000000 0%, #8B0000 50%, #FF0000 100%); color: white; padding: 50px 80px; border-radius: 25px; font-size: 56px; font-weight: bold; z-index: 1000; text-align: center; border: 8px solid gold; box-shadow: 0 0 100px rgba(255, 0, 0, 1); animation: pulse 0.8s infinite;';
+        notification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БОСС ⚠️<br><br><span style="font-size: 32px; color: #FFD700;">Повелитель Зомби</span><br><br><span style="font-size: 24px; color: #FF6347;">Это последняя битва!</span>';
+        document.body.appendChild(notification);
+
+        // Спавним финального босса через 1 секунду
         setTimeout(() => {
             if (gameActive && waveActive) {
+                console.log('🧟 Создание финального босса...');
                 window.finalBoss = createFinalBoss();
+                console.log('✅ Финальный босс создан:', window.finalBoss);
 
                 // Показываем HP бар игрока для боя с боссом
                 document.getElementById('playerHPContainer').style.display = 'block';
                 playerHP = maxPlayerHP;
                 updatePlayerHPDisplay();
-
-                // Драматичное уведомление
-                const notification = document.createElement('div');
-                notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #000000 0%, #8B0000 50%, #FF0000 100%); color: white; padding: 50px 80px; border-radius: 25px; font-size: 56px; font-weight: bold; z-index: 1000; text-align: center; border: 8px solid gold; box-shadow: 0 0 100px rgba(255, 0, 0, 1); animation: pulse 0.8s infinite;';
-                notification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БОСС ⚠️<br><br><span style="font-size: 32px; color: #FFD700;">Повелитель Зомби</span><br><br><span style="font-size: 24px; color: #FF6347;">Это последняя битва!</span>';
-                document.body.appendChild(notification);
 
                 // Интенсивная тряска экрана
                 let shakeIntensity = 40;
@@ -1040,11 +1126,14 @@ function spawnWaveZombies() {
                     }, 200);
                 }, 300);
 
+                // Убираем уведомление через 5 секунд
                 setTimeout(() => {
-                    if (document.body.contains(notification)) {
+                    if (notification && document.body.contains(notification)) {
                         document.body.removeChild(notification);
                     }
                 }, 5000);
+            } else {
+                console.log('❌ Не удалось создать босса - gameActive:', gameActive, 'waveActive:', waveActive);
             }
         }, 1000);
         return;
@@ -1507,7 +1596,7 @@ function explodeFirework(position, color) {
 
 // Укус финального босса - запускает трагичную катсцену
 function bossBitePlayer() {
-    console.log('🧟 Финальный босс кусает игрока!');
+    console.log('oH');
 
     // Останавливаем игру
     gameActive = false;

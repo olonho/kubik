@@ -656,18 +656,49 @@ function updateBullets() {
                     scene.remove(obstacleGroup);
                     obstacles.splice(j, 1);
 
-                    // Бонусные награды за босса
-                    if (obstacleGroup.userData.isBoss) {
+                    // ФИНАЛЬНЫЙ БОСС - особая обработка смерти
+                    if (obstacleGroup.userData.isFinalBoss) {
+                        console.log('💀 ФИНАЛЬНЫЙ БОСС УБИТ! Запуск катсцены победы...');
+
+                        // Убираем лейбл босса
+                        const bossLabel = document.getElementById('finalBossLabel');
+                        if (bossLabel && bossLabel.parentNode) {
+                            document.body.removeChild(bossLabel);
+                        }
+
+                        // Огромная награда
+                        score += 500;
+                        coins += 500;
+
+                        // Скрываем HP бар игрока
+                        document.getElementById('playerHPContainer').style.display = 'none';
+
+                        // Останавливаем игру
+                        gameActive = false;
+                        waveActive = false;
+
+                        // Показываем уведомление
+                        showNotification('🎉 ФИНАЛЬНЫЙ БОСС ПОВЕРЖЕН! 🎉', 'success');
+
+                        // Запускаем катсцену победы через 1 секунду
+                        setTimeout(() => {
+                            console.log('🎬 Запуск функции victoryScene()...');
+                            victoryScene();
+                        }, 1000);
+                    } else if (obstacleGroup.userData.isBoss) {
+                        // Обычный босс
                         score += 100;
                         coins += 50;
+                        zombiesInCurrentWave--; // Обычные боссы считаются в волне
                     } else {
+                        // Обычный зомби
                         score += 10;
                         coins += 5;
+                        zombiesInCurrentWave--;
                     }
 
                     updateCoinsDisplay();
                     localStorage.setItem('cubeGameCoins', coins);
-                    zombiesInCurrentWave--;
                     updateScoreDisplay();
                     checkWaveComplete();
                 }
@@ -731,6 +762,11 @@ function updateObstacles() {
             const dz = player.position.z - obstacleGroup.position.z;
             const distance = Math.sqrt(dx * dx + dz * dz);
 
+            // Отладка (редко, чтобы не спамить консоль)
+            if (Math.random() < 0.01) {
+                console.log('👹 Финальный босс жив! Позиция:', obstacleGroup.position, 'Расстояние до игрока:', distance.toFixed(2), 'HP:', obstacleGroup.userData.hp);
+            }
+
             // Поворачивается лицом к игроку
             const targetAngle = Math.atan2(dx, dz);
             obstacleGroup.rotation.y = targetAngle;
@@ -740,6 +776,10 @@ function updateObstacles() {
                 const bossSpeed = 0.08; // Медленнее чем rush, но быстрее обычных зомби
                 obstacleGroup.position.x += (dx / distance) * bossSpeed;
                 obstacleGroup.position.z += (dz / distance) * bossSpeed;
+
+                // Ограничиваем позицию босса в разумных пределах (предотвращаем выход за границы)
+                obstacleGroup.position.x = Math.max(-10, Math.min(10, obstacleGroup.position.x));
+                obstacleGroup.position.z = Math.max(-50, Math.min(15, obstacleGroup.position.z));
             } else {
                 // На расстоянии 5 метров - атакует!
                 // Инициализируем таймер атаки если его нет
@@ -846,18 +886,6 @@ function updateObstacles() {
             if (obstacleGroup.userData.isFinalBoss) {
                 if (hpRatio < 0.05 && !obstacleGroup.userData.canBite) {
                     obstacleGroup.userData.canBite = true;
-
-                    // Уведомление о финальном броске босса
-                    const rageNotification = document.createElement('div');
-                    rageNotification.style.cssText = 'position: fixed; top: 150px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #8B0000 0%, #FF0000 100%); color: white; padding: 30px 60px; border-radius: 20px; font-size: 36px; font-weight: bold; z-index: 1000; border: 5px solid gold; box-shadow: 0 0 50px rgba(255, 0, 0, 1);';
-                    rageNotification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БРОСОК БОССА! ⚠️<br><span style="font-size: 24px;">ОН ПЫТАЕТСЯ ВАС УКУСИТЬ!</span>';
-                    document.body.appendChild(rageNotification);
-
-                    setTimeout(() => {
-                        if (document.body.contains(rageNotification)) {
-                            document.body.removeChild(rageNotification);
-                        }
-                    }, 3000);
                 }
 
                 // Когда HP совсем низкий, босс делает отчаянный рывок к игроку для катсцены
@@ -867,10 +895,16 @@ function updateObstacles() {
                     const dz = player.position.z - obstacleGroup.position.z;
                     const distance = Math.sqrt(dx * dx + dz * dz);
 
-                    // Бежит очень быстро к игроку
-                    const rushSpeed = 0.4;
-                    obstacleGroup.position.x += (dx / distance) * rushSpeed;
-                    obstacleGroup.position.z += (dz / distance) * rushSpeed;
+                    // Бежит очень быстро к игроку, но только если достаточно далеко
+                    if (distance > 2) {
+                        const rushSpeed = 0.4;
+                        obstacleGroup.position.x += (dx / distance) * rushSpeed;
+                        obstacleGroup.position.z += (dz / distance) * rushSpeed;
+
+                        // Ограничиваем позицию босса в разумных пределах
+                        obstacleGroup.position.x = Math.max(-10, Math.min(10, obstacleGroup.position.x));
+                        obstacleGroup.position.z = Math.max(-50, Math.min(15, obstacleGroup.position.z));
+                    }
 
                     // Поворачивается к игроку
                     const targetAngle = Math.atan2(dx, dz);
@@ -885,6 +919,7 @@ function updateObstacles() {
 
                     // Если босс близко к игроку - кусает и запускает трагичную катсцену!
                     if (distance < 2) {
+                        console.log('oH');
                         obstacleGroup.userData.biteTriggered = true;
                         bossBitePlayer();
                     }
@@ -900,8 +935,8 @@ function updateObstacles() {
         }
     }
 
-    // Проверяем конец волны
-    if (waveActive && zombiesInCurrentWave === 0 && obstacles.length === 0) {
+    // Проверяем конец волны (НЕ для 20 волны - там финальный босс)
+    if (waveActive && zombiesInCurrentWave === 0 && obstacles.length === 0 && wave !== 20) {
         waveActive = false;
 
         // Перерыв между 10 и 11 волной (4 минуты)
@@ -1620,6 +1655,37 @@ function animate() {
         updateTurrets();
         updatePets();
         updateCamera();
+
+        // Уменьшаем голод и жажду с течением времени
+        if (!window.hungerThirstFrame) window.hungerThirstFrame = 0;
+        window.hungerThirstFrame++;
+
+        // Каждые 5 секунд (примерно 300 кадров при 60fps) уменьшаем голод и жажду на 1
+        if (window.hungerThirstFrame >= 300) {
+            window.hungerThirstFrame = 0;
+            hunger = Math.max(0, hunger - 1);
+            thirst = Math.max(0, thirst - 1);
+            updateHungerDisplay();
+            updateThirstDisplay();
+
+            // Если голод или жажда слишком низкие, отнимаем жизнь
+            if (hunger <= 0 || thirst <= 0) {
+                lives--;
+                updateScoreDisplay();
+                if (hunger <= 0) {
+                    hunger = 30; // Восстанавливаем немного после потери жизни
+                    showNotification('💀 Вы умерли от голода! -1 жизнь', 'error');
+                }
+                if (thirst <= 0) {
+                    thirst = 30; // Восстанавливаем немного после потери жизни
+                    showNotification('💀 Вы умерли от жажды! -1 жизнь', 'error');
+                }
+                if (lives <= 0) {
+                    gameOver();
+                }
+            }
+        }
+
         checkHouseProximity(); // Проверяем близость к дому
 
         // Проверяем близость к кровати и показываем подсказку
@@ -1636,6 +1702,77 @@ function animate() {
             if (bedIndicator && bedIndicator.parentNode) {
                 document.body.removeChild(bedIndicator);
                 bedIndicator = null;
+            }
+        }
+
+        // Проверяем близость к еде и газировке в доме
+        if (isInsideHouse && houseInterior) {
+            let nearFood = false;
+            let nearSoda = false;
+
+            houseInterior.children.forEach(child => {
+                if (child.userData.isFood) {
+                    const worldPos = new THREE.Vector3();
+                    child.getWorldPosition(worldPos);
+                    const distance = player.position.distanceTo(worldPos);
+                    if (distance < 1.5) {
+                        nearFood = true;
+                    }
+                }
+                if (child.userData.isSoda) {
+                    const worldPos = new THREE.Vector3();
+                    child.getWorldPosition(worldPos);
+                    const distance = player.position.distanceTo(worldPos);
+                    if (distance < 1.5) {
+                        nearSoda = true;
+                    }
+                }
+            });
+
+            // Показываем индикатор еды
+            if (nearFood) {
+                if (!window.foodIndicator) {
+                    window.foodIndicator = document.createElement('div');
+                    window.foodIndicator.style.cssText = 'position: fixed; top: 270px; left: 50%; transform: translateX(-50%); background: rgba(255, 140, 0, 0.95); color: white; padding: 15px 30px; border-radius: 12px; font-size: 20px; font-weight: bold; z-index: 999; border: 3px solid #FF8C00; cursor: pointer; transition: all 0.2s;';
+                    window.foodIndicator.innerHTML = '🍖 Нажмите чтобы купить еду (50 монет)';
+                    window.foodIndicator.onclick = buyAndEatFood;
+                    window.foodIndicator.onmouseenter = function() { this.style.transform = 'translateX(-50%) scale(1.05)'; };
+                    window.foodIndicator.onmouseleave = function() { this.style.transform = 'translateX(-50%) scale(1)'; };
+                    document.body.appendChild(window.foodIndicator);
+                }
+            } else {
+                if (window.foodIndicator && window.foodIndicator.parentNode) {
+                    document.body.removeChild(window.foodIndicator);
+                    window.foodIndicator = null;
+                }
+            }
+
+            // Показываем индикатор газировки
+            if (nearSoda) {
+                if (!window.sodaIndicator) {
+                    window.sodaIndicator = document.createElement('div');
+                    window.sodaIndicator.style.cssText = 'position: fixed; top: 340px; left: 50%; transform: translateX(-50%); background: rgba(30, 144, 255, 0.95); color: white; padding: 15px 30px; border-radius: 12px; font-size: 20px; font-weight: bold; z-index: 999; border: 3px solid #1E90FF; cursor: pointer; transition: all 0.2s;';
+                    window.sodaIndicator.innerHTML = '💧 Нажмите чтобы купить газировку (50 монет)';
+                    window.sodaIndicator.onclick = buyAndDrinkSoda;
+                    window.sodaIndicator.onmouseenter = function() { this.style.transform = 'translateX(-50%) scale(1.05)'; };
+                    window.sodaIndicator.onmouseleave = function() { this.style.transform = 'translateX(-50%) scale(1)'; };
+                    document.body.appendChild(window.sodaIndicator);
+                }
+            } else {
+                if (window.sodaIndicator && window.sodaIndicator.parentNode) {
+                    document.body.removeChild(window.sodaIndicator);
+                    window.sodaIndicator = null;
+                }
+            }
+        } else {
+            // Убираем индикаторы если не в доме
+            if (window.foodIndicator && window.foodIndicator.parentNode) {
+                document.body.removeChild(window.foodIndicator);
+                window.foodIndicator = null;
+            }
+            if (window.sodaIndicator && window.sodaIndicator.parentNode) {
+                document.body.removeChild(window.sodaIndicator);
+                window.sodaIndicator = null;
             }
         }
 
