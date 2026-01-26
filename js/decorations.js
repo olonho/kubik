@@ -649,6 +649,202 @@ function createHouse() {
     return houseGroup;
 }
 
+function createBed() {
+    const bedGroup = new THREE.Group();
+
+    // Каркас кровати (основание)
+    const frameGeometry = new THREE.BoxGeometry(1.2, 0.3, 1.8);
+    const frameMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+    frame.position.y = 0.45;
+    frame.castShadow = true;
+    frame.receiveShadow = true;
+    bedGroup.add(frame);
+
+    // Матрас
+    const mattressGeometry = new THREE.BoxGeometry(1.1, 0.2, 1.7);
+    const mattressMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+    const mattress = new THREE.Mesh(mattressGeometry, mattressMaterial);
+    mattress.position.y = 0.7;
+    mattress.castShadow = true;
+    bedGroup.add(mattress);
+
+    // Одеяло
+    const blanketGeometry = new THREE.BoxGeometry(1.0, 0.15, 1.3);
+    const blanketMaterial = new THREE.MeshPhongMaterial({ color: 0xFF6347 });
+    const blanket = new THREE.Mesh(blanketGeometry, blanketMaterial);
+    blanket.position.set(0, 0.85, -0.2);
+    blanket.castShadow = true;
+    bedGroup.add(blanket);
+
+    // Подушка
+    const pillowGeometry = new THREE.BoxGeometry(0.5, 0.15, 0.3);
+    const pillowMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF });
+    const pillow = new THREE.Mesh(pillowGeometry, pillowMaterial);
+    pillow.position.set(0, 0.9, 0.65);
+    pillow.castShadow = true;
+    bedGroup.add(pillow);
+
+    // Изголовье
+    const headboardGeometry = new THREE.BoxGeometry(1.3, 0.8, 0.1);
+    const headboardMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+    const headboard = new THREE.Mesh(headboardGeometry, headboardMaterial);
+    headboard.position.set(0, 0.9, 0.9);
+    headboard.castShadow = true;
+    bedGroup.add(headboard);
+
+    // Ножки кровати (4 штуки)
+    const legGeometry = new THREE.BoxGeometry(0.1, 0.3, 0.1);
+    const legMaterial = new THREE.MeshPhongMaterial({ color: 0x3E2723 });
+
+    const positions = [
+        [-0.5, 0.15, -0.8],  // передняя левая
+        [0.5, 0.15, -0.8],   // передняя правая
+        [-0.5, 0.15, 0.8],   // задняя левая
+        [0.5, 0.15, 0.8]     // задняя правая
+    ];
+
+    positions.forEach(pos => {
+        const leg = new THREE.Mesh(legGeometry, legMaterial);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        leg.castShadow = true;
+        bedGroup.add(leg);
+    });
+
+    return bedGroup;
+}
+
+function createHouseInterior() {
+    const interiorGroup = new THREE.Group();
+
+    // Пол дома
+    const floorGeometry = new THREE.BoxGeometry(3.8, 0.1, 2.8);
+    const floorMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.position.y = 0.05;
+    floor.receiveShadow = true;
+    interiorGroup.add(floor);
+
+    // Стены (внутренние)
+    // Задняя стена
+    const backWallGeometry = new THREE.BoxGeometry(3.8, 2.5, 0.1);
+    const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xF5DEB3 });
+    const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+    backWall.position.set(0, 1.25, -1.4);
+    backWall.receiveShadow = true;
+    interiorGroup.add(backWall);
+
+    // Левая стена
+    const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.5, 2.8), wallMaterial);
+    leftWall.position.set(-1.9, 1.25, 0);
+    leftWall.receiveShadow = true;
+    interiorGroup.add(leftWall);
+
+    // Правая стена
+    const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.5, 2.8), wallMaterial);
+    rightWall.position.set(1.9, 1.25, 0);
+    rightWall.receiveShadow = true;
+    interiorGroup.add(rightWall);
+
+    // Передняя стена (с дверью)
+    const frontWallLeft = new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.5, 0.1), wallMaterial);
+    frontWallLeft.position.set(-1.25, 1.25, 1.4);
+    interiorGroup.add(frontWallLeft);
+
+    const frontWallRight = new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.5, 0.1), wallMaterial);
+    frontWallRight.position.set(1.25, 1.25, 1.4);
+    interiorGroup.add(frontWallRight);
+
+    const frontWallTop = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.9, 0.1), wallMaterial);
+    frontWallTop.position.set(0, 2.05, 1.4);
+    interiorGroup.add(frontWallTop);
+
+    // Потолок
+    const ceilingGeometry = new THREE.BoxGeometry(3.8, 0.1, 2.8);
+    const ceilingMaterial = new THREE.MeshPhongMaterial({ color: 0x8B7355 });
+    const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+    ceiling.position.y = 2.45;
+    interiorGroup.add(ceiling);
+
+    // Дверь (внутренняя сторона)
+    const doorGeometry = new THREE.BoxGeometry(0.75, 1.6, 0.05);
+    const doorMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const door = new THREE.Mesh(doorGeometry, doorMaterial);
+    door.position.set(0, 0.8, 1.38);
+    interiorGroup.add(door);
+
+    // Окна (внутренняя сторона)
+    const windowGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.05);
+    const windowMaterial = new THREE.MeshPhongMaterial({
+        color: 0x87CEEB,
+        transparent: true,
+        opacity: 0.7
+    });
+
+    const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window1.position.set(-1, 1.5, 1.38);
+    interiorGroup.add(window1);
+
+    const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window2.position.set(1, 1.5, 1.38);
+    interiorGroup.add(window2);
+
+    // Освещение внутри дома
+    const lampLight = new THREE.PointLight(0xFFFFAA, 0.8, 10);
+    lampLight.position.set(0, 2.2, 0);
+    lampLight.castShadow = true;
+    interiorGroup.add(lampLight);
+
+    // Лампа на потолке
+    const lampGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.3, 8);
+    const lampMaterial = new THREE.MeshPhongMaterial({
+        color: 0xFFFFAA,
+        emissive: 0xFFFF00,
+        emissiveIntensity: 0.8
+    });
+    const lamp = new THREE.Mesh(lampGeometry, lampMaterial);
+    lamp.position.set(0, 2.3, 0);
+    interiorGroup.add(lamp);
+
+    // Коврик
+    const rugGeometry = new THREE.BoxGeometry(1.5, 0.02, 1.2);
+    const rugMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
+    const rug = new THREE.Mesh(rugGeometry, rugMaterial);
+    rug.position.set(0.5, 0.11, 0.3);
+    interiorGroup.add(rug);
+
+    // Стол
+    const tableGeometry = new THREE.BoxGeometry(1, 0.1, 0.6);
+    const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const table = new THREE.Mesh(tableGeometry, tableMaterial);
+    table.position.set(-0.7, 0.7, -0.5);
+    table.castShadow = true;
+    interiorGroup.add(table);
+
+    // Ножки стола
+    for (let i = 0; i < 4; i++) {
+        const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8);
+        const leg = new THREE.Mesh(legGeometry, tableMaterial);
+        const x = (i % 2) * 0.9 - 0.45;
+        const z = Math.floor(i / 2) * 0.5 - 0.25;
+        leg.position.set(-0.7 + x, 0.3, -0.5 + z);
+        interiorGroup.add(leg);
+    }
+
+    // Стул
+    const seatGeometry = new THREE.BoxGeometry(0.4, 0.05, 0.4);
+    const seat = new THREE.Mesh(seatGeometry, tableMaterial);
+    seat.position.set(-0.7, 0.5, 0.1);
+    interiorGroup.add(seat);
+
+    const backrestGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.05);
+    const backrest = new THREE.Mesh(backrestGeometry, tableMaterial);
+    backrest.position.set(-0.7, 0.7, -0.1);
+    interiorGroup.add(backrest);
+
+    return interiorGroup;
+}
+
 function createTrees() {
     // Деревья по центру поля для удобной рубки (вдоль дороги)
     for (let i = 0; i < 100; i++) {

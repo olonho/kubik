@@ -17,6 +17,11 @@ var maxAmmo = 80;
 var coins = 50000; // Всегда начинаем с 50000 монет
 var wood = 0; // Собранная древесина для постройки дома
 var playerHouse = null; // Построенный дом игрока
+var playerBed = null; // Кровать в доме
+var hasBed = false; // Есть ли кровать
+var houseInterior = null; // Интерьер дома
+var isInsideHouse = false; // Находится ли игрок внутри дома
+var savedOutdoorPosition = null; // Сохраненная позиция на улице
 var gameActive = true;
 var playerVelocityY = 0;
 var isJumping = false;
@@ -120,6 +125,56 @@ function buildHouse() {
         updateCoinsDisplay();
         lives = Math.min(lives + 1, 5); // Добавляем жизнь (максимум 5)
         updateScoreDisplay();
+
+    } else {
+        showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
+    }
+}
+
+function buildBed() {
+    const woodRequired = 20; // Нужно 20 дерева для постройки кровати
+
+    if (!playerHouse) {
+        showNotification('❌ Сначала постройте дом!', 'error');
+        return;
+    }
+
+    if (hasBed) {
+        showNotification('🛏️ У вас уже есть кровать!', 'info');
+        return;
+    }
+
+    if (wood >= woodRequired) {
+        wood -= woodRequired;
+        updateWoodDisplay();
+        hasBed = true;
+
+        // Создаем кровать внутри дома
+        playerBed = createBed();
+        // Позиционируем кровать относительно дома (внутри, в углу)
+        playerBed.position.set(
+            playerHouse.position.x - 1.2, // Слева внутри дома
+            playerHouse.position.y + 0.3,   // На полу
+            playerHouse.position.z - 0.5    // Задняя часть дома
+        );
+        playerBed.rotation.y = Math.PI / 2; // Поворачиваем вдоль стены
+        scene.add(playerBed);
+
+        // Сохраняем в localStorage
+        localStorage.setItem('cubeGameHasBed', 'true');
+
+        // Показываем уведомление
+        showNotification('🛏️ Кровать построена! Теперь можно спать и восстанавливать здоровье!', 'success');
+
+        // Даем бонус за постройку кровати
+        coins += 200;
+        updateCoinsDisplay();
+
+        // Обновляем кнопку
+        const bedBtn = document.getElementById('buildBedBtn');
+        if (bedBtn) {
+            bedBtn.style.display = 'none';
+        }
 
     } else {
         showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
@@ -675,7 +730,13 @@ function returnToSkinMenu() {
             scene.remove(playerHouse);
             playerHouse = null;
         }
+        if (playerBed) {
+            scene.remove(playerBed);
+            playerBed = null;
+        }
     }
+
+    hasBed = false;
 
     obstacles = [];
     bullets = [];
@@ -692,6 +753,7 @@ function returnToSkinMenu() {
     document.getElementById('openShopBtn').style.display = 'none';
     document.getElementById('woodDisplay').style.display = 'none';
     document.getElementById('buildHouseBtn').style.display = 'none';
+    document.getElementById('buildBedBtn').style.display = 'none';
     document.getElementById('skinMenu').style.display = 'block';
 
     selectedSkin = null;

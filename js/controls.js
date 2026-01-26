@@ -297,6 +297,11 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('buildHouseBtn').addEventListener('click', () => {
         buildHouse();
     });
+
+    // Обработчик кнопки постройки кровати
+    document.getElementById('buildBedBtn').addEventListener('click', () => {
+        buildBed();
+    });
 });
 
 // init() будет вызван после выбора скина (определён в init.js)

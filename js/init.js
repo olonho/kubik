@@ -29,6 +29,7 @@ function selectSkin(skin) {
     document.getElementById('openWeaponsShopBtn').style.display = 'block';
     document.getElementById('woodDisplay').style.display = 'block';
     document.getElementById('buildHouseBtn').style.display = 'block';
+    document.getElementById('buildBedBtn').style.display = 'block';
     updateCoinsDisplay();
     updateWoodDisplay();
     init();
@@ -326,10 +327,22 @@ function init() {
 
     // Создаем оружие
     currentWeapon = createWeapon(selectedWeapon);
-    currentWeapon.position.set(0.15, 0.2, -0.4);
-    currentWeapon.rotation.y = 0;
-    currentWeapon.rotation.z = -Math.PI / 6;
-    player.add(currentWeapon);
+
+    // Позиционирование зависит от режима камеры
+    if (cameraMode === 'firstPerson') {
+        // Вид от первого лица - оружие к камере (как в Chicken Gun)
+        currentWeapon.position.set(0.3, -0.25, -0.5);
+        currentWeapon.rotation.y = -Math.PI / 12;
+        currentWeapon.rotation.x = Math.PI / 24;
+        currentWeapon.rotation.z = -Math.PI / 16;
+        camera.add(currentWeapon);
+    } else {
+        // Вид от третьего лица - оружие к игроку
+        currentWeapon.position.set(0.15, 0.2, -0.4);
+        currentWeapon.rotation.y = 0;
+        currentWeapon.rotation.z = -Math.PI / 6;
+        player.add(currentWeapon);
+    }
 
     // Обновляем дисплей
     updateScoreDisplay();
@@ -351,6 +364,24 @@ function init() {
         } catch (e) {
             console.error('Ошибка восстановления дома:', e);
         }
+    }
+
+    // Восстанавливаем кровать если была построена
+    const savedBed = localStorage.getItem('cubeGameHasBed');
+    if (savedBed === 'true' && playerHouse) {
+        hasBed = true;
+        playerBed = createBed();
+        playerBed.position.set(
+            playerHouse.position.x - 1.2,
+            playerHouse.position.y + 0.3,
+            playerHouse.position.z - 0.5
+        );
+        playerBed.rotation.y = Math.PI / 2;
+        scene.add(playerBed);
+        console.log('Кровать восстановлена');
+
+        // Скрываем кнопку постройки кровати
+        document.getElementById('buildBedBtn').style.display = 'none';
     }
 
     // Запускаем первую волну

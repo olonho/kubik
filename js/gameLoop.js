@@ -10,15 +10,31 @@ function changeWeapon(weaponType) {
 
     // Удаляем старое оружие
     if (currentWeapon) {
-        player.remove(currentWeapon);
+        if (cameraMode === 'firstPerson') {
+            camera.remove(currentWeapon);
+        } else {
+            player.remove(currentWeapon);
+        }
     }
 
-    // Создаем и добавляем новое оружие (в правую руку)
+    // Создаем новое оружие
     currentWeapon = createWeapon(weaponType);
-    currentWeapon.position.set(0.15, 0.2, -0.4);
-    currentWeapon.rotation.y = 0;
-    currentWeapon.rotation.z = -Math.PI / 6;
-    player.add(currentWeapon);
+
+    // Позиционирование зависит от режима камеры
+    if (cameraMode === 'firstPerson') {
+        // Вид от первого лица - оружие к камере (как в Chicken Gun)
+        currentWeapon.position.set(0.3, -0.25, -0.5); // Правый нижний угол
+        currentWeapon.rotation.y = -Math.PI / 12; // Небольшой поворот внутрь
+        currentWeapon.rotation.x = Math.PI / 24;
+        currentWeapon.rotation.z = -Math.PI / 16;
+        camera.add(currentWeapon);
+    } else {
+        // Вид от третьего лица - оружие к игроку
+        currentWeapon.position.set(0.15, 0.2, -0.4);
+        currentWeapon.rotation.y = 0;
+        currentWeapon.rotation.z = -Math.PI / 6;
+        player.add(currentWeapon);
+    }
 
     // Обновляем UI и параметры стрельбы
     const weaponConfigs = {
@@ -141,10 +157,30 @@ function updatePlayer() {
             cameraMode = 'thirdPerson';
             document.getElementById('crosshair').style.display = 'none';
             document.getElementById('cameraMode').textContent = 'Вид: От третьего лица';
+
+            // Переносим оружие от камеры к игроку
+            if (currentWeapon) {
+                camera.remove(currentWeapon);
+                currentWeapon.position.set(0.15, 0.2, -0.4);
+                currentWeapon.rotation.y = 0;
+                currentWeapon.rotation.x = 0;
+                currentWeapon.rotation.z = -Math.PI / 6;
+                player.add(currentWeapon);
+            }
         } else {
             cameraMode = 'firstPerson';
             document.getElementById('crosshair').style.display = 'block';
             document.getElementById('cameraMode').textContent = 'Вид: От первого лица';
+
+            // Переносим оружие от игрока к камере
+            if (currentWeapon) {
+                player.remove(currentWeapon);
+                currentWeapon.position.set(0.3, -0.25, -0.5);
+                currentWeapon.rotation.y = -Math.PI / 12;
+                currentWeapon.rotation.x = Math.PI / 24;
+                currentWeapon.rotation.z = -Math.PI / 16;
+                camera.add(currentWeapon);
+            }
         }
     }
 
@@ -197,6 +233,24 @@ function shoot() {
     if (selectedWeapon !== 'laser' && selectedWeapon !== 'gravity') {
         ammo--;
         updateAmmoDisplay();
+    }
+
+    // Анимация отдачи оружия (только в режиме FPS)
+    if (cameraMode === 'firstPerson' && currentWeapon) {
+        const originalZ = currentWeapon.position.z;
+        const originalRotX = currentWeapon.rotation.x;
+
+        // Отдача назад и вверх
+        currentWeapon.position.z += 0.1;
+        currentWeapon.rotation.x += 0.15;
+
+        // Возвращаем обратно
+        setTimeout(() => {
+            if (currentWeapon) {
+                currentWeapon.position.z = originalZ;
+                currentWeapon.rotation.x = originalRotX;
+            }
+        }, 100);
     }
 
 
@@ -881,11 +935,16 @@ function restartGame() {
     burstCount = 0;
     cameraMode = 'firstPerson';
 
-    // Удаляем построенный дом
+    // Удаляем построенный дом и кровать
     if (playerHouse) {
         scene.remove(playerHouse);
         playerHouse = null;
     }
+    if (playerBed) {
+        scene.remove(playerBed);
+        playerBed = null;
+    }
+    hasBed = false;
 
     updateScoreDisplay();
     updateAmmoDisplay();
