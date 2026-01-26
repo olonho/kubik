@@ -71,6 +71,8 @@ function selectSkin(skin) {
 window.selectSkin = selectSkin;
 
 function init() {
+    console.log('🎮 init() начинается...');
+
     // Останавливаем старую анимацию если есть
     if (animationId) {
         cancelAnimationFrame(animationId);
@@ -82,17 +84,22 @@ function init() {
     decorations = [];
     bullets = [];
 
-    // Очищаем турели
-    turrets.forEach(turret => scene.remove(turret));
+    // Очищаем турели из старой сцены (если сцена существует)
+    if (scene) {
+        turrets.forEach(turret => scene.remove(turret));
+    }
     turrets = [];
 
-    // Очищаем питомцев
-    pets.forEach(pet => scene.remove(pet));
+    // Очищаем питомцев из старой сцены (если сцена существует)
+    if (scene) {
+        pets.forEach(pet => scene.remove(pet));
+    }
     pets = [];
 
     // Инициализируем цель взгляда камеры
     cameraLookTarget = new THREE.Vector3(0, 0.7, -10);
 
+    console.log('🌍 Создаем новую сцену...');
     scene = new THREE.Scene();
 
     // Создаем отдельную сцену для FPS рук и оружия (viewmodel)
@@ -181,7 +188,7 @@ function init() {
         // Улучшенный рендеринг
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        renderer.toneMappingExposure = 2.0; // Увеличена яркость
 
         document.body.appendChild(renderer.domElement);
 
@@ -190,12 +197,12 @@ function init() {
         const renderPass = new THREE.RenderPass(scene, camera);
         composer.addPass(renderPass);
 
-        // Bloom эффект для свечения (как в современных играх)
+        // Bloom эффект для свечения (умеренный)
         const bloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.6,  // strength (интенсивность свечения)
+            0.3,  // strength (умеренная интенсивность)
             0.4,  // radius
-            0.85  // threshold (порог яркости для свечения)
+            0.4   // threshold (низкий порог = больше объектов светится)
         );
         composer.addPass(bloomPass);
 
@@ -204,30 +211,30 @@ function init() {
         const fpsRenderPass = new THREE.RenderPass(fpsScene, camera);
         fpsComposer.addPass(fpsRenderPass);
 
-        // Еще более сильный bloom для оружия (подсветка деталей)
+        // Умеренный bloom для оружия (подсветка деталей без ослепления)
         const fpsBloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            1.2,  // сильное свечение для металла и прицелов
-            0.5,
-            0.5   // более низкий порог чтобы больше деталей светилось
+            0.5,  // умеренное свечение для металла и прицелов
+            0.4,
+            0.3   // низкий порог чтобы детали были видны
         );
         fpsComposer.addPass(fpsBloomPass);
 
         console.log('✨ Постобработка с bloom эффектом инициализирована');
     }
 
-    // Туман для атмосферы и глубины
-    scene.fog = new THREE.Fog(0x87ceeb, 10, 60);
+    // Легкий туман для атмосферы (дальний план)
+    scene.fog = new THREE.Fog(0x87ceeb, 30, 80);
 
-    // Более реалистичное освещение
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 0.5);
+    // Яркое освещение (дневное время)
+    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 1.0);
     scene.add(hemisphereLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Сильный ambient для видимости
     scene.add(ambientLight);
 
-    // Основной направленный свет с улучшенными тенями
-    const directionalLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
+    // Основной направленный свет (солнце)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0); // Яркое солнце
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
 
@@ -244,10 +251,15 @@ function init() {
 
     scene.add(directionalLight);
 
-    // Дополнительный заполняющий свет
-    const fillLight = new THREE.DirectionalLight(0xadd8e6, 0.3);
+    // Дополнительный заполняющий свет (убирает темные тени)
+    const fillLight = new THREE.DirectionalLight(0xadd8e6, 1.0);
     fillLight.position.set(-5, 5, -5);
     scene.add(fillLight);
+
+    // Дополнительный задний свет для еще большей видимости
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    backLight.position.set(0, 10, -10);
+    scene.add(backLight);
 
     // Улучшенная земля с процедурной текстурой травы (как в Far Cry)
     const groundGeometry = new THREE.PlaneGeometry(10, 100, 100, 100);
@@ -532,9 +544,16 @@ function init() {
     }
 
     // Запускаем первую волну
+    console.log('🌊 Запускаем первую волну...');
     startNewWave();
 
     // Запускаем игровой цикл
+    console.log('🎬 Запускаем игровой цикл (animate)...');
+    console.log('✅ init() завершен успешно!');
+    console.log('Scene:', scene);
+    console.log('Camera:', camera);
+    console.log('Renderer:', renderer);
+    console.log('Player:', player);
     animate();
 }
 
