@@ -106,31 +106,36 @@ function init() {
     fpsScene = new THREE.Scene();
     console.log('FPS сцена создана для viewmodel');
 
-    // Улучшенное освещение в FPS сцене (как в Chicken Gun)
-    const fpsAmbientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    // ОСВЕЩЕНИЕ FPS ОРУЖИЯ (ARC RAIDERS УРОВЕНЬ)
+    const fpsAmbientLight = new THREE.AmbientLight(0xffffff, 1.5);
     fpsScene.add(fpsAmbientLight);
 
     // Основной свет спереди (подсвечивает оружие)
-    const fpsMainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    const fpsMainLight = new THREE.DirectionalLight(0xffffff, 2.0);
     fpsMainLight.position.set(0, 0.5, 1);
     fpsScene.add(fpsMainLight);
 
-    // Боковой свет для бликов на металле
-    const fpsSideLight = new THREE.DirectionalLight(0xaaccff, 0.8);
+    // Боковой свет для бликов на металле (ярче)
+    const fpsSideLight = new THREE.DirectionalLight(0xaaccff, 1.2);
     fpsSideLight.position.set(1, 0.2, 0);
     fpsScene.add(fpsSideLight);
 
-    // Задний свет для контура (rim light)
-    const fpsRimLight = new THREE.DirectionalLight(0xffeecc, 0.6);
+    // Задний свет для контура (rim light) - ярче
+    const fpsRimLight = new THREE.DirectionalLight(0xffeecc, 0.9);
     fpsRimLight.position.set(-0.5, 0.5, -1);
     fpsScene.add(fpsRimLight);
 
-    // Точечный свет для усиления деталей
-    const fpsPointLight = new THREE.PointLight(0xffffff, 1.0, 3);
+    // Точечный свет для усиления деталей - ярче
+    const fpsPointLight = new THREE.PointLight(0xffffff, 1.5, 3);
     fpsPointLight.position.set(0, 0, 0.5);
     fpsScene.add(fpsPointLight);
 
-    console.log('Высококачественное освещение добавлено в FPS сцену');
+    // Дополнительный точечный свет снизу для отражений
+    const fpsBottomLight = new THREE.PointLight(0xaaddff, 0.8, 2);
+    fpsBottomLight.position.set(0, -0.3, 0);
+    fpsScene.add(fpsBottomLight);
+
+    console.log('💡 UE5 уровень освещения FPS оружия настроен');
 
     // Реалистичное градиентное небо (AAA качество)
     const vertexShader = `
@@ -190,36 +195,65 @@ function init() {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.shadowMap.autoUpdate = true;
 
-        // Максимальное качество рендеринга
+        // МАКСИМАЛЬНОЕ КАЧЕСТВО РЕНДЕРИНГА (ARC RAIDERS УРОВЕНЬ)
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.1; // Слегка ярче для красоты
+        renderer.toneMappingExposure = 1.3; // Яркая картинка как в UE5
         renderer.physicallyCorrectLights = true; // Физически правильное освещение
+
+        console.log('🎬 Renderer настроен на UE5 качество');
 
         document.body.appendChild(renderer.domElement);
         console.log('✅ Renderer с ультра настройками создан');
     }
 
-    // Постобработка ОТКЛЮЧЕНА для лучшей производительности и видимости
-    composer = null;
-    fpsComposer = null;
-    console.log('⚡ Постобработка отключена - используется обычный рендеринг');
+    // ПОСТОБРАБОТКА УРОВНЯ ARC RAIDERS / UNREAL ENGINE 5
+    console.log('✨ Инициализация постобработки Unreal Engine 5 уровня...');
+
+    composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // Bloom эффект (как в ARC Raiders - умеренный, без ослепления)
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        0.4,  // strength - умеренное свечение
+        0.6,  // radius - мягкое распространение
+        0.7   // threshold - только яркие объекты
+    );
+    composer.addPass(bloomPass);
+
+    // Постобработка для FPS оружия
+    fpsComposer = new THREE.EffectComposer(renderer);
+    const fpsRenderPass = new THREE.RenderPass(fpsScene, camera);
+    fpsComposer.addPass(fpsRenderPass);
+
+    // Bloom для оружия (ярче для металлических деталей)
+    const fpsBloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        0.6,  // средняя интенсивность
+        0.5,  // radius
+        0.6   // threshold - металл и прицелы светятся
+    );
+    fpsComposer.addPass(fpsBloomPass);
+
+    console.log('✨ Постобработка UE5 уровня инициализирована');
 
     // Атмосферный туман (дальний план)
     scene.fog = new THREE.FogExp2(0xb8d4f0, 0.015);
 
-    // Реалистичное многослойное освещение (AAA стандарт)
+    // МНОГОСЛОЙНОЕ ОСВЕЩЕНИЕ (ARC RAIDERS / UE5 УРОВЕНЬ)
 
-    // 1. Hemisphere Light - имитация неба и отражения от земли
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x4a7c59, 1.0);
+    // 1. Hemisphere Light - имитация неба и отражения от земли (ярче)
+    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x4a7c59, 1.3);
     scene.add(hemisphereLight);
 
-    // 2. Ambient Light - базовое освещение сцены
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // 2. Ambient Light - базовое освещение сцены (ярче)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    // 3. Главное солнце (key light) - яркое направленное освещение
-    const sunLight = new THREE.DirectionalLight(0xfff5e1, 1.5);
+    // 3. Главное солнце (key light) - очень яркое направленное освещение
+    const sunLight = new THREE.DirectionalLight(0xfff5e1, 2.0);
     sunLight.position.set(30, 40, 20);
     sunLight.castShadow = true;
 
@@ -237,22 +271,27 @@ function init() {
 
     scene.add(sunLight);
 
-    // 4. Fill Light - заполняющий свет для мягких теней
-    const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.6);
+    // 4. Fill Light - заполняющий свет для мягких теней (ярче)
+    const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.9);
     fillLight.position.set(-10, 15, -10);
     scene.add(fillLight);
 
-    // 5. Rim Light - контурный свет для объема
-    const rimLight = new THREE.DirectionalLight(0xffd7a3, 0.4);
+    // 5. Rim Light - контурный свет для объема (ярче)
+    const rimLight = new THREE.DirectionalLight(0xffd7a3, 0.7);
     rimLight.position.set(-5, 10, 15);
     scene.add(rimLight);
 
-    // 6. Sky Light - дополнительный свет сверху
-    const skyLight = new THREE.DirectionalLight(0xd4e6f1, 0.3);
+    // 6. Sky Light - дополнительный свет сверху (ярче)
+    const skyLight = new THREE.DirectionalLight(0xd4e6f1, 0.5);
     skyLight.position.set(0, 30, 0);
     scene.add(skyLight);
 
-    console.log('💡 Многослойное AAA освещение настроено');
+    // 7. Дополнительный контровой свет (как в UE5)
+    const backLight = new THREE.DirectionalLight(0xffe4b5, 0.6);
+    backLight.position.set(0, 20, -15);
+    scene.add(backLight);
+
+    console.log('💡 Многослойное освещение UE5 уровня настроено (7 источников)');
 
     // Ультра реалистичная земля с процедурной текстурой
     const groundGeometry = new THREE.PlaneGeometry(10, 100, 200, 200);

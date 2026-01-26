@@ -723,7 +723,84 @@ function updateObstacles() {
     // Двигаем и обрабатываем зомби
     for (let i = obstacles.length - 1; i >= 0; i--) {
         const obstacleGroup = obstacles[i];
-        obstacleGroup.position.z += obstacleSpeed;
+
+        // ФИНАЛЬНЫЙ БОСС - особое поведение: идёт к игроку и атакует
+        if (obstacleGroup.userData.isFinalBoss) {
+            // Направление к игроку
+            const dx = player.position.x - obstacleGroup.position.x;
+            const dz = player.position.z - obstacleGroup.position.z;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+
+            // Поворачивается лицом к игроку
+            const targetAngle = Math.atan2(dx, dz);
+            obstacleGroup.rotation.y = targetAngle;
+
+            // Если дальше 5 метров - идет к игроку
+            if (distance > 5) {
+                const bossSpeed = 0.08; // Медленнее чем rush, но быстрее обычных зомби
+                obstacleGroup.position.x += (dx / distance) * bossSpeed;
+                obstacleGroup.position.z += (dz / distance) * bossSpeed;
+            } else {
+                // На расстоянии 5 метров - атакует!
+                // Инициализируем таймер атаки если его нет
+                if (!obstacleGroup.userData.attackCooldown) {
+                    obstacleGroup.userData.attackCooldown = 0;
+                }
+
+                obstacleGroup.userData.attackCooldown--;
+
+                // Атакует каждые 2 секунды (120 кадров при 60 FPS)
+                if (obstacleGroup.userData.attackCooldown <= 0) {
+                    obstacleGroup.userData.attackCooldown = 120;
+
+                    // Наносим урон игроку
+                    lives--;
+                    updateScoreDisplay();
+
+                    // Эффект атаки босса - красная вспышка
+                    scene.background = new THREE.Color(0xFF0000);
+                    setTimeout(() => {
+                        scene.background = new THREE.Color(0x87ceeb);
+                    }, 200);
+
+                    // Уведомление об атаке
+                    const attackNotif = document.createElement('div');
+                    attackNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 0, 0, 0.9); color: white; padding: 30px 50px; border-radius: 15px; font-size: 32px; font-weight: bold; z-index: 999; border: 3px solid #8B0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);';
+                    attackNotif.innerHTML = '💀 БОСС АТАКУЕТ! -1 ❤️';
+                    document.body.appendChild(attackNotif);
+                    setTimeout(() => {
+                        if (document.body.contains(attackNotif)) {
+                            document.body.removeChild(attackNotif);
+                        }
+                    }, 1000);
+
+                    // Анимация удара руками
+                    if (obstacleGroup.userData.leftArm && obstacleGroup.userData.rightArm) {
+                        obstacleGroup.userData.leftArm.rotation.x = Math.PI / 3;
+                        obstacleGroup.userData.rightArm.rotation.x = Math.PI / 3;
+                        setTimeout(() => {
+                            obstacleGroup.userData.leftArm.rotation.x = -Math.PI / 4;
+                            obstacleGroup.userData.rightArm.rotation.x = -Math.PI / 4;
+                        }, 200);
+                    }
+
+                    // Проверка на game over
+                    if (lives <= 0) {
+                        gameOver();
+                    }
+                }
+
+                // Анимация угрожающих взмахов руками
+                if (obstacleGroup.userData.leftArm && obstacleGroup.userData.rightArm) {
+                    const armWave = Math.sin(Date.now() * 0.005) * 0.3;
+                    obstacleGroup.userData.leftArm.rotation.x = -Math.PI / 4 + armWave;
+                    obstacleGroup.userData.rightArm.rotation.x = -Math.PI / 4 - armWave;
+                }
+            }
+        } else {
+            // Обычные зомби двигаются просто вперед
+            obstacleGroup.position.z += obstacleSpeed;
+        }
 
         // Анимация ног зомби
         const leftLeg = obstacleGroup.userData.leftLeg;
@@ -1526,14 +1603,24 @@ function animate() {
     }
 
     if (renderer && scene && camera) {
-        // Рендерим основную сцену БЕЗ постобработки (обычный рендеринг)
-        renderer.render(scene, camera);
+        // Рендерим основную сцену с постобработкой (ARC Raiders уровень)
+        if (composer) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
 
         // Рендерим FPS сцену (руки и оружие) поверх основной
         if (fpsScene && cameraMode === 'firstPerson') {
             renderer.autoClear = false; // Не очищаем canvas
             renderer.clearDepth(); // Очищаем только depth buffer
-            renderer.render(fpsScene, camera);
+
+            if (fpsComposer) {
+                fpsComposer.render();
+            } else {
+                renderer.render(fpsScene, camera);
+            }
+
             renderer.autoClear = true; // Восстанавливаем
         }
     }

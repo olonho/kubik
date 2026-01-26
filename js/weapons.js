@@ -3,25 +3,30 @@
 function createPistol() {
     const pistolGroup = new THREE.Group();
 
-    // Ультра реалистичные материалы оружия (AAA качество)
+    // МАТЕРИАЛЫ УРОВНЯ ARC RAIDERS / UNREAL ENGINE 5
     const metalMaterial = new THREE.MeshStandardMaterial({
-        color: 0x333333,
-        roughness: 0.25,
-        metalness: 0.95,
-        envMapIntensity: 1.5
+        color: 0x404040,
+        roughness: 0.2,
+        metalness: 1.0,
+        envMapIntensity: 2.0,
+        emissive: 0x0A0A0A,
+        emissiveIntensity: 0.05
     });
 
     const darkMetalMaterial = new THREE.MeshStandardMaterial({
-        color: 0x1A1A1A,
-        roughness: 0.35,
-        metalness: 0.9,
-        envMapIntensity: 1.3
+        color: 0x2A2A2A,
+        roughness: 0.25,
+        metalness: 0.95,
+        envMapIntensity: 1.8,
+        emissive: 0x050505,
+        emissiveIntensity: 0.08
     });
 
     const gripMaterial = new THREE.MeshStandardMaterial({
-        color: 0x2C1810,
-        roughness: 0.98,
-        metalness: 0.02
+        color: 0x1A0F08,
+        roughness: 0.95,
+        metalness: 0.0,
+        normalScale: new THREE.Vector2(0.5, 0.5)
     });
 
     // Рукоятка с текстурой
@@ -98,23 +103,34 @@ function createPistol() {
     ejector.position.set(0.25, 0.04, 0.05);
     pistolGroup.add(ejector);
 
-    // Мушка светящаяся (реалистичная как в Far Cry 3)
+    // МУШКА УРОВНЯ ARC RAIDERS (яркая, высокотехнологичная)
     const frontSightGeometry = new THREE.BoxGeometry(0.02, 0.04, 0.02);
     const frontSightMaterial = new THREE.MeshStandardMaterial({
-        color: 0x00FF00,
-        emissive: 0x00FF00,
-        emissiveIntensity: 0.8,
-        metalness: 0.3,
-        roughness: 0.5
+        color: 0x00FF88,
+        emissive: 0x00FF88,
+        emissiveIntensity: 1.5,  // Очень яркая
+        metalness: 0.8,
+        roughness: 0.2
     });
     const frontSight = new THREE.Mesh(frontSightGeometry, frontSightMaterial);
     frontSight.position.set(0.35, 0.06, 0);
     pistolGroup.add(frontSight);
 
-    // Легкая подсветка на мушке
-    const sightLight = new THREE.PointLight(0x00FF00, 0.5, 1);
+    // Яркий PointLight на мушке (как в современных играх)
+    const sightLight = new THREE.PointLight(0x00FF88, 1.2, 2);
     sightLight.position.set(0.35, 0.06, 0);
     pistolGroup.add(sightLight);
+
+    // Дополнительное свечение вокруг мушки (halo эффект)
+    const sightHaloGeometry = new THREE.SphereGeometry(0.015, 16, 16);
+    const sightHaloMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00FF88,
+        transparent: true,
+        opacity: 0.4
+    });
+    const sightHalo = new THREE.Mesh(sightHaloGeometry, sightHaloMaterial);
+    sightHalo.position.set(0.35, 0.06, 0);
+    pistolGroup.add(sightHalo);
 
     // Целик
     const rearSightGeometry = new THREE.BoxGeometry(0.035, 0.045, 0.035);
