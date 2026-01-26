@@ -46,7 +46,7 @@ var bulletSpeed = 0.5;
 var jumpPower = 0.3;
 var cameraLookTarget;
 var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
-var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle'];
+var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle', 'ak47'];
 var turrets = [];
 var hasTurret = false;
 var hasFireTurret = false;
