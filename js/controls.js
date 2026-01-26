@@ -203,97 +203,98 @@ window.addEventListener('load', () => {
 window.addEventListener('resize', onWindowResize);
 document.addEventListener('keydown', (e) => keys[e.code] = true);
 document.addEventListener('keyup', (e) => keys[e.code] = false);
-document.getElementById('restart').addEventListener('click', restartGame);
-document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
-document.getElementById('openShopBtn').addEventListener('click', () => {
-    gameActive = false;
-    document.getElementById('shopMenu').style.display = 'block';
-    document.getElementById('score').style.display = 'none';
-    document.getElementById('instructions').style.display = 'none';
-    document.getElementById('weaponDisplay').style.display = 'none';
-    document.getElementById('ammoDisplay').style.display = 'none';
-    document.getElementById('cameraMode').style.display = 'none';
-    document.getElementById('coinsDisplay').style.display = 'none';
-    document.getElementById('crosshair').style.display = 'none';
-    document.getElementById('openShopBtn').style.display = 'none';
-    document.getElementById('openItemsShopBtn').style.display = 'none';
-});
 
-document.getElementById('openItemsShopBtn').addEventListener('click', () => {
-    openShop(false);
-});
-document.getElementById('closeShopBtn').addEventListener('click', closeShop);
-document.getElementById('buyAmmoBtn').addEventListener('click', () => buyAmmo(40, 50));
-document.getElementById('buyAmmoBigBtn').addEventListener('click', () => buyAmmo(100, 100));
-
-// Event listeners для покупки оружия
-document.querySelectorAll('.buyWeaponBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const weaponType = e.target.getAttribute('data-weapon');
-        const price = parseInt(e.target.getAttribute('data-price'));
-        buyWeapon(weaponType, price);
+// Инициализируем event listeners после загрузки DOM
+window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('restart').addEventListener('click', restartGame);
+    document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
+    document.getElementById('openShopBtn').addEventListener('click', () => {
+        gameActive = false;
+        document.getElementById('shopMenu').style.display = 'block';
+        document.getElementById('score').style.display = 'none';
+        document.getElementById('instructions').style.display = 'none';
+        document.getElementById('weaponDisplay').style.display = 'none';
+        document.getElementById('ammoDisplay').style.display = 'none';
+        document.getElementById('cameraMode').style.display = 'none';
+        document.getElementById('coinsDisplay').style.display = 'none';
+        document.getElementById('crosshair').style.display = 'none';
+        document.getElementById('openShopBtn').style.display = 'none';
+        document.getElementById('openItemsShopBtn').style.display = 'none';
+    });
+    
+    document.getElementById('openItemsShopBtn').addEventListener('click', () => {
+        openShop(false);
+    });
+    document.getElementById('closeShopBtn').addEventListener('click', closeShop);
+    document.getElementById('buyAmmoBtn').addEventListener('click', () => buyAmmo(40, 50));
+    document.getElementById('buyAmmoBigBtn').addEventListener('click', () => buyAmmo(100, 100));
+    
+    // Event listeners для покупки оружия
+    document.querySelectorAll('.buyWeaponBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const weaponType = e.target.getAttribute('data-weapon');
+            const price = parseInt(e.target.getAttribute('data-price'));
+            buyWeapon(weaponType, price);
+        });
+    });
+    // document.getElementById('closeShop').addEventListener('click', () => {
+    //     closeShop();
+    //     gameActive = true;
+    // });
+    document.getElementById('closeShopBtn').addEventListener('click', () => {
+        closeShop();
+        gameActive = true;
+    });
+    document.getElementById('exitShopBtn').addEventListener('click', () => {
+        document.getElementById('itemsShopMenu').style.display = 'none';
+        returnToSkinMenu();
+    });
+    
+    document.getElementById('continueBtn').addEventListener('click', () => {
+        document.getElementById('itemsShopMenu').style.display = 'none';
+        document.getElementById('score').style.display = 'block';
+        document.getElementById('instructions').style.display = 'block';
+        document.getElementById('weaponDisplay').style.display = 'block';
+        document.getElementById('ammoDisplay').style.display = 'block';
+        document.getElementById('cameraMode').style.display = 'block';
+        document.getElementById('coinsDisplay').style.display = 'block';
+        if (cameraMode === 'firstPerson') {
+            document.getElementById('crosshair').style.display = 'block';
+        }
+        gameActive = true;
+    });
+    
+    document.getElementById('exitShopBtn').addEventListener('click', () => {
+        document.getElementById('itemsShopMenu').style.display = 'none';
+        returnToSkinMenu();
+    });
+    
+    // Обработчики для магазина оружия
+    document.getElementById('openWeaponsShopBtn').addEventListener('click', () => {
+        openWeaponsShop();
+    });
+    
+    document.getElementById('continueWeaponsShopBtn').addEventListener('click', () => {
+        document.getElementById('weaponsShopMenu').style.display = 'none';
+        document.getElementById('score').style.display = 'block';
+        document.getElementById('instructions').style.display = 'block';
+        document.getElementById('weaponDisplay').style.display = 'block';
+        document.getElementById('ammoDisplay').style.display = 'block';
+        document.getElementById('cameraMode').style.display = 'block';
+        document.getElementById('coinsDisplay').style.display = 'block';
+        if (cameraMode === 'firstPerson') {
+            document.getElementById('crosshair').style.display = 'block';
+        }
+        gameActive = true;
+    });
+    
+        document.getElementById('exitWeaponsShopBtn').addEventListener('click', () => {
+            document.getElementById('weaponsShopMenu').style.display = 'none';
+        returnToSkinMenu();
     });
 });
-// document.getElementById('closeShop').addEventListener('click', () => {
-//     closeShop();
-//     gameActive = true;
-// });
-document.getElementById('closeShopBtn').addEventListener('click', () => {
-    closeShop();
-    gameActive = true;
-});
-document.getElementById('exitShopBtn').addEventListener('click', () => {
-    document.getElementById('itemsShopMenu').style.display = 'none';
-    returnToSkinMenu();
-});
 
-document.getElementById('continueBtn').addEventListener('click', () => {
-    document.getElementById('itemsShopMenu').style.display = 'none';
-    document.getElementById('score').style.display = 'block';
-    document.getElementById('instructions').style.display = 'block';
-    document.getElementById('weaponDisplay').style.display = 'block';
-    document.getElementById('ammoDisplay').style.display = 'block';
-    document.getElementById('cameraMode').style.display = 'block';
-    document.getElementById('coinsDisplay').style.display = 'block';
-    if (cameraMode === 'firstPerson') {
-        document.getElementById('crosshair').style.display = 'block';
-    }
-    gameActive = true;
-});
-
-document.getElementById('exitShopBtn').addEventListener('click', () => {
-    document.getElementById('itemsShopMenu').style.display = 'none';
-    returnToSkinMenu();
-});
-
-// Обработчики для магазина оружия
-document.getElementById('openWeaponsShopBtn').addEventListener('click', () => {
-    openWeaponsShop();
-});
-
-document.getElementById('continueWeaponsShopBtn').addEventListener('click', () => {
-    document.getElementById('weaponsShopMenu').style.display = 'none';
-    document.getElementById('score').style.display = 'block';
-    document.getElementById('instructions').style.display = 'block';
-    document.getElementById('weaponDisplay').style.display = 'block';
-    document.getElementById('ammoDisplay').style.display = 'block';
-    document.getElementById('cameraMode').style.display = 'block';
-    document.getElementById('coinsDisplay').style.display = 'block';
-    if (cameraMode === 'firstPerson') {
-        document.getElementById('crosshair').style.display = 'block';
-    }
-    gameActive = true;
-});
-
-document.getElementById('exitWeaponsShopBtn').addEventListener('click', () => {
-    document.getElementById('weaponsShopMenu').style.display = 'none';
-    returnToSkinMenu();
-});
-
-// Делаем функцию selectSkin глобальной для onclick
-window.selectSkin = selectSkin;
-
-// init() будет вызван после выбора скина
+// init() будет вызван после выбора скина (определён в init.js)
 
 // Подключение геймпада
 window.addEventListener('gamepadconnected', (e) => {
