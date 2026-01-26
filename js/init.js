@@ -71,7 +71,7 @@ function init() {
     const skyColor = new THREE.Color(0x87ceeb);
     scene.background = skyColor;
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
     // Вид от первого лица - камера на уровне глаз персонажа
     camera.position.set(0, 1.2, 0);
     camera.lookAt(0, 0, 0);
@@ -351,6 +351,9 @@ function init() {
         currentWeapon.rotation.z = 0;
         currentWeapon.scale.set(1.2, 1.2, 1.2);
         fpsHands.add(currentWeapon);
+        console.log('Оружие добавлено к рукам. Руки имеют', fpsHands.children.length, 'детей');
+        console.log('Позиция рук относительно камеры:', fpsHands.position);
+        console.log('Позиция оружия относительно рук:', currentWeapon.position);
     } else {
         // Вид от третьего лица - оружие к игроку
         currentWeapon.position.set(0.15, 0.2, -0.4);

@@ -96,6 +96,13 @@ function createFPSHands() {
     rightSleeve.rotation.z = Math.PI / 12;
     handsGroup.add(rightSleeve);
 
+    console.log('FPS руки созданы. Всего элементов:', handsGroup.children.length);
+    console.log('Руки включают:', handsGroup.children.map(c => c.type).join(', '));
+
+    // Временно: увеличиваем руки и двигаем ближе для теста видимости
+    handsGroup.scale.set(2, 2, 2);
+    handsGroup.position.set(0, -0.3, -0.5);
+
     return handsGroup;
 }
 

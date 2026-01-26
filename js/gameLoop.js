@@ -218,6 +218,24 @@ function updatePlayer() {
         }
     }
 
+    // Переключение ручного/автоматического управления камерой на клавишу C
+    if (keys['KeyC']) {
+        keys['KeyC'] = false; // Чтобы не переключалось постоянно
+        manualCameraControl = !manualCameraControl;
+
+        // Показываем уведомление
+        const notification = document.createElement('div');
+        notification.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; z-index: 999; border: 2px solid #667eea;';
+        notification.textContent = manualCameraControl ? '🖱️ Ручное управление камерой' : '🎯 Автоприцеливание включено';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 2000);
+    }
+
 
     // Открытие магазина на клавишу B
     if (keys['KeyB']) {
