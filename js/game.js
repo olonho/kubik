@@ -41,6 +41,7 @@ var isBurstFiring = false;
 var burstCount = 0;
 var burstMax = 3;
 var cameraMode = 'firstPerson';
+var lastPlayerDirection = -Math.PI / 2; // Последнее направление персонажа (по умолчанию вперед)
 var obstacleSpeed = 0.015;
 var spawnRate = 0.03;
 var gravity = -0.015;
@@ -305,7 +306,17 @@ function enterHouseInterior() {
     scene.background = new THREE.Color(0x4a3f35);
     scene.fog = new THREE.Fog(0x4a3f35, 5, 15);
 
-    // Сохраняем прогресс
+    // Восстанавливаем HP и патроны
+    lives = Math.min(lives + 1, 5);
+    ammo = maxAmmo;
+    updateScoreDisplay();
+    updateAmmoDisplay();
+
+    showNotification('🏠 Вы вошли в дом! Нажмите E чтобы выйти | Cmd для сохранения в кровати', 'success');
+}
+
+// Функция сохранения игры
+function saveGame() {
     localStorage.setItem('cubeGameCoins', coins);
     localStorage.setItem('cubeGameWood', wood);
     localStorage.setItem('cubeGameWave', wave);
@@ -314,13 +325,22 @@ function enterHouseInterior() {
     localStorage.setItem('cubeGameMaxWave', maxWaveReached);
     localStorage.setItem('cubeGameAmmo', ammo);
 
-    // Восстанавливаем HP и патроны
-    lives = Math.min(lives + 1, 5);
-    ammo = maxAmmo;
-    updateScoreDisplay();
-    updateAmmoDisplay();
+    console.log('💾 Игра сохранена!');
+    showNotification('💾 Игра сохранена!', 'success');
+}
 
-    showNotification('🏠 Вы вошли в дом! Нажмите E чтобы выйти', 'success');
+// Проверка близости к кровати
+function checkBedProximity() {
+    if (!isInsideHouse || !playerBed || !hasBed) return false;
+
+    // Получаем мировую позицию кровати
+    const bedPos = new THREE.Vector3();
+    playerBed.getWorldPosition(bedPos);
+
+    // Проверяем расстояние до кровати
+    const distance = player.position.distanceTo(bedPos);
+
+    return distance < 1.5; // Близко к кровати
 }
 
 function exitHouseInterior() {

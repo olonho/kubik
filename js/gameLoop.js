@@ -93,10 +93,8 @@ function updatePlayer() {
                 player.position.x = newX;
             }
         }
-        // В режиме от третьего лица поворачиваем персонажа
-        if (cameraMode === 'thirdPerson') {
-            player.rotation.y = -Math.PI; // Поворот влево
-        }
+        // Запоминаем направление
+        lastPlayerDirection = -Math.PI; // Влево
     }
     if (keys['ArrowRight']) {
         const newX = player.position.x + playerSpeed;
@@ -109,14 +107,8 @@ function updatePlayer() {
                 player.position.x = newX;
             }
         }
-        // В режиме от третьего лица поворачиваем персонажа
-        if (cameraMode === 'thirdPerson') {
-            player.rotation.y = 0; // Поворот вправо
-        }
-    }
-    // Возврат в нейтральное положение в режиме третьего лица
-    if (cameraMode === 'thirdPerson' && !keys['ArrowLeft'] && !keys['ArrowRight'] && !keys['ArrowUp'] && !keys['ArrowDown']) {
-        player.rotation.y = -Math.PI / 2; // Смотрит вперед
+        // Запоминаем направление
+        lastPlayerDirection = 0; // Вправо
     }
 
     // Движение вперёд-назад (в пределах базы)
@@ -131,10 +123,8 @@ function updatePlayer() {
                 player.position.z = newZ;
             }
         }
-        // В режиме от третьего лица поворачиваем персонажа
-        if (cameraMode === 'thirdPerson') {
-            player.rotation.y = -Math.PI / 2; // Смотрит вперед
-        }
+        // Запоминаем направление
+        lastPlayerDirection = -Math.PI / 2; // Вперед
     }
     if (keys['ArrowDown']) {
         const newZ = player.position.z + playerSpeed;
@@ -147,10 +137,13 @@ function updatePlayer() {
                 player.position.z = newZ;
             }
         }
-        // В режиме от третьего лица поворачиваем персонажа
-        if (cameraMode === 'thirdPerson') {
-            player.rotation.y = Math.PI / 2; // Смотрит назад
-        }
+        // Запоминаем направление
+        lastPlayerDirection = Math.PI / 2; // Назад
+    }
+
+    // Применяем сохраненное направление к персонажу в режиме третьего лица
+    if (cameraMode === 'thirdPerson') {
+        player.rotation.y = lastPlayerDirection;
     }
 
     // Прыжок на пробел
@@ -276,6 +269,32 @@ function updatePlayer() {
         }, 2000);
     }
 
+    // Сохранение игры на клавишу Command (Meta) - лечь в кровать
+    if (keys['MetaLeft'] || keys['MetaRight']) {
+        keys['MetaLeft'] = false;
+        keys['MetaRight'] = false;
+
+        // Проверяем, внутри ли игрок дома и рядом ли с кроватью
+        if (isInsideHouse && checkBedProximity()) {
+            saveGame();
+
+            // Анимация "лечь в кровать" - небольшой эффект
+            const sleepNotification = document.createElement('div');
+            sleepNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 1000; border: 4px solid #FFD700;';
+            sleepNotification.innerHTML = '😴 Сон...<br><span style="font-size: 20px;">Игра сохранена!</span>';
+            document.body.appendChild(sleepNotification);
+
+            setTimeout(() => {
+                if (sleepNotification.parentNode) {
+                    document.body.removeChild(sleepNotification);
+                }
+            }, 2000);
+        } else if (isInsideHouse && !checkBedProximity()) {
+            showNotification('🛏️ Подойдите ближе к кровати!', 'error');
+        } else {
+            showNotification('🏠 Сохранение доступно только в доме у кровати!', 'error');
+        }
+    }
 
     // Открытие магазина на клавишу B
     if (keys['KeyB']) {
@@ -1355,6 +1374,9 @@ function turretShoot(turret, targetPos) {
     bullets.push(bullet);
 }
 
+// Переменная для хранения индикатора кровати
+let bedIndicator = null;
+
 function animate() {
     animationId = requestAnimationFrame(animate);
     if (gameActive) {
@@ -1365,6 +1387,23 @@ function animate() {
         updatePets();
         updateCamera();
         checkHouseProximity(); // Проверяем близость к дому
+
+        // Проверяем близость к кровати и показываем подсказку
+        if (isInsideHouse && hasBed && checkBedProximity()) {
+            // Показываем индикатор если его нет
+            if (!bedIndicator) {
+                bedIndicator = document.createElement('div');
+                bedIndicator.style.cssText = 'position: fixed; top: 200px; left: 50%; transform: translateX(-50%); background: rgba(255, 215, 0, 0.9); color: black; padding: 20px 40px; border-radius: 15px; font-size: 24px; font-weight: bold; z-index: 999; border: 3px solid #FFD700; animation: pulse 2s infinite;';
+                bedIndicator.innerHTML = '🛏️ Нажмите <kbd style="background: #333; color: white; padding: 5px 10px; border-radius: 5px;">⌘ Command</kbd> чтобы лечь в кровать и сохранить игру';
+                document.body.appendChild(bedIndicator);
+            }
+        } else {
+            // Убираем индикатор если далеко от кровати
+            if (bedIndicator && bedIndicator.parentNode) {
+                document.body.removeChild(bedIndicator);
+                bedIndicator = null;
+            }
+        }
 
         // Обновляем позицию FPS рук чтобы они следовали за камерой
         if (fpsHands && cameraMode === 'firstPerson') {

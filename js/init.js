@@ -10,17 +10,23 @@ function selectSkin(skin) {
     console.log('cameraMode:', cameraMode);
     selectedSkin = skin;
 
-    // Сбрасываем параметры игры
-    score = 0;
+    // Загружаем сохранённые параметры игры или используем дефолтные
+    score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
+    wave = parseInt(localStorage.getItem('cubeGameWave')) || 1;
+    lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
+    ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
+    coins = parseInt(localStorage.getItem('cubeGameCoins')) || 50000;
+    wood = parseInt(localStorage.getItem('cubeGameWood')) || 0;
+
     level = 1;
-    lives = 3;
-    ammo = maxAmmo;
     obstacleSpeed = 0.015; // Медленная скорость зомби
     spawnRate = 0.03; // Много зомби
     playerVelocityY = 0;
     isJumping = false;
     gameActive = true;
     cameraMode = 'firstPerson'; // Начинаем с вида от первого лица
+
+    console.log('📂 Загружены данные: score=', score, 'wave=', wave, 'lives=', lives, 'coins=', coins, 'wood=', wood);
 
     document.getElementById('skinMenu').style.display = 'none';
     document.getElementById('score').style.display = 'block';
@@ -337,7 +343,8 @@ function init() {
     }
 
     player.position.set(0, 0.5, 0);
-    player.rotation.y = -Math.PI / 2; // Смотрит налево (на кубики)
+    player.rotation.y = -Math.PI / 2; // Смотрит вперед
+    lastPlayerDirection = -Math.PI / 2; // Инициализируем направление
     player.castShadow = true;
     scene.add(player);
 
