@@ -372,6 +372,7 @@ function updateWeaponsShopDisplay() {
 }
 
 function buyWeaponFromShop(item) {
+    console.log('Покупка оружия:', item.name, 'Цена:', item.price, 'Монеты:', coins);
     if (coins >= item.price) {
         coins -= item.price;
         ownedWeapons.push(item.id);
@@ -379,6 +380,7 @@ function buyWeaponFromShop(item) {
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
         localStorage.setItem('cubeGameCoins', coins);
+        alert('✅ Куплено: ' + item.name + '!\nИспользуйте клавишу ' + item.description.split('|')[0].trim() + ' для выбора.');
     } else {
         alert('Недостаточно монет! Нужно: ' + item.price + ', у вас: ' + coins);
     }
@@ -386,8 +388,12 @@ function buyWeaponFromShop(item) {
 
 function buyTurretFromShop(type) {
     const turret = shopItems.turrets.find(t => t.id === type);
-    if (!turret) return;
+    if (!turret) {
+        console.error('Турель не найдена:', type);
+        return;
+    }
 
+    console.log('Покупка турели:', turret.name, 'Цена:', turret.price, 'Монеты:', coins);
     if (coins >= turret.price) {
         coins -= turret.price;
 
@@ -513,6 +519,7 @@ function buyTurretFromShop(type) {
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
         localStorage.setItem('cubeGameCoins', coins);
+        alert('✅ Куплена турель: ' + turret.name + '!\nТурель установлена на поле боя.');
     } else {
         alert('Недостаточно монет! Нужно: ' + turret.price + ', у вас: ' + coins);
     }

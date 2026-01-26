@@ -207,37 +207,10 @@ function init() {
         console.log('✅ Renderer с ультра настройками создан');
     }
 
-    // ПОСТОБРАБОТКА УРОВНЯ ARC RAIDERS / UNREAL ENGINE 5
-    console.log('✨ Инициализация постобработки Unreal Engine 5 уровня...');
-
-    composer = new THREE.EffectComposer(renderer);
-    const renderPass = new THREE.RenderPass(scene, camera);
-    composer.addPass(renderPass);
-
-    // Bloom эффект (как в ARC Raiders - умеренный, без ослепления)
-    const bloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.4,  // strength - умеренное свечение
-        0.6,  // radius - мягкое распространение
-        0.7   // threshold - только яркие объекты
-    );
-    composer.addPass(bloomPass);
-
-    // Постобработка для FPS оружия
-    fpsComposer = new THREE.EffectComposer(renderer);
-    const fpsRenderPass = new THREE.RenderPass(fpsScene, camera);
-    fpsComposer.addPass(fpsRenderPass);
-
-    // Bloom для оружия (ярче для металлических деталей)
-    const fpsBloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.6,  // средняя интенсивность
-        0.5,  // radius
-        0.6   // threshold - металл и прицелы светятся
-    );
-    fpsComposer.addPass(fpsBloomPass);
-
-    console.log('✨ Постобработка UE5 уровня инициализирована');
+    // Постобработка ОТКЛЮЧЕНА (вызывает черный экран)
+    composer = null;
+    fpsComposer = null;
+    console.log('⚡ Постобработка отключена - используется обычный рендеринг');
 
     // Атмосферный туман (дальний план)
     scene.fog = new THREE.FogExp2(0xb8d4f0, 0.015);

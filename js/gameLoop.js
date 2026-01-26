@@ -833,15 +833,15 @@ function updateObstacles() {
                 obstacleGroup.userData.hpBar.material.color.setHex(0xff0000);
             }
 
-            // ФИНАЛЬНЫЙ БОСС - при низком HP бросается на игрока
+            // ФИНАЛЬНЫЙ БОСС - при низком HP (5%) бросается на игрока для трагичной катсцены
             if (obstacleGroup.userData.isFinalBoss) {
-                if (hpRatio < 0.1 && !obstacleGroup.userData.canBite) {
+                if (hpRatio < 0.05 && !obstacleGroup.userData.canBite) {
                     obstacleGroup.userData.canBite = true;
 
-                    // Уведомление об ярости босса
+                    // Уведомление о финальном броске босса
                     const rageNotification = document.createElement('div');
                     rageNotification.style.cssText = 'position: fixed; top: 150px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #8B0000 0%, #FF0000 100%); color: white; padding: 30px 60px; border-radius: 20px; font-size: 36px; font-weight: bold; z-index: 1000; border: 5px solid gold; box-shadow: 0 0 50px rgba(255, 0, 0, 1);';
-                    rageNotification.innerHTML = '⚠️ БОСС В ЯРОСТИ! ⚠️<br><span style="font-size: 24px;">ОН БРОСАЕТСЯ НА ВАС!</span>';
+                    rageNotification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БРОСОК БОССА! ⚠️<br><span style="font-size: 24px;">ОН ПЫТАЕТСЯ ВАС УКУСИТЬ!</span>';
                     document.body.appendChild(rageNotification);
 
                     setTimeout(() => {
@@ -851,15 +851,15 @@ function updateObstacles() {
                     }, 3000);
                 }
 
-                // Когда босс может кусать, он бежит к игроку
+                // Когда HP совсем низкий, босс делает отчаянный рывок к игроку для катсцены
                 if (obstacleGroup.userData.canBite && !obstacleGroup.userData.biteTriggered) {
                     // Направление к игроку
                     const dx = player.position.x - obstacleGroup.position.x;
                     const dz = player.position.z - obstacleGroup.position.z;
                     const distance = Math.sqrt(dx * dx + dz * dz);
 
-                    // Бежит быстро к игроку
-                    const rushSpeed = 0.3;
+                    // Бежит очень быстро к игроку
+                    const rushSpeed = 0.4;
                     obstacleGroup.position.x += (dx / distance) * rushSpeed;
                     obstacleGroup.position.z += (dz / distance) * rushSpeed;
 
@@ -874,7 +874,7 @@ function updateObstacles() {
                         obstacleGroup.userData.rightArm.rotation.x = -Math.PI / 4 + armSwing;
                     }
 
-                    // Если босс близко к игроку - кусает!
+                    // Если босс близко к игроку - кусает и запускает трагичную катсцену!
                     if (distance < 2) {
                         obstacleGroup.userData.biteTriggered = true;
                         bossBitePlayer();
@@ -883,8 +883,8 @@ function updateObstacles() {
             }
         }
 
-        // Зомби дошёл до игрока - потеря жизни
-        if (obstacleGroup.position.z > 10) {
+        // Зомби дошёл до игрока - потеря жизни (НЕ для финального босса)
+        if (!obstacleGroup.userData.isFinalBoss && obstacleGroup.position.z > 10) {
             scene.remove(obstacleGroup);
             obstacles.splice(i, 1);
             loseLife();
@@ -1603,23 +1603,14 @@ function animate() {
     }
 
     if (renderer && scene && camera) {
-        // Рендерим основную сцену с постобработкой (ARC Raiders уровень)
-        if (composer) {
-            composer.render();
-        } else {
-            renderer.render(scene, camera);
-        }
+        // Рендерим основную сцену БЕЗ постобработки (обычный рендеринг)
+        renderer.render(scene, camera);
 
         // Рендерим FPS сцену (руки и оружие) поверх основной
         if (fpsScene && cameraMode === 'firstPerson') {
             renderer.autoClear = false; // Не очищаем canvas
             renderer.clearDepth(); // Очищаем только depth buffer
-
-            if (fpsComposer) {
-                fpsComposer.render();
-            } else {
-                renderer.render(fpsScene, camera);
-            }
+            renderer.render(fpsScene, camera);
 
             renderer.autoClear = true; // Восстанавливаем
         }
