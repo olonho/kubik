@@ -3,7 +3,11 @@
  * Зависимости: THREE.js, все модули (загружается последним)
  */
 
+console.log('✅ init.js загружен');
+
 function selectSkin(skin) {
+    console.log('=== selectSkin вызвана, скин:', skin);
+    console.log('cameraMode:', cameraMode);
     selectedSkin = skin;
 
     // Сбрасываем параметры игры
@@ -327,11 +331,14 @@ function init() {
 
     // Создаем оружие
     currentWeapon = createWeapon(selectedWeapon);
+    console.log('Оружие создано:', currentWeapon);
 
     // Позиционирование зависит от режима камеры
+    console.log('Проверяем режим камеры. cameraMode =', cameraMode);
     if (cameraMode === 'firstPerson') {
         // Создаем руки для FPS вида (как в CS:GO)
-        console.log('Создаем FPS руки...');
+        console.log('Режим камеры - первое лицо! Создаем FPS руки...');
+        console.log('Функция createFPSHands доступна?', typeof createFPSHands);
         fpsHands = createFPSHands();
         console.log('FPS руки созданы:', fpsHands);
         camera.add(fpsHands);

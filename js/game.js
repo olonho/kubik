@@ -1,5 +1,7 @@
 // Основная игровая логика
 
+console.log('✅ game.js загружен');
+
 // Глобальные переменные (используем var для совместимости с inline скриптом)
 var scene, camera, renderer;
 var player, ground, currentWeapon, fpsHands;

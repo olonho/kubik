@@ -1081,38 +1081,69 @@ function updateCamera() {
         camera.position.y = player.position.y + 0.7;
         camera.position.z = player.position.z;
 
-        // Автоприцеливание на ближайший кубик с плавным переходом
-        const nearestCube = findNearestObstacle();
-        let targetLook;
-        if (nearestCube) {
-            targetLook = nearestCube.clone();
+        if (manualCameraControl) {
+            // Ручное управление камерой через тач/мышь
+            const lookDistance = 10;
+            const targetLook = new THREE.Vector3(
+                player.position.x + Math.sin(cameraYaw) * Math.cos(cameraPitch) * lookDistance,
+                player.position.y + 0.7 + Math.sin(cameraPitch) * lookDistance,
+                player.position.z + Math.cos(cameraYaw) * Math.cos(cameraPitch) * lookDistance
+            );
+            cameraLookTarget.lerp(targetLook, 0.2);
+            camera.lookAt(cameraLookTarget);
         } else {
-            // Если кубиков нет, смотрим вперед
-            targetLook = new THREE.Vector3(player.position.x, player.position.y + 0.7, player.position.z - 10);
-        }
+            // Автоприцеливание на ближайший кубик с плавным переходом
+            const nearestCube = findNearestObstacle();
+            let targetLook;
+            if (nearestCube) {
+                targetLook = nearestCube.clone();
+            } else {
+                // Если кубиков нет, смотрим вперед
+                targetLook = new THREE.Vector3(player.position.x, player.position.y + 0.7, player.position.z - 10);
+            }
 
-        // Плавное следование за целью (lerp)
-        cameraLookTarget.lerp(targetLook, 0.15);
-        camera.lookAt(cameraLookTarget);
+            // Плавное следование за целью (lerp)
+            cameraLookTarget.lerp(targetLook, 0.15);
+            camera.lookAt(cameraLookTarget);
+        }
     } else {
         // Вид от третьего лица - камера позади и выше игрока
-        camera.position.x = player.position.x;
-        camera.position.y = player.position.y + 5; // Выше игрока
-        camera.position.z = player.position.z + 8; // Позади игрока
+        if (manualCameraControl) {
+            // Ручное управление - камера вращается вокруг игрока
+            const distance = 8;
+            const height = 5;
+            camera.position.x = player.position.x + Math.sin(cameraYaw) * distance;
+            camera.position.y = player.position.y + height + Math.sin(cameraPitch) * 3;
+            camera.position.z = player.position.z + Math.cos(cameraYaw) * distance;
 
-        // Автоприцеливание на ближайший кубик для стрельбы
-        const nearestCube = findNearestObstacle();
-        let targetLook;
-        if (nearestCube) {
-            targetLook = nearestCube.clone();
+            // Смотрим на игрока
+            const targetLook = new THREE.Vector3(
+                player.position.x,
+                player.position.y + 0.5,
+                player.position.z
+            );
+            cameraLookTarget.lerp(targetLook, 0.2);
+            camera.lookAt(cameraLookTarget);
         } else {
-            // Если кубиков нет, смотрим на игрока и вперед
-            targetLook = new THREE.Vector3(player.position.x, player.position.y, player.position.z - 10);
-        }
+            // Автоматическая камера
+            camera.position.x = player.position.x;
+            camera.position.y = player.position.y + 5; // Выше игрока
+            camera.position.z = player.position.z + 8; // Позади игрока
 
-        // Плавное следование за целью
-        cameraLookTarget.lerp(targetLook, 0.15);
-        camera.lookAt(cameraLookTarget);
+            // Автоприцеливание на ближайший кубик для стрельбы
+            const nearestCube = findNearestObstacle();
+            let targetLook;
+            if (nearestCube) {
+                targetLook = nearestCube.clone();
+            } else {
+                // Если кубиков нет, смотрим на игрока и вперед
+                targetLook = new THREE.Vector3(player.position.x, player.position.y, player.position.z - 10);
+            }
+
+            // Плавное следование за целью
+            cameraLookTarget.lerp(targetLook, 0.15);
+            camera.lookAt(cameraLookTarget);
+        }
     }
 }
 

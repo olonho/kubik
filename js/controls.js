@@ -190,19 +190,167 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         const hint = document.createElement('div');
         hint.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 25px; border-radius: 10px; font-size: 16px; z-index: 1000; border: 2px solid #667eea;';
-        hint.innerHTML = '🎮 Подключите DualShock 4 для управления!<br>🕹️ Левый стик: движение | R2: стрельба | ✖️ X: прыжок<br>🔲 Square: вид | 🔺 Triangle: магазин | L1/R1: оружие';
+        hint.innerHTML = '🖱️ <b>КЛИКНИТЕ НА ЭКРАН</b> для управления камерой!<br>🎯 Двигайте мышь/тачпад для поворота камеры<br>⌨️ ESC - освободить мышь | ENTER - сменить вид<br>🎮 Также работает DualShock 4 и сенсорный экран<br>📱 Тач: свайп для поворота | ПКМ: альтернативное управление';
         document.body.appendChild(hint);
 
         setTimeout(() => {
             if (hint.parentNode) {
                 document.body.removeChild(hint);
             }
-        }, 8000);
+        }, 12000);
     }, 2000);
 });
 
 document.addEventListener('keydown', (e) => keys[e.code] = true);
 document.addEventListener('keyup', (e) => keys[e.code] = false);
+
+// Touch/тачпад управление камерой
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        isTouching = true;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+    if (!isTouching || e.touches.length !== 1) return;
+
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+
+    const deltaX = touchX - touchStartX;
+    const deltaY = touchY - touchStartY;
+
+    // Чувствительность управления
+    const sensitivity = 0.002;
+
+    // Обновляем углы камеры
+    cameraYaw -= deltaX * sensitivity;
+    cameraPitch -= deltaY * sensitivity;
+
+    // Ограничиваем вертикальный угол (чтобы не перевернуть камеру)
+    const maxPitch = Math.PI / 3; // 60 градусов
+    cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
+
+    // Включаем ручное управление камерой
+    manualCameraControl = true;
+
+    touchStartX = touchX;
+    touchStartY = touchY;
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+    isTouching = false;
+    // Через 2 секунды возвращаем автоприцеливание
+    setTimeout(() => {
+        manualCameraControl = false;
+    }, 2000);
+});
+
+// Управление камерой мышью (для тачпада на ноутбуках) - Pointer Lock API
+let pointerLocked = false;
+
+// Захват указателя при клике на canvas
+document.addEventListener('click', () => {
+    if (gameActive && !pointerLocked && renderer && renderer.domElement) {
+        renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock ||
+                                                 renderer.domElement.mozRequestPointerLock ||
+                                                 renderer.domElement.webkitRequestPointerLock;
+        renderer.domElement.requestPointerLock();
+    }
+});
+
+// Отслеживаем состояние Pointer Lock
+document.addEventListener('pointerlockchange', () => {
+    pointerLocked = document.pointerLockElement === renderer.domElement ||
+                    document.mozPointerLockElement === renderer.domElement ||
+                    document.webkitPointerLockElement === renderer.domElement;
+
+    if (pointerLocked) {
+        console.log('Pointer locked - управление камерой активно');
+        manualCameraControl = true;
+    } else {
+        console.log('Pointer unlocked - автоприцеливание восстановлено');
+        // Возвращаем автоприцеливание при освобождении мыши
+        setTimeout(() => {
+            manualCameraControl = false;
+        }, 1000);
+    }
+});
+
+// Обработка движения мыши когда указатель захвачен
+document.addEventListener('mousemove', (e) => {
+    if (!pointerLocked || !gameActive) return;
+
+    // movementX/Y - смещение мыши (работает только в Pointer Lock)
+    const deltaX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+    const deltaY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+
+    // Чувствительность управления мышью/тачпадом
+    const sensitivity = 0.002;
+
+    // Обновляем углы камеры
+    cameraYaw -= deltaX * sensitivity;
+    cameraPitch -= deltaY * sensitivity;
+
+    // Ограничиваем вертикальный угол (не даем перевернуть камеру)
+    const maxPitch = Math.PI / 3; // 60 градусов
+    cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
+
+    // Включаем ручное управление камерой
+    manualCameraControl = true;
+});
+
+// Альтернативный метод - правая кнопка мыши (для систем где Pointer Lock не работает)
+let isRightMouseDown = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
+
+document.addEventListener('mousedown', (e) => {
+    if (e.button === 2 && gameActive) {
+        isRightMouseDown = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isRightMouseDown || pointerLocked) return;
+
+    const deltaX = e.clientX - lastMouseX;
+    const deltaY = e.clientY - lastMouseY;
+
+    const sensitivity = 0.003;
+
+    cameraYaw -= deltaX * sensitivity;
+    cameraPitch -= deltaY * sensitivity;
+
+    const maxPitch = Math.PI / 3;
+    cameraPitch = Math.max(-maxPitch, Math.min(maxPitch, cameraPitch));
+
+    manualCameraControl = true;
+
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+});
+
+document.addEventListener('mouseup', (e) => {
+    if (e.button === 2) {
+        isRightMouseDown = false;
+        setTimeout(() => {
+            if (!isRightMouseDown && !pointerLocked) {
+                manualCameraControl = false;
+            }
+        }, 2000);
+    }
+});
+
+// Отключаем контекстное меню при правом клике
+document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+});
 
 // Инициализируем event listeners после загрузки DOM
 window.addEventListener('DOMContentLoaded', () => {

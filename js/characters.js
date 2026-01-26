@@ -3,6 +3,8 @@
  * Зависимости: THREE.js
  */
 
+console.log('✅ characters.js загружен');
+
 // Создание рук для FPS вида (как в CS:GO)
 function createFPSHands() {
     console.log('createFPSHands() вызвана');
