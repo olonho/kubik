@@ -819,6 +819,52 @@ function startNewWave() {
 }
 
 function spawnWaveZombies() {
+    // ФИНАЛЬНЫЙ БОСС на 20 волне
+    if (wave === 20) {
+        // Спавним только финального босса, без обычных зомби
+        setTimeout(() => {
+            if (gameActive && waveActive) {
+                window.finalBoss = createFinalBoss();
+
+                // Драматичное уведомление
+                const notification = document.createElement('div');
+                notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #000000 0%, #8B0000 50%, #FF0000 100%); color: white; padding: 50px 80px; border-radius: 25px; font-size: 56px; font-weight: bold; z-index: 1000; text-align: center; border: 8px solid gold; box-shadow: 0 0 100px rgba(255, 0, 0, 1); animation: pulse 0.8s infinite;';
+                notification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БОСС ⚠️<br><br><span style="font-size: 32px; color: #FFD700;">Повелитель Зомби</span><br><br><span style="font-size: 24px; color: #FF6347;">Это последняя битва!</span>';
+                document.body.appendChild(notification);
+
+                // Интенсивная тряска экрана
+                let shakeIntensity = 40;
+                let shakeCount = 0;
+                const shakeInterval = setInterval(() => {
+                    if (camera) {
+                        camera.position.x += (Math.random() - 0.5) * shakeIntensity * 0.015;
+                        camera.position.y += (Math.random() - 0.5) * shakeIntensity * 0.015;
+                    }
+                    shakeCount++;
+                    if (shakeCount > 40) {
+                        clearInterval(shakeInterval);
+                    }
+                }, 40);
+
+                // Темнота и красная вспышка
+                scene.background = new THREE.Color(0x000000);
+                setTimeout(() => {
+                    scene.background = new THREE.Color(0xFF0000);
+                    setTimeout(() => {
+                        scene.background = new THREE.Color(0x87ceeb);
+                    }, 200);
+                }, 300);
+
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 5000);
+            }
+        }, 1000);
+        return;
+    }
+
     // Проверяем, нужен ли босс на этой волне (каждые 5 волн начиная с 5-й)
     const isBossWave = wave >= 5 && wave % 5 === 0;
 
@@ -884,9 +930,10 @@ function checkWaveComplete() {
     if (waveActive && zombiesInCurrentWave <= 0 && obstacles.length === 0) {
         waveActive = false;
 
-        // Проверка на победу (20 волна)
+        // На 20 волне победа наступает только после укуса финального босса
+        // (функция bossBitePlayer() сама запустит victoryScene())
         if (wave >= 20) {
-            victoryScene();
+            console.log('⚠️ 20 волна завершена, но катсцена будет после укуса босса');
             return;
         }
 
@@ -1103,10 +1150,16 @@ function victoryScene() {
 
                 victoryScreen.innerHTML = `
                     <h1 style="font-size: 72px; margin: 20px; text-shadow: 0 0 20px #FFD700;">🎉 ПОБЕДА! 🎉</h1>
-                    <p style="font-size: 36px; margin: 10px;">Вы прошли 20 волн!</p>
+                    <p style="font-size: 36px; margin: 10px;">Вы победили Повелителя Зомби!</p>
                     <p style="font-size: 28px; margin: 10px; color: #FFD700;">Счёт: ${score}</p>
-                    <p style="font-size: 22px; margin: 20px; opacity: 0.7; font-style: italic;">Герой отдыхает... навсегда 💀</p>
-                    <p style="font-size: 20px; margin: 10px;">🎆 Праздничный салют в честь героя! 🎆</p>
+                    <hr style="border: 2px solid #8B0000; margin: 30px 0;">
+                    <p style="font-size: 24px; margin: 15px; color: #FF6347;">Но победа далась дорогой ценой...</p>
+                    <p style="font-size: 22px; margin: 15px; color: #FFA07A;">В последний момент босс успел укусить героя 🩸</p>
+                    <p style="font-size: 20px; margin: 15px; opacity: 0.9;">Вирус зомби начал распространяться по телу...</p>
+                    <p style="font-size: 22px; margin: 20px; opacity: 0.8; font-style: italic; color: #FFD700;">Герой принял единственное правильное решение 💀</p>
+                    <p style="font-size: 18px; margin: 10px; opacity: 0.7;">"Лучше умереть человеком, чем стать монстром"</p>
+                    <hr style="border: 2px solid gold; margin: 30px 0;">
+                    <p style="font-size: 20px; margin: 10px;">🎆 Праздничный салют в честь павшего героя! 🎆</p>
                 `;
                 document.body.appendChild(victoryScreen);
 
@@ -1266,6 +1319,621 @@ function explodeFirework(position, color) {
         }
     }, 16);
 }
+
+// Укус финального босса - запускает трагичную катсцену
+function bossBitePlayer() {
+    console.log('🧟 Финальный босс кусает игрока!');
+
+    // Останавливаем игру
+    gameActive = false;
+    waveActive = false;
+
+    // Сохраняем ссылку на босса для финальной схватки
+    const boss = window.finalBoss;
+
+    // Убираем лейбл босса
+    const bossLabel = document.getElementById('finalBossLabel');
+    if (bossLabel) {
+        document.body.removeChild(bossLabel);
+    }
+
+    // Экран становится черно-красным (эффект укуса)
+    scene.background = new THREE.Color(0x000000);
+    setTimeout(() => {
+        scene.background = new THREE.Color(0x8B0000);
+        setTimeout(() => {
+            scene.background = new THREE.Color(0xFF0000);
+            setTimeout(() => {
+                scene.background = new THREE.Color(0x87ceeb);
+            }, 200);
+        }, 200);
+    }, 200);
+
+    // Тряска экрана (боль от укуса)
+    let shakeCount = 0;
+    const shakeInterval = setInterval(() => {
+        if (camera) {
+            camera.position.x += (Math.random() - 0.5) * 0.3;
+            camera.position.y += (Math.random() - 0.5) * 0.3;
+        }
+        shakeCount++;
+        if (shakeCount > 30) {
+            clearInterval(shakeInterval);
+        }
+    }, 30);
+
+    // Уведомление об укусе
+    const biteNotification = document.createElement('div');
+    biteNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #000000 0%, #8B0000 100%); color: white; padding: 50px 70px; border-radius: 25px; font-size: 42px; font-weight: bold; z-index: 1001; text-align: center; border: 6px solid darkred; box-shadow: 0 0 60px rgba(139, 0, 0, 1);';
+    biteNotification.innerHTML = '🩸 УКУШЕН! 🩸<br><br><span style="font-size: 28px; color: #FF6347;">Но битва ещё не окончена...</span>';
+    document.body.appendChild(biteNotification);
+
+    // Герой из последних сил добивает босса
+    setTimeout(() => {
+        document.body.removeChild(biteNotification);
+
+        // Герой разворачивается и стреляет в голову босса
+        if (boss && player && currentWeapon) {
+            // Анимация поворота к боссу
+            const dx = boss.position.x - player.position.x;
+            const dz = boss.position.z - player.position.z;
+            player.rotation.y = Math.atan2(dx, dz);
+
+            // Текст "Прощальный выстрел..."
+            const headshotText = document.createElement('div');
+            headshotText.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; font-weight: bold; z-index: 1001; text-align: center; text-shadow: 3px 3px 10px rgba(0,0,0,0.9); opacity: 0; transition: opacity 1s;';
+            headshotText.innerHTML = '💀 Прощальный выстрел... 💀';
+            document.body.appendChild(headshotText);
+            setTimeout(() => {
+                headshotText.style.opacity = '1';
+            }, 100);
+
+            // Через секунду - выстрел в голову
+            setTimeout(() => {
+                headshotText.style.opacity = '0';
+                setTimeout(() => {
+                    if (document.body.contains(headshotText)) {
+                        document.body.removeChild(headshotText);
+                    }
+                }, 1000);
+
+                // Вспышка выстрела в замедленном времени
+                scene.background = new THREE.Color(0xFFFFFF);
+                setTimeout(() => {
+                    scene.background = new THREE.Color(0x87ceeb);
+                }, 150);
+
+                // Босс получает хэдшот - создаём эффект крови
+                setTimeout(() => {
+                    if (boss) {
+                        // Позиция головы босса
+                        const headY = boss.position.y + 4.5;
+                        const headX = boss.position.x;
+                        const headZ = boss.position.z;
+
+                        // Создаём фонтан крови (50 частиц)
+                        for (let i = 0; i < 50; i++) {
+                            const bloodGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+                            const bloodMaterial = new THREE.MeshBasicMaterial({
+                                color: 0x8B0000,
+                                transparent: true,
+                                opacity: 0.9
+                            });
+                            const bloodDrop = new THREE.Mesh(bloodGeometry, bloodMaterial);
+
+                            // Стартовая позиция - голова босса
+                            bloodDrop.position.set(headX, headY, headZ);
+
+                            // Случайное направление (фонтан крови)
+                            const velocity = new THREE.Vector3(
+                                (Math.random() - 0.5) * 0.4,
+                                Math.random() * 0.3 + 0.2, // Вверх и в стороны
+                                (Math.random() - 0.5) * 0.4
+                            );
+
+                            bloodDrop.userData.velocity = velocity;
+                            bloodDrop.userData.life = 100;
+
+                            scene.add(bloodDrop);
+
+                            // Анимация капель крови
+                            const bloodInterval = setInterval(() => {
+                                if (bloodDrop.userData.life <= 0) {
+                                    scene.remove(bloodDrop);
+                                    clearInterval(bloodInterval);
+                                    return;
+                                }
+
+                                // Движение с гравитацией
+                                bloodDrop.position.add(bloodDrop.userData.velocity);
+                                bloodDrop.userData.velocity.y -= 0.02; // Гравитация
+
+                                // Затухание
+                                bloodDrop.userData.life -= 2;
+                                bloodDrop.material.opacity = bloodDrop.userData.life / 100;
+                            }, 16);
+                        }
+
+                        // Красная вспышка смерти босса
+                        scene.background = new THREE.Color(0xFF0000);
+                        setTimeout(() => {
+                            scene.background = new THREE.Color(0x87ceeb);
+                        }, 300);
+
+                        // Текст "HEADSHOT"
+                        const headshotNotif = document.createElement('div');
+                        headshotNotif.style.cssText = 'position: fixed; top: 200px; left: 50%; transform: translateX(-50%); color: #FF0000; font-size: 64px; font-weight: bold; z-index: 1001; text-align: center; text-shadow: 0 0 30px rgba(255, 0, 0, 1); opacity: 0; transition: opacity 0.5s;';
+                        headshotNotif.innerHTML = '💀 HEADSHOT 💀';
+                        document.body.appendChild(headshotNotif);
+                        setTimeout(() => {
+                            headshotNotif.style.opacity = '1';
+                        }, 100);
+
+                        setTimeout(() => {
+                            headshotNotif.style.opacity = '0';
+                            setTimeout(() => {
+                                if (document.body.contains(headshotNotif)) {
+                                    document.body.removeChild(headshotNotif);
+                                }
+                            }, 500);
+                        }, 2000);
+
+                        // Босс падает драматично
+                        let fallSpeed = 0;
+                        const fallInterval = setInterval(() => {
+                            fallSpeed += 0.015;
+                            boss.position.y -= fallSpeed;
+                            boss.rotation.x += 0.08;
+                            boss.rotation.z += 0.03;
+
+                            if (boss.position.y <= -2) {
+                                clearInterval(fallInterval);
+                                scene.remove(boss);
+                                const index = obstacles.indexOf(boss);
+                                if (index > -1) {
+                                    obstacles.splice(index, 1);
+                                }
+                            }
+                        }, 16);
+                    }
+                }, 200);
+            }, 1500);
+        }
+
+                // Уведомление о победе (через 2.5 секунды после выстрела)
+                setTimeout(() => {
+                    const victoryNotification = document.createElement('div');
+                    victoryNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: black; padding: 50px 80px; border-radius: 25px; font-size: 48px; font-weight: bold; z-index: 1001; text-align: center; border: 6px solid gold; box-shadow: 0 0 60px rgba(255, 215, 0, 1);';
+                    victoryNotification.innerHTML = '⚔️ БОСС ПОВЕРЖЕН! ⚔️';
+                    document.body.appendChild(victoryNotification);
+
+                    setTimeout(() => {
+                        document.body.removeChild(victoryNotification);
+
+                        // Но цена победы велика...
+                        const priceNotification = document.createElement('div');
+                        priceNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.95); color: #FF6347; padding: 50px 70px; border-radius: 25px; font-size: 32px; font-weight: bold; z-index: 1001; text-align: center; border: 5px solid #8B0000;';
+                        priceNotification.innerHTML = 'Но цена победы слишком велика...<br><br><span style="font-size: 24px; color: white;">Вирус зомби уже в крови...</span>';
+                        document.body.appendChild(priceNotification);
+
+                        setTimeout(() => {
+                            document.body.removeChild(priceNotification);
+
+                            // Запускаем трагичную финальную сцену с дождём
+                            tragicFinalScene();
+                        }, 3000);
+                    }, 2500);
+                }, 2500);
+            }, 1500);
+        }
+    }, 2500);
+}
+
+// Трагичная финальная сцена с дождём и музыкой
+function tragicFinalScene() {
+    console.log('☔ Трагичная финальная сцена...');
+
+    // Запускаем музыку "Only You"
+    playVictoryMusic();
+
+    // Меняем небо на тёмное дождливое
+    scene.background = new THREE.Color(0x4a4a4a);
+    scene.fog = new THREE.Fog(0x4a4a4a, 5, 30);
+
+    // Создаём систему дождя
+    const rainGeo = new THREE.BufferGeometry();
+    const rainCount = 2000;
+    const positions = new Float32Array(rainCount * 3);
+
+    for (let i = 0; i < rainCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 100; // X
+        positions[i + 1] = Math.random() * 50; // Y
+        positions[i + 2] = (Math.random() - 0.5) * 100; // Z
+    }
+
+    rainGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const rainMaterial = new THREE.PointsMaterial({
+        color: 0xaaaaaa,
+        size: 0.1,
+        transparent: true,
+        opacity: 0.6
+    });
+
+    const rain = new THREE.Points(rainGeo, rainMaterial);
+    scene.add(rain);
+
+    // Анимация дождя
+    const rainAnimation = setInterval(() => {
+        const positions = rain.geometry.attributes.position.array;
+        for (let i = 1; i < positions.length; i += 3) {
+            positions[i] -= 0.5; // Падение дождя
+            if (positions[i] < 0) {
+                positions[i] = 50; // Возвращаем каплю наверх
+            }
+        }
+        rain.geometry.attributes.position.needsUpdate = true;
+    }, 16);
+
+    window.rainAnimation = rainAnimation;
+    window.rainObject = rain;
+
+    // Переключаем в третье лицо для драматичности
+    cameraMode = 'thirdPerson';
+    player.visible = true;
+
+    // Убираем оружие из FPS рук и добавляем к персонажу
+    if (currentWeapon && fpsHands) {
+        fpsHands.remove(currentWeapon);
+        if (fpsScene) fpsScene.remove(fpsHands);
+        fpsHands = null;
+        currentWeapon.position.set(0.15, 0.2, -0.4);
+        currentWeapon.rotation.y = 0;
+        currentWeapon.rotation.x = 0;
+        currentWeapon.rotation.z = -Math.PI / 6;
+        currentWeapon.scale.set(1, 1, 1);
+        player.add(currentWeapon);
+    }
+
+    // Камера отдаляется для кинематографичного вида
+    camera.position.set(player.position.x + 8, player.position.y + 4, player.position.z + 10);
+    camera.lookAt(player.position);
+
+    // Затемнение экрана для драматичности
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+        z-index: 500;
+        pointer-events: none;
+    `;
+    document.body.appendChild(overlay);
+    window.sceneOverlay = overlay;
+
+    // Текст "Герой смотрит на небо..."
+    const narrativeText = document.createElement('div');
+    narrativeText.style.cssText = 'position: fixed; top: 150px; left: 50%; transform: translateX(-50%); color: white; font-size: 28px; font-weight: bold; z-index: 501; text-align: center; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); opacity: 0; transition: opacity 2s;';
+    narrativeText.innerHTML = '☔ Дождь смывает кровь с рук героя...<br><span style="font-size: 22px; opacity: 0.8;">Победа одержана, но какой ценой?</span>';
+    document.body.appendChild(narrativeText);
+    setTimeout(() => {
+        narrativeText.style.opacity = '1';
+    }, 500);
+
+    // Через 5 секунд герой медленно поднимает оружие к голове
+    setTimeout(() => {
+        narrativeText.style.opacity = '0';
+        setTimeout(() => {
+            if (document.body.contains(narrativeText)) {
+                document.body.removeChild(narrativeText);
+            }
+        }, 2000);
+
+        // Новый текст
+        const finalText = document.createElement('div');
+        finalText.style.cssText = 'position: fixed; top: 150px; left: 50%; transform: translateX(-50%); color: white; font-size: 32px; font-weight: bold; z-index: 501; text-align: center; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); opacity: 0; transition: opacity 2s;';
+        finalText.innerHTML = '"Лучше умереть человеком..."';
+        document.body.appendChild(finalText);
+        setTimeout(() => {
+            finalText.style.opacity = '1';
+        }, 500);
+
+        if (currentWeapon) {
+            // Плавное поднятие оружия к голове (2 секунды)
+            let progress = 0;
+            const raiseWeapon = setInterval(() => {
+                progress += 0.02;
+                if (currentWeapon) {
+                    currentWeapon.position.set(
+                        0.15 - progress * 0.35, // К центру
+                        0.2 + progress * 0.4,  // Вверх к голове
+                        -0.4 + progress * 0.5  // Ближе к голове
+                    );
+                    currentWeapon.rotation.set(
+                        0,
+                        progress * Math.PI / 2,
+                        -Math.PI / 6 + progress * (Math.PI / 3)
+                    );
+                }
+                if (progress >= 1) {
+                    clearInterval(raiseWeapon);
+                }
+            }, 30);
+        }
+
+        // Через 4 секунды - выстрел
+        setTimeout(() => {
+            finalText.style.opacity = '0';
+            setTimeout(() => {
+                if (document.body.contains(finalText)) {
+                    document.body.removeChild(finalText);
+                }
+            }, 1000);
+
+            // Белая вспышка выстрела
+            scene.background = new THREE.Color(0xFFFFFF);
+            setTimeout(() => {
+                scene.background = new THREE.Color(0x4a4a4a);
+            }, 150);
+
+            // Дым от выстрела
+            for (let i = 0; i < 15; i++) {
+                const smoke = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.15, 8, 8),
+                    new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 })
+                );
+                smoke.position.set(player.position.x - 0.2, player.position.y + 0.6, player.position.z);
+                scene.add(smoke);
+                setTimeout(() => scene.remove(smoke), 2000);
+            }
+
+            // Герой падает под дождём
+            let fallSpeed = 0;
+            const fallInterval = setInterval(() => {
+                fallSpeed += 0.015;
+                player.position.y -= fallSpeed;
+                player.rotation.x += 0.03;
+                player.rotation.z += 0.01;
+
+                if (player.position.y <= 0.1) {
+                    player.position.y = 0.1;
+                    clearInterval(fallInterval);
+                    player.rotation.x = Math.PI / 2;
+                    player.rotation.z = Math.PI / 6;
+
+                    // Камера медленно отъезжает
+                    let cameraDistance = 8;
+                    const cameraZoom = setInterval(() => {
+                        cameraDistance += 0.05;
+                        camera.position.set(
+                            player.position.x + cameraDistance,
+                            player.position.y + cameraDistance * 0.5,
+                            player.position.z + cameraDistance * 1.2
+                        );
+                        camera.lookAt(player.position);
+
+                        if (cameraDistance > 15) {
+                            clearInterval(cameraZoom);
+                        }
+                    }, 50);
+
+                    // Через 3 секунды показываем титры
+                    setTimeout(() => {
+                        showCredits();
+                    }, 3000);
+                }
+            }, 16);
+        }, 4000);
+    }, 5000);
+}
+
+// Показ титров с рандомными именами
+function showCredits() {
+    console.log('🎬 Показ титров...');
+
+    // Массивы имён для генерации
+    const firstNames = [
+        'Алексей', 'Дмитрий', 'Сергей', 'Андрей', 'Максим', 'Иван', 'Артём', 'Владимир',
+        'Михаил', 'Николай', 'Павел', 'Егор', 'Денис', 'Антон', 'Роман', 'Олег',
+        'Виктор', 'Александр', 'Евгений', 'Игорь', 'Константин', 'Валерий'
+    ];
+    const lastNames = [
+        'Иванов', 'Петров', 'Сидоров', 'Смирнов', 'Кузнецов', 'Попов', 'Васильев', 'Соколов',
+        'Михайлов', 'Новиков', 'Фёдоров', 'Морозов', 'Волков', 'Алексеев', 'Лебедев', 'Семёнов',
+        'Егоров', 'Павлов', 'Козлов', 'Степанов', 'Николаев', 'Орлов'
+    ];
+
+    const getRandomName = () => {
+        const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+        return `${first} ${last}`;
+    };
+
+    // Создаём контейнер титров
+    const creditsContainer = document.createElement('div');
+    creditsContainer.id = 'credits';
+    creditsContainer.style.cssText = `
+        position: fixed;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.98) 100%);
+        color: white;
+        font-family: 'Arial', sans-serif;
+        z-index: 2000;
+        overflow: hidden;
+        animation: creditsScroll 45s linear forwards;
+    `;
+
+    // CSS анимация скролла
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes creditsScroll {
+            from { top: 100%; }
+            to { top: -200%; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    creditsContainer.innerHTML = `
+        <div style="padding: 100px 50px; text-align: center;">
+            <h1 style="font-size: 64px; margin: 80px 0; text-shadow: 0 0 20px rgba(255,255,255,0.5);">
+                ⚔️ ЗОМБИ ВЫЖИВАНИЕ ⚔️
+            </h1>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">РЕЖИССЁР</h2>
+                <p style="font-size: 28px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">ПРОДЮСЕР</h2>
+                <p style="font-size: 28px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">СЦЕНАРИЙ</h2>
+                <p style="font-size: 28px;">${getRandomName()}</p>
+                <p style="font-size: 28px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">ГЛАВНЫЕ РОЛИ</h2>
+                <p style="font-size: 26px; margin: 15px 0;">Герой - ${getRandomName()}</p>
+                <p style="font-size: 26px; margin: 15px 0;">Повелитель Зомби - ${getRandomName()}</p>
+                <p style="font-size: 26px; margin: 15px 0;">Голос за кадром - ${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">ОПЕРАТОРЫ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">КОМПОЗИТОР</h2>
+                <p style="font-size: 28px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">ХУДОЖНИКИ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">ЗВУКОРЕЖИССЁРЫ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">КАСКАДЁРЫ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">СПЕЦИАЛЬНЫЕ ЭФФЕКТЫ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 120px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 30px;">МОНТАЖ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 150px 0;">
+                <h2 style="font-size: 32px; color: #FFD700; margin-bottom: 40px;">ОСОБАЯ БЛАГОДАРНОСТЬ</h2>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+                <p style="font-size: 24px;">${getRandomName()}</p>
+            </div>
+
+            <div style="margin: 200px 0;">
+                <p style="font-size: 28px; font-style: italic; opacity: 0.8;">
+                    🎵 Музыка: "Only You" - The Platters 🎵
+                </p>
+            </div>
+
+            <div style="margin: 200px 0 300px 0;">
+                <h1 style="font-size: 56px; color: #FFD700; text-shadow: 0 0 30px rgba(255,215,0,0.8);">
+                    СПАСИБО ЗА ИГРУ
+                </h1>
+                <p style="font-size: 32px; margin-top: 50px; opacity: 0.9;">
+                    Ваш счёт: ${score}
+                </p>
+                <p style="font-size: 28px; margin-top: 30px; opacity: 0.8;">
+                    Волн пройдено: 20
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(creditsContainer);
+
+    // Через 45 секунд показываем кнопки
+    setTimeout(() => {
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.style.cssText = 'position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 2001; text-align: center;';
+        buttonsDiv.innerHTML = `
+            <button onclick="restartAfterCredits()"
+                    style="margin: 20px; padding: 20px 50px; font-size: 28px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); transition: transform 0.2s;"
+                    onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                🔄 Начать заново
+            </button>
+            <button onclick="returnToMenuAfterCredits()"
+                    style="margin: 20px; padding: 20px 50px; font-size: 28px; background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); transition: transform 0.2s;"
+                    onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                🏠 Главное меню
+            </button>
+        `;
+        document.body.appendChild(buttonsDiv);
+        window.creditsButtons = buttonsDiv;
+    }, 45000);
+}
+
+// Функции для кнопок после титров
+window.restartAfterCredits = function() {
+    // Очистка
+    const credits = document.getElementById('credits');
+    if (credits) document.body.removeChild(credits);
+    if (window.creditsButtons) document.body.removeChild(window.creditsButtons);
+    if (window.sceneOverlay) document.body.removeChild(window.sceneOverlay);
+    if (window.rainAnimation) clearInterval(window.rainAnimation);
+    if (window.rainObject) scene.remove(window.rainObject);
+    if (window.victoryAudio) window.victoryAudio.pause();
+
+    // Перезапуск игры
+    restartGame();
+};
+
+window.returnToMenuAfterCredits = function() {
+    // Очистка
+    const credits = document.getElementById('credits');
+    if (credits) document.body.removeChild(credits);
+    if (window.creditsButtons) document.body.removeChild(window.creditsButtons);
+    if (window.sceneOverlay) document.body.removeChild(window.sceneOverlay);
+    if (window.rainAnimation) clearInterval(window.rainAnimation);
+    if (window.rainObject) scene.remove(window.rainObject);
+    if (window.victoryAudio) window.victoryAudio.pause();
+
+    // Возврат в меню
+    returnToSkinMenu();
+};
 
 function gameOver() {
     gameActive = false;

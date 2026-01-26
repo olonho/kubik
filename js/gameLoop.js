@@ -760,6 +760,55 @@ function updateObstacles() {
             } else {
                 obstacleGroup.userData.hpBar.material.color.setHex(0xff0000);
             }
+
+            // ФИНАЛЬНЫЙ БОСС - при низком HP бросается на игрока
+            if (obstacleGroup.userData.isFinalBoss) {
+                if (hpRatio < 0.1 && !obstacleGroup.userData.canBite) {
+                    obstacleGroup.userData.canBite = true;
+
+                    // Уведомление об ярости босса
+                    const rageNotification = document.createElement('div');
+                    rageNotification.style.cssText = 'position: fixed; top: 150px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #8B0000 0%, #FF0000 100%); color: white; padding: 30px 60px; border-radius: 20px; font-size: 36px; font-weight: bold; z-index: 1000; border: 5px solid gold; box-shadow: 0 0 50px rgba(255, 0, 0, 1);';
+                    rageNotification.innerHTML = '⚠️ БОСС В ЯРОСТИ! ⚠️<br><span style="font-size: 24px;">ОН БРОСАЕТСЯ НА ВАС!</span>';
+                    document.body.appendChild(rageNotification);
+
+                    setTimeout(() => {
+                        if (document.body.contains(rageNotification)) {
+                            document.body.removeChild(rageNotification);
+                        }
+                    }, 3000);
+                }
+
+                // Когда босс может кусать, он бежит к игроку
+                if (obstacleGroup.userData.canBite && !obstacleGroup.userData.biteTriggered) {
+                    // Направление к игроку
+                    const dx = player.position.x - obstacleGroup.position.x;
+                    const dz = player.position.z - obstacleGroup.position.z;
+                    const distance = Math.sqrt(dx * dx + dz * dz);
+
+                    // Бежит быстро к игроку
+                    const rushSpeed = 0.3;
+                    obstacleGroup.position.x += (dx / distance) * rushSpeed;
+                    obstacleGroup.position.z += (dz / distance) * rushSpeed;
+
+                    // Поворачивается к игроку
+                    const targetAngle = Math.atan2(dx, dz);
+                    obstacleGroup.rotation.y = targetAngle;
+
+                    // Анимация рук (взмах перед укусом)
+                    if (obstacleGroup.userData.leftArm && obstacleGroup.userData.rightArm) {
+                        const armSwing = Math.sin(Date.now() * 0.01) * 0.5;
+                        obstacleGroup.userData.leftArm.rotation.x = -Math.PI / 4 + armSwing;
+                        obstacleGroup.userData.rightArm.rotation.x = -Math.PI / 4 + armSwing;
+                    }
+
+                    // Если босс близко к игроку - кусает!
+                    if (distance < 2) {
+                        obstacleGroup.userData.biteTriggered = true;
+                        bossBitePlayer();
+                    }
+                }
+            }
         }
 
         // Зомби дошёл до игрока - потеря жизни
@@ -1284,13 +1333,47 @@ function updateTurrets() {
             if (turret.userData.nozzle) { // flamethrower
                 turret.userData.nozzle.rotation.y = targetAngle;
             }
+            if (turret.userData.core) { // nuclear, antimatter
+                turret.userData.core.rotation.y = targetAngle;
+            }
+            if (turret.userData.antiCore) { // antimatter
+                turret.userData.antiCore.rotation.y = targetAngle;
+            }
+            if (turret.userData.cube) { // quantum
+                turret.userData.cube.rotation.y = targetAngle;
+            }
+            if (turret.userData.hole) { // blackhole
+                turret.userData.hole.rotation.y = targetAngle;
+            }
+            if (turret.userData.clock) { // time
+                turret.userData.clock.rotation.y = targetAngle;
+            }
+            if (turret.userData.hand) { // time
+                turret.userData.hand.rotation.y = targetAngle;
+            }
+            if (turret.userData.shield) { // shield
+                turret.userData.shield.rotation.y = targetAngle;
+            }
+            if (turret.userData.orb) { // energy
+                turret.userData.orb.rotation.y = targetAngle;
+            }
+            if (turret.userData.launcher) { // meteor
+                turret.userData.launcher.rotation.y = targetAngle;
+            }
+            if (turret.userData.cloud) { // storm
+                turret.userData.cloud.rotation.y = targetAngle;
+            }
 
-            // Для турелей без вращающихся частей (tesla, rainbow, healing и др.)
+            // Для турелей без вращающихся частей (tesla, rainbow, healing, minigun, shotgun)
             // - они стреляют во всех направлениях или автоматически
             // Поворачиваем всю турель если нет вращающихся частей
             if (!turret.userData.head && !turret.userData.barrel &&
                 !turret.userData.speaker && !turret.userData.sphere &&
-                !turret.userData.nozzle) {
+                !turret.userData.nozzle && !turret.userData.core &&
+                !turret.userData.cube && !turret.userData.hole &&
+                !turret.userData.clock && !turret.userData.shield &&
+                !turret.userData.orb && !turret.userData.launcher &&
+                !turret.userData.cloud) {
                 turret.rotation.y = targetAngle;
             }
 

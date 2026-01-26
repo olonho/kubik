@@ -3,7 +3,21 @@
  * Зависимости: THREE.js, глобальные массивы scene, turrets
  */
 
-function createTurret() {
+// Вспомогательная функция для получения следующей позиции турели
+function getNextTurretPosition() {
+    // Размещаем турели по кругу вокруг игрока
+    const radius = 4; // Радиус круга
+    const angle = (turrets.length * Math.PI * 2) / 8; // Распределяем по кругу
+    const x = player.position.x + Math.cos(angle) * radius;
+    const z = player.position.z + Math.sin(angle) * radius;
+    return { x: x, y: 0, z: z };
+}
+
+function createTurret(position) {
+    // Если позиция не указана, вычисляем автоматически
+    if (!position) {
+        position = getNextTurretPosition();
+    }
     const turretGroup = new THREE.Group();
 
     // База турели
@@ -50,8 +64,8 @@ function createTurret() {
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
 
-    // Устанавливаем турель рядом с игроком
-    turretGroup.position.set(3, 0, 2);
+    // Устанавливаем турель в указанную позицию
+    turretGroup.position.set(position.x, position.y, position.z);
 
     // Данные турели
     turretGroup.userData.head = head;
@@ -64,7 +78,8 @@ function createTurret() {
     turrets.push(turretGroup);
 }
 
-function createFireTurret() {
+function createFireTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
@@ -96,7 +111,7 @@ function createFireTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(-3, 0, 2);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -105,7 +120,8 @@ function createFireTurret() {
     turrets.push(turretGroup);
 }
 
-function createLaserTurret() {
+function createLaserTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x003366 });
@@ -137,7 +153,7 @@ function createLaserTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(3, 0, -2);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -146,7 +162,8 @@ function createLaserTurret() {
     turrets.push(turretGroup);
 }
 
-function createRocketTurret() {
+function createRocketTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4B0082 });
@@ -187,7 +204,7 @@ function createRocketTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.5, 0.3);
     turretGroup.add(light);
-    turretGroup.position.set(-3, 0, -2);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -196,7 +213,8 @@ function createRocketTurret() {
     turrets.push(turretGroup);
 }
 
-function createFreezeTurret() {
+function createFreezeTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x87CEEB });
@@ -228,7 +246,7 @@ function createFreezeTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(4, 0, 3); // Изменена позиция чтобы не конфликтовать
+    turretGroup.position.set(position.x, position.y, position.z); // Изменена позиция чтобы не конфликтовать
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -237,7 +255,8 @@ function createFreezeTurret() {
     turrets.push(turretGroup);
 }
 
-function createElectricTurret() {
+function createElectricTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
@@ -268,7 +287,7 @@ function createElectricTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(-4, 0, 3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -277,7 +296,8 @@ function createElectricTurret() {
     turrets.push(turretGroup);
 }
 
-function createPoisonTurret() {
+function createPoisonTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x228B22 });
@@ -309,7 +329,7 @@ function createPoisonTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.3, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(4, 0, -3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -318,7 +338,8 @@ function createPoisonTurret() {
     turrets.push(turretGroup);
 }
 
-function createExplosiveTurret() {
+function createExplosiveTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 6);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x2F4F4F });
@@ -350,7 +371,7 @@ function createExplosiveTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.5, 0.3);
     turretGroup.add(light);
-    turretGroup.position.set(-4, 0, -3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
@@ -359,7 +380,8 @@ function createExplosiveTurret() {
     turrets.push(turretGroup);
 }
 
-function createSonicTurret() {
+function createSonicTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 12);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4169E1 });
@@ -391,7 +413,7 @@ function createSonicTurret() {
     const light = new THREE.Mesh(lightGeometry, lightMaterial);
     light.position.set(0, 1.4, 0.25);
     turretGroup.add(light);
-    turretGroup.position.set(0, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.head = head;
     turretGroup.userData.speaker = speaker;
     turretGroup.userData.shootCooldown = 0;
@@ -400,7 +422,8 @@ function createSonicTurret() {
     turrets.push(turretGroup);
 }
 
-function createPlasmaTurret() {
+function createPlasmaTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8a2be2 });
@@ -418,7 +441,7 @@ function createPlasmaTurret() {
     barrel.rotation.z = Math.PI / 2;
     barrel.position.set(0.5, 1, 0);
     turretGroup.add(barrel);
-    turretGroup.position.set(1.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'plasma';
@@ -426,7 +449,8 @@ function createPlasmaTurret() {
     turrets.push(turretGroup);
 }
 
-function createTeslaTurret() {
+function createTeslaTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4b0082 });
@@ -440,14 +464,15 @@ function createTeslaTurret() {
         coil.position.y = 0.5 + i * 0.2;
         turretGroup.add(coil);
     }
-    turretGroup.position.set(-1.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'tesla';
     scene.add(turretGroup);
     turrets.push(turretGroup);
 }
 
-function createGravityTurret() {
+function createGravityTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x2f4f4f });
@@ -459,7 +484,7 @@ function createGravityTurret() {
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     sphere.position.y = 0.9;
     turretGroup.add(sphere);
-    turretGroup.position.set(2.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.sphere = sphere;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'gravityt';
@@ -467,7 +492,8 @@ function createGravityTurret() {
     turrets.push(turretGroup);
 }
 
-function createRailgunTurret() {
+function createRailgunTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4682b4 });
@@ -480,7 +506,7 @@ function createRailgunTurret() {
     barrel.rotation.z = Math.PI / 2;
     barrel.position.set(0.7, 0.7, 0);
     turretGroup.add(barrel);
-    turretGroup.position.set(-2.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'railgunt';
@@ -488,7 +514,8 @@ function createRailgunTurret() {
     turrets.push(turretGroup);
 }
 
-function createMinigunTurret() {
+function createMinigunTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
@@ -504,14 +531,15 @@ function createMinigunTurret() {
         barrel.position.set(0.5, 0.7 + Math.sin(angle) * 0.15, Math.cos(angle) * 0.15);
         turretGroup.add(barrel);
     }
-    turretGroup.position.set(3.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'minigunt';
     scene.add(turretGroup);
     turrets.push(turretGroup);
 }
 
-function createFlamethrowerTurret() {
+function createFlamethrowerTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8b0000 });
@@ -529,7 +557,7 @@ function createFlamethrowerTurret() {
     nozzle.rotation.z = -Math.PI / 2;
     nozzle.position.set(0.6, 0.9, 0);
     turretGroup.add(nozzle);
-    turretGroup.position.set(-3.5, 0, 4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.nozzle = nozzle;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'flamethrower';
@@ -537,7 +565,8 @@ function createFlamethrowerTurret() {
     turrets.push(turretGroup);
 }
 
-function createSniperTurret() {
+function createSniperTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.5, 0.7, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
@@ -555,7 +584,7 @@ function createSniperTurret() {
     const scope = new THREE.Mesh(scopeGeometry, scopeMaterial);
     scope.position.set(0.2, 0.95, 0);
     turretGroup.add(scope);
-    turretGroup.position.set(4.5, 0, 3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'sniper';
@@ -563,7 +592,8 @@ function createSniperTurret() {
     turrets.push(turretGroup);
 }
 
-function createShotgunTurret() {
+function createShotgunTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xb8860b });
@@ -578,14 +608,15 @@ function createShotgunTurret() {
         barrel.position.set(0.45, 0.7, (i - 0.5) * 0.2);
         turretGroup.add(barrel);
     }
-    turretGroup.position.set(-4.5, 0, 3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'shotgunt';
     scene.add(turretGroup);
     turrets.push(turretGroup);
 }
 
-function createCannonTurret() {
+function createCannonTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x2f4f4f });
@@ -598,7 +629,7 @@ function createCannonTurret() {
     barrel.rotation.z = Math.PI / 2;
     barrel.position.set(0.6, 0.8, 0);
     turretGroup.add(barrel);
-    turretGroup.position.set(0, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.barrel = barrel;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'cannon';
@@ -606,7 +637,8 @@ function createCannonTurret() {
     turrets.push(turretGroup);
 }
 
-function createNuclearTurret() {
+function createNuclearTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x556b2f });
@@ -623,7 +655,7 @@ function createNuclearTurret() {
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.position.y = 1;
     turretGroup.add(ring);
-    turretGroup.position.set(1.5, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.core = core;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'nuclear';
@@ -631,7 +663,8 @@ function createNuclearTurret() {
     turrets.push(turretGroup);
 }
 
-function createRainbowTurret() {
+function createRainbowTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
@@ -648,14 +681,15 @@ function createRainbowTurret() {
         crystal.position.y = 0.8 + i * 0.1;
         turretGroup.add(crystal);
     }
-    turretGroup.position.set(-1.5, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'rainbow';
     scene.add(turretGroup);
     turrets.push(turretGroup);
 }
 
-function createHealingTurret() {
+function createHealingTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x228b22 });
@@ -671,14 +705,15 @@ function createHealingTurret() {
     cross2.rotation.z = Math.PI / 2;
     cross2.position.y = 0.9;
     turretGroup.add(cross2);
-    turretGroup.position.set(2.5, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'healing';
     scene.add(turretGroup);
     turrets.push(turretGroup);
 }
 
-function createShieldTurret() {
+function createShieldTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x191970 });
@@ -691,7 +726,7 @@ function createShieldTurret() {
     shield.rotation.x = Math.PI / 2;
     shield.position.y = 0.8;
     turretGroup.add(shield);
-    turretGroup.position.set(-3.5, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.shield = shield;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'shield';
@@ -699,7 +734,8 @@ function createShieldTurret() {
     turrets.push(turretGroup);
 }
 
-function createQuantumTurret() {
+function createQuantumTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x663399 });
@@ -711,7 +747,7 @@ function createQuantumTurret() {
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.position.y = 1;
     turretGroup.add(cube);
-    turretGroup.position.set(3.5, 0, -4);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.cube = cube;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'quantum';
@@ -719,7 +755,8 @@ function createQuantumTurret() {
     turrets.push(turretGroup);
 }
 
-function createBlackholeTurret() {
+function createBlackholeTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
@@ -736,7 +773,7 @@ function createBlackholeTurret() {
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.position.y = 0.9;
     turretGroup.add(ring);
-    turretGroup.position.set(4.5, 0, -3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.hole = hole;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'blackhole';
@@ -744,7 +781,8 @@ function createBlackholeTurret() {
     turrets.push(turretGroup);
 }
 
-function createTimeTurret() {
+function createTimeTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xdaa520 });
@@ -761,7 +799,7 @@ function createTimeTurret() {
     const hand = new THREE.Mesh(handGeometry, handMaterial);
     hand.position.set(0, 1.05, 0.15);
     turretGroup.add(hand);
-    turretGroup.position.set(-4.5, 0, -3);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.clock = clock;
     turretGroup.userData.hand = hand;
     turretGroup.userData.shootCooldown = 0;
@@ -770,7 +808,8 @@ function createTimeTurret() {
     turrets.push(turretGroup);
 }
 
-function createEnergyTurret() {
+function createEnergyTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e68c });
@@ -782,7 +821,7 @@ function createEnergyTurret() {
     const orb = new THREE.Mesh(orbGeometry, orbMaterial);
     orb.position.y = 1;
     turretGroup.add(orb);
-    turretGroup.position.set(5, 0, 0);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.orb = orb;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'energyt';
@@ -790,7 +829,8 @@ function createEnergyTurret() {
     turrets.push(turretGroup);
 }
 
-function createMeteorTurret() {
+function createMeteorTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
@@ -802,7 +842,7 @@ function createMeteorTurret() {
     const launcher = new THREE.Mesh(launcherGeometry, launcherMaterial);
     launcher.position.y = 1;
     turretGroup.add(launcher);
-    turretGroup.position.set(-5, 0, 0);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.launcher = launcher;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'meteor';
@@ -810,7 +850,8 @@ function createMeteorTurret() {
     turrets.push(turretGroup);
 }
 
-function createStormTurret() {
+function createStormTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.3, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x4682b4 });
@@ -823,7 +864,7 @@ function createStormTurret() {
     cloud.scale.set(1, 0.6, 1);
     cloud.position.y = 1.1;
     turretGroup.add(cloud);
-    turretGroup.position.set(0, 0, 5);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.cloud = cloud;
     turretGroup.userData.shootCooldown = 0;
     turretGroup.userData.type = 'stormt';
@@ -831,7 +872,8 @@ function createStormTurret() {
     turrets.push(turretGroup);
 }
 
-function createAntimatterTurret() {
+function createAntimatterTurret(position) {
+    if (!position) position = getNextTurretPosition();
     const turretGroup = new THREE.Group();
     const baseGeometry = new THREE.CylinderGeometry(0.7, 0.9, 0.4, 8);
     const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x8b0000 });
@@ -848,7 +890,7 @@ function createAntimatterTurret() {
     const antiCore = new THREE.Mesh(antiCoreGeometry, antiCoreMaterial);
     antiCore.position.y = 1.1;
     turretGroup.add(antiCore);
-    turretGroup.position.set(0, 0, -5);
+    turretGroup.position.set(position.x, position.y, position.z);
     turretGroup.userData.core = core;
     turretGroup.userData.antiCore = antiCore;
     turretGroup.userData.shootCooldown = 0;
