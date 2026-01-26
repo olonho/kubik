@@ -247,6 +247,94 @@ function createGravityGun() {
     return gravityGroup;
 }
 
+function createFlamethrower() {
+    const flameGroup = new THREE.Group();
+
+    // Баллон с топливом
+    const tankGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.4, 12);
+    const tankMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4500 });
+    const tank = new THREE.Mesh(tankGeometry, tankMaterial);
+    tank.rotation.z = Math.PI / 2;
+    tank.position.set(-0.2, 0, 0);
+    tank.castShadow = true;
+    flameGroup.add(tank);
+
+    // Шланг
+    const hoseGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.3, 8);
+    const hoseMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    const hose = new THREE.Mesh(hoseGeometry, hoseMaterial);
+    hose.rotation.z = Math.PI / 2;
+    hose.position.set(0, 0, 0);
+    hose.castShadow = true;
+    flameGroup.add(hose);
+
+    // Горелка/сопло
+    const nozzleGeometry = new THREE.ConeGeometry(0.08, 0.2, 8);
+    const nozzleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const nozzle = new THREE.Mesh(nozzleGeometry, nozzleMaterial);
+    nozzle.rotation.z = -Math.PI / 2;
+    nozzle.position.set(0.25, 0, 0);
+    nozzle.castShadow = true;
+    flameGroup.add(nozzle);
+
+    // Рукоятка
+    const handleGeometry = new THREE.BoxGeometry(0.06, 0.15, 0.08);
+    const handleMaterial = new THREE.MeshPhongMaterial({ color: 0x4a4a4a });
+    const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+    handle.position.set(-0.1, -0.1, 0);
+    handle.castShadow = true;
+    flameGroup.add(handle);
+
+    return flameGroup;
+}
+
+function createGrenade() {
+    const grenadeGroup = new THREE.Group();
+
+    // Основной ствол (труба для гранат)
+    const barrelGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 12);
+    const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x2F4F4F });
+    const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.set(0.15, 0, 0);
+    barrel.castShadow = true;
+    grenadeGroup.add(barrel);
+
+    // Казенная часть (где загружаются гранаты)
+    const breechGeometry = new THREE.CylinderGeometry(0.13, 0.11, 0.15, 12);
+    const breechMaterial = new THREE.MeshPhongMaterial({ color: 0x696969 });
+    const breech = new THREE.Mesh(breechGeometry, breechMaterial);
+    breech.rotation.z = Math.PI / 2;
+    breech.position.set(-0.1, 0, 0);
+    breech.castShadow = true;
+    grenadeGroup.add(breech);
+
+    // Корпус/ложа
+    const bodyGeometry = new THREE.BoxGeometry(0.3, 0.12, 0.12);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.set(-0.15, 0, 0);
+    body.castShadow = true;
+    grenadeGroup.add(body);
+
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.08, 0.16, 0.08);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x4a4a4a });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.15, -0.14, 0);
+    grip.castShadow = true;
+    grenadeGroup.add(grip);
+
+    // Прицел
+    const sightGeometry = new THREE.BoxGeometry(0.04, 0.06, 0.03);
+    const sightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+    const sight = new THREE.Mesh(sightGeometry, sightMaterial);
+    sight.position.set(0, 0.08, 0);
+    grenadeGroup.add(sight);
+
+    return grenadeGroup;
+}
+
 function createWeapon(type) {
     if (type === 'pistol') return createPistol();
     else if (type === 'rifle') return createRifle();
@@ -259,6 +347,8 @@ function createWeapon(type) {
     else if (type === 'crossbow') return createCrossbow();
     else if (type === 'minigun') return createMinigun();
     else if (type === 'railgun') return createRailgun();
+    else if (type === 'flamethrower') return createFlamethrower();
+    else if (type === 'grenade') return createGrenade();
     else if (type === 'bfg') return createBFG();
     else if (type === 'plasmacannon') return createPlasmaCannon();
     else if (type === 'plasma') return createPlasma();
@@ -672,3 +762,54 @@ function createPlasmaCannon() {
     plasmaGroup.scale.set(1.7, 1.7, 1.7);
     return plasmaGroup;
 }
+
+function createRifle() {
+    const rifleGroup = new THREE.Group();
+
+    // Длинный ствол
+    // Толстый ствол
+    const barrelGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 8);
+    const barrelMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
+    const barrel = new THREE.Mesh(barrelGeometry, barrelMaterial);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.castShadow = true;
+    mgGroup.add(barrel);
+
+    // Кожух охлаждения
+    const coolingGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.4, 12);
+    const coolingMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    const cooling = new THREE.Mesh(coolingGeometry, coolingMaterial);
+    cooling.rotation.z = Math.PI / 2;
+    cooling.position.set(0.1, 0, 0);
+    cooling.castShadow = true;
+    mgGroup.add(cooling);
+
+    // Массивный корпус
+    const bodyGeometry = new THREE.BoxGeometry(0.5, 0.12, 0.15);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x2a2a2a });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.set(-0.15, 0, 0);
+    body.castShadow = true;
+    mgGroup.add(body);
+
+    // Магазин (барабан)
+    const magGeometry = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16);
+    const magMaterial = new THREE.MeshPhongMaterial({ color: 0x444444 });
+    const mag = new THREE.Mesh(magGeometry, magMaterial);
+    mag.position.set(-0.1, -0.1, 0);
+    mag.castShadow = true;
+    mgGroup.add(mag);
+
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.08, 0.15, 0.08);
+    const gripMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+    const grip = new THREE.Mesh(gripGeometry, gripMaterial);
+    grip.position.set(-0.2, -0.12, 0);
+    grip.castShadow = true;
+    mgGroup.add(grip);
+
+    mgGroup.scale.set(2.0, 2.0, 2.0);
+    return mgGroup;
+}
+
+

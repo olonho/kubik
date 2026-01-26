@@ -7,11 +7,14 @@ var obstacles = [];
 var bullets = [];
 var score = 0;
 var highScore = parseInt(localStorage.getItem('cubeGameHighScore')) || 0;
-var level = 1;
+var wave = 1;
+var zombiesPerWave = 5;
+var zombiesInCurrentWave = 0;
+var waveActive = false;
 var lives = 3;
 var ammo = 80;
 var maxAmmo = 80;
-var coins = parseInt(localStorage.getItem('cubeGameCoins')) || 0;
+var coins = parseInt(localStorage.getItem('cubeGameCoins')) || 50000;
 var gameActive = true;
 var playerVelocityY = 0;
 var isJumping = false;
@@ -19,7 +22,7 @@ var keys = {};
 var selectedSkin = null;
 var selectedWeapon = 'pistol';
 var unlockedWeapons = JSON.parse(localStorage.getItem('cubeGameUnlockedWeapons')) || ['pistol', 'rifle', 'laser', 'gravity'];
-var maxLevelReached = parseInt(localStorage.getItem('cubeGameMaxLevel')) || 1;
+var maxWaveReached = parseInt(localStorage.getItem('cubeGameMaxWave')) || 1;
 var animationId = null;
 var decorations = [];
 var canShoot = true;
@@ -28,7 +31,7 @@ var isBurstFiring = false;
 var burstCount = 0;
 var burstMax = 3;
 var cameraMode = 'firstPerson';
-var obstacleSpeed = 0.025;
+var obstacleSpeed = 0.015;
 var spawnRate = 0.03;
 var gravity = -0.015;
 var playerSpeed = 0.1;
@@ -36,7 +39,7 @@ var bulletSpeed = 0.5;
 var jumpPower = 0.3;
 var cameraLookTarget;
 var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
-var ownedWeapons = ['pistol', 'rifle'];
+var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle'];
 var turrets = [];
 var hasTurret = false;
 var hasFireTurret = false;
@@ -47,10 +50,32 @@ var hasElectricTurret = false;
 var hasPoisonTurret = false;
 var hasExplosiveTurret = false;
 var hasSonicTurret = false;
+var hasPlasmaTurret = false;
+var hasTeslaTurret = false;
+var hasGravityTurret = false;
+var hasRailgunTurret = false;
+var hasMinigunTurret = false;
+var hasFlamethrowerTurret = false;
+var hasSniperTurret = false;
+var hasShotgunTurret = false;
+var hasCannonTurret = false;
+var hasNuclearTurret = false;
+var hasRainbowTurret = false;
+var hasHealingTurret = false;
+var hasShieldTurret = false;
+var hasQuantumTurret = false;
+var hasBlackholeTurret = false;
+var hasTimeTurret = false;
+var hasEnergyTurret = false;
+var hasMeteorTurret = false;
+var hasStormTurret = false;
+var hasAntimatterTurret = false;
+var pets = [];
+var ownedPets = JSON.parse(localStorage.getItem('cubeGameOwnedPets')) || [];
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);
-    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | Уровень: ' + level + ' | Жизни: ' + heartsDisplay;
+    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | Волна: ' + wave + ' | Зомби: ' + zombiesInCurrentWave + ' | Жизни: ' + heartsDisplay;
 }
 
 function updateAmmoDisplay() {
@@ -75,71 +100,65 @@ function loseLife() {
     }
 }
 
-function updateLevel() {
-    const newLevel = Math.floor(score / 50) + 1;
-    if (newLevel > level) {
-        level = newLevel;
-        obstacleSpeed = 0.025 + (level - 1) * 0.005;
-        spawnRate = 0.01 + (level - 1) * 0.008;
-        
-        if (level % 5 === 0) {
-            ammo = maxAmmo;
-            updateAmmoDisplay();
-        }
-        updateScoreDisplay();
-        
-        scene.background = new THREE.Color(Math.random() * 0x666666 + 0x6699bb);
-        setTimeout(() => {
-            scene.background = new THREE.Color(0x87ceeb);
-        }, 300);
-        
-        if (level % 10 === 0) {
-            coins += 300;
-            updateCoinsDisplay();
-            gameActive = false;
-            setTimeout(() => {
-                openShop(true);
-            }, 500);
-        }
-        
-        if (level === 20 && !unlockedWeapons.includes('laser')) {
-            unlockedWeapons.push('laser');
-            localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
-            
-            gameActive = false;
-            const notification = document.createElement('div');
-            notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);';
-            notification.innerHTML = '🎉 ПОЗДРАВЛЯЕМ! 🎉<br><br>🔫⚡ РАЗБЛОКИРОВАНА ЛАЗЕРНАЯ ПУШКА! ⚡🔫<br><br>Нажмите 3 для выбора<br><br><span style="font-size: 20px; color: #FFD700;">Бесконечные патроны • Быстрая стрельба</span>';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                document.body.removeChild(notification);
-                gameActive = true;
-            }, 5000);
-        }
-        
-        if (level === 50 && !unlockedWeapons.includes('gravity')) {
-            unlockedWeapons.push('gravity');
-            localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
-            
-            gameActive = false;
-            const notification = document.createElement('div');
-            notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #9400D3 0%, #4B0082 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(148, 0, 211, 0.8);';
-            notification.innerHTML = '🎉 НЕВЕРОЯТНО! 🎉<br><br>🌀💜 РАЗБЛОКИРОВАНА ГРАВИТАЦИОННАЯ ПУШКА! 💜🌀<br><br>Нажмите 4 для выбора<br><br><span style="font-size: 20px; color: #FFD700;">Бесконечные патроны • Массовое уничтожение</span>';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                document.body.removeChild(notification);
-                gameActive = true;
-            
-            // Показываем кнопку weapon4
-            const weapon4Btn = document.getElementById('weapon4Btn');
-            if (weapon4Btn) weapon4Btn.style.display = 'block';
-            }, 5000);
-        }
+function startNewWave() {
+    wave++;
 
-        // Катсцена победы на 250 уровне
-        if (level === 250) {
+    // Увеличиваем количество зомби с каждой волной (более агрессивная прогрессия)
+    zombiesPerWave = 5 + (wave - 1) * 4; // 5, 9, 13, 17, 21, 25...
+    zombiesInCurrentWave = zombiesPerWave;
+
+    // Увеличиваем скорость зомби с каждой волной (более агрессивная прогрессия)
+    obstacleSpeed = 0.02 + (wave - 1) * 0.008;
+
+    // Обычные зомби получают HP на высоких волнах
+    window.zombieBaseHP = Math.floor(wave / 10) + 1; // 1 HP на волнах 1-9, 2 HP на 10-19, и т.д.
+
+    waveActive = true;
+    updateScoreDisplay();
+
+    // Визуальный эффект начала волны
+    scene.background = new THREE.Color(Math.random() * 0x666666 + 0x6699bb);
+    setTimeout(() => {
+        scene.background = new THREE.Color(0x87ceeb);
+    }, 300);
+
+    // Награды каждые 5 волн
+    if (wave % 5 === 0) {
+        ammo = maxAmmo;
+        updateAmmoDisplay();
+        coins += 200;
+        updateCoinsDisplay();
+    }
+
+    // Магазин каждые 40 волн
+    if (wave % 40 === 0 && wave !== 30) {
+        coins += 500;
+        updateCoinsDisplay();
+        gameActive = false;
+        setTimeout(() => {
+            openShop(true);
+        }, 500);
+    }
+
+    // Разблокировка лазера на 10 волне
+    if (wave === 10 && !unlockedWeapons.includes('laser')) {
+        unlockedWeapons.push('laser');
+        localStorage.setItem('cubeGameUnlockedWeapons', JSON.stringify(unlockedWeapons));
+
+        gameActive = false;
+        const notification = document.createElement('div');
+        notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 60px; border-radius: 20px; font-size: 32px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);';
+        notification.innerHTML = '🎉 ПОЗДРАВЛЯЕМ! 🎉<br><br>🔫⚡ РАЗБЛОКИРОВАНА ЛАЗЕРНАЯ ПУШКА! ⚡🔫<br><br>Нажмите 3 для выбора<br><br><span style="font-size: 20px; color: #FFD700;">Бесконечные патроны • Быстрая стрельба</span>';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            document.body.removeChild(notification);
+            gameActive = true;
+        }, 5000);
+    }
+
+    // Катсцена победы на 180 уровне
+    if (level === 180) {
             gameActive = false;
 
             // Очищаем всех зомби с экрана
@@ -220,8 +239,8 @@ function updateLevel() {
                 <div class="victory-content">
                     <div class="victory-text">
                         🏆 ПОЗДРАВЛЯЕМ! 🏆<br><br>
-                        ВЫ ДОСТИГЛИ 250 УРОВНЯ И ПОБЕДИЛИ ВСЕХ ЗОМБИ!<br><br>
-                        🧟 Все зомби повержены! Вы спасли мир! 🌍<br><br>
+                        ВЫ ДОСТИГЛИ 180 УРОВНЯ И СПАСЛИ МИР!<br><br>
+                        🧟 Все зомби повержены! Вы настоящий герой! 🌍<br><br>
                         💪 Невероятное достижение! 💪
                     </div>
                     <div class="victory-stats">
@@ -269,23 +288,105 @@ function updateLevel() {
                 }
                 returnToSkinMenu();
             };
+    }
+
+    if (wave > maxWaveReached) {
+        maxWaveReached = wave;
+        localStorage.setItem('cubeGameMaxWave', maxWaveReached);
+    }
+
+    // Спавним всех зомби волны
+    spawnWaveZombies();
+}
+
+function spawnWaveZombies() {
+    // Проверяем, нужен ли босс на этой волне (каждые 5 волн начиная с 5-й)
+    const isBossWave = wave >= 5 && wave % 5 === 0;
+
+    if (isBossWave) {
+        // На волне с боссом спавним босса в конце
+        for (let i = 0; i < zombiesPerWave - 1; i++) {
+            setTimeout(() => {
+                if (gameActive && waveActive) {
+                    createObstacle();
+                }
+            }, i * 300);
         }
 
-        if (level > maxLevelReached) {
-            maxLevelReached = level;
-            localStorage.setItem('cubeGameMaxLevel', maxLevelReached);
+        // Спавним босса последним с задержкой
+        setTimeout(() => {
+            if (gameActive && waveActive) {
+                createBoss();
+
+                // Уведомление о появлении босса
+                const notification = document.createElement('div');
+                notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #8b0000 0%, #ff0000 100%); color: white; padding: 30px 50px; border-radius: 15px; font-size: 36px; font-weight: bold; z-index: 500; text-align: center; border: 5px solid gold; box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); animation: pulse 0.5s infinite;';
+                notification.innerHTML = '👑 БОСС ПОЯВИЛСЯ! 👑<br><br><span style="font-size: 24px;">Будь осторожен!</span>';
+                document.body.appendChild(notification);
+
+                // Эффект тряски экрана
+                let shakeIntensity = 20;
+                let shakeCount = 0;
+                const shakeInterval = setInterval(() => {
+                    if (camera) {
+                        camera.position.x += (Math.random() - 0.5) * shakeIntensity * 0.01;
+                        camera.position.y += (Math.random() - 0.5) * shakeIntensity * 0.01;
+                    }
+                    shakeCount++;
+                    if (shakeCount > 20) {
+                        clearInterval(shakeInterval);
+                    }
+                }, 50);
+
+                // Красная вспышка
+                scene.background = new THREE.Color(0xff0000);
+                setTimeout(() => {
+                    scene.background = new THREE.Color(0x87ceeb);
+                }, 200);
+
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 3000);
+            }
+        }, (zombiesPerWave - 1) * 300 + 600);
+    } else {
+        // Обычная волна - только обычные зомби
+        for (let i = 0; i < zombiesPerWave; i++) {
+            setTimeout(() => {
+                if (gameActive && waveActive) {
+                    createObstacle();
+                }
+            }, i * 300);
         }
+    }
+}
+
+function checkWaveComplete() {
+    if (waveActive && zombiesInCurrentWave <= 0 && obstacles.length === 0) {
+        waveActive = false;
+
+        // Показываем уведомление о завершении волны
+        const waveCompleteNotification = document.createElement('div');
+        waveCompleteNotification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 30px 50px; border-radius: 15px; font-size: 36px; font-weight: bold; z-index: 500; text-align: center; border: 3px solid white;';
+        waveCompleteNotification.innerHTML = `🎉 Волна ${wave} завершена! 🎉<br><br><span style="font-size: 24px;">Следующая волна через 1.5 секунды...</span>`;
+        document.body.appendChild(waveCompleteNotification);
+
+        setTimeout(() => {
+            document.body.removeChild(waveCompleteNotification);
+            startNewWave();
+        }, 1500);
     }
 }
 
 function gameOver() {
     gameActive = false;
+    waveActive = false;
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('cubeGameHighScore', highScore);
     }
     document.getElementById('finalScore').textContent = score;
-    document.getElementById('finalLevel').textContent = level;
+    document.getElementById('finalLevel').textContent = 'Волна ' + wave;
     document.getElementById('finalHighScore').textContent = highScore;
     document.getElementById('gameOver').style.display = 'block';
     document.getElementById('crosshair').style.display = 'none';
@@ -298,11 +399,13 @@ function restartGame() {
     bullets.forEach(bullet => scene.remove(bullet));
     bullets = [];
     score = 0;
-    level = 1;
+    wave = 0;
+    zombiesPerWave = 5;
+    zombiesInCurrentWave = 0;
+    waveActive = false;
     lives = 3;
     ammo = maxAmmo;
-    obstacleSpeed = 0.025;
-    spawnRate = 0.01;
+    obstacleSpeed = 0.02;
     canShoot = true;
     isBurstFiring = false;
     burstCount = 0;
@@ -318,17 +421,20 @@ function restartGame() {
     playerVelocityY = 0;
     isJumping = false;
     gameActive = true;
+    startNewWave();
 }
 
 function returnToSkinMenu() {
     gameActive = false;
-    
+    waveActive = false;
+
     score = 0;
-    level = 1;
+    wave = 0;
+    zombiesPerWave = 5;
+    zombiesInCurrentWave = 0;
     lives = 3;
     ammo = maxAmmo;
-    obstacleSpeed = 0.025;
-    spawnRate = 0.01;
+    obstacleSpeed = 0.02;
     playerVelocityY = 0;
     isJumping = false;
     
