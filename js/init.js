@@ -167,18 +167,18 @@ function init() {
     fpsComposer = null;
     console.log('⚡ Постобработка отключена - используется обычный рендеринг');
 
-    // Легкий туман для атмосферы (дальний план)
-    scene.fog = new THREE.Fog(0x87ceeb, 30, 80);
+    // Легкий туман для атмосферы (как в Far Cry 3 - тропический остров)
+    scene.fog = new THREE.Fog(0xa0c8e8, 40, 100);
 
-    // Сбалансированное освещение
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x228b22, 0.6);
+    // Освещение как в Far Cry 3 (солнечный тропический день)
+    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x3a6b35, 0.8);
     scene.add(hemisphereLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    // Основной направленный свет (солнце)
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    // Яркое тропическое солнце
+    const directionalLight = new THREE.DirectionalLight(0xffffee, 1.2);
     directionalLight.position.set(10, 20, 10);
     directionalLight.castShadow = true;
 
@@ -200,10 +200,12 @@ function init() {
     fillLight.position.set(-5, 5, -5);
     scene.add(fillLight);
 
-    // Простая земля (без процедурных текстур)
+    // Реалистичная земля (как в Far Cry 3)
     const groundGeometry = new THREE.PlaneGeometry(10, 100);
-    const groundMaterial = new THREE.MeshLambertMaterial({
-        color: 0x2d5a2d
+    const groundMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3a6b35,
+        roughness: 0.9,
+        metalness: 0.0
     });
 
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
