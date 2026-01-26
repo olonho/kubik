@@ -292,6 +292,11 @@ window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('weaponsShopMenu').style.display = 'none';
         returnToSkinMenu();
     });
+
+    // Обработчик кнопки постройки дома
+    document.getElementById('buildHouseBtn').addEventListener('click', () => {
+        buildHouse();
+    });
 });
 
 // init() будет вызван после выбора скина (определён в init.js)

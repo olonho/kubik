@@ -27,7 +27,10 @@ function selectSkin(skin) {
     document.getElementById('openShopBtn').style.display = 'block';
     document.getElementById('openItemsShopBtn').style.display = 'block';
     document.getElementById('openWeaponsShopBtn').style.display = 'block';
+    document.getElementById('woodDisplay').style.display = 'block';
+    document.getElementById('buildHouseBtn').style.display = 'block';
     updateCoinsDisplay();
+    updateWoodDisplay();
     init();
 }
 

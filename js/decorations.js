@@ -531,16 +531,150 @@ function createBoulder() {
     return boulderGroup;
 }
 
+function createHouse() {
+    const houseGroup = new THREE.Group();
+
+    // Фундамент
+    const foundationGeometry = new THREE.BoxGeometry(4, 0.3, 3);
+    const foundationMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
+    const foundation = new THREE.Mesh(foundationGeometry, foundationMaterial);
+    foundation.position.y = 0.15;
+    foundation.castShadow = true;
+    foundation.receiveShadow = true;
+    houseGroup.add(foundation);
+
+    // Стены
+    const wallGeometry = new THREE.BoxGeometry(4, 2.5, 3);
+    const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xD2691E });
+    const walls = new THREE.Mesh(wallGeometry, wallMaterial);
+    walls.position.y = 1.55;
+    walls.castShadow = true;
+    walls.receiveShadow = true;
+    houseGroup.add(walls);
+
+    // Крыша (двускатная)
+    const roofGeometry = new THREE.ConeGeometry(2.5, 1.5, 4);
+    const roofMaterial = new THREE.MeshPhongMaterial({ color: 0x8B0000 });
+    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    roof.position.y = 3.55;
+    roof.rotation.y = Math.PI / 4;
+    roof.castShadow = true;
+    houseGroup.add(roof);
+
+    // Дверь
+    const doorGeometry = new THREE.BoxGeometry(0.8, 1.6, 0.1);
+    const doorMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+    const door = new THREE.Mesh(doorGeometry, doorMaterial);
+    door.position.set(0, 1.1, 1.51);
+    door.castShadow = true;
+    houseGroup.add(door);
+
+    // Дверная ручка
+    const handleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    const handleMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+    const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+    handle.position.set(0.3, 1.1, 1.56);
+    houseGroup.add(handle);
+
+    // Окна
+    const windowGeometry = new THREE.BoxGeometry(0.6, 0.6, 0.05);
+    const windowMaterial = new THREE.MeshPhongMaterial({
+        color: 0x87CEEB,
+        transparent: true,
+        opacity: 0.6,
+        emissive: 0x87CEEB,
+        emissiveIntensity: 0.2
+    });
+
+    // Переднее окно (слева от двери)
+    const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window1.position.set(-1, 1.8, 1.51);
+    houseGroup.add(window1);
+
+    // Переднее окно (справа от двери)
+    const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window2.position.set(1, 1.8, 1.51);
+    houseGroup.add(window2);
+
+    // Боковые окна
+    const window3 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window3.position.set(-2.01, 1.8, 0);
+    window3.rotation.y = Math.PI / 2;
+    houseGroup.add(window3);
+
+    const window4 = new THREE.Mesh(windowGeometry, windowMaterial);
+    window4.position.set(2.01, 1.8, 0);
+    window4.rotation.y = Math.PI / 2;
+    houseGroup.add(window4);
+
+    // Труба на крыше
+    const chimneyGeometry = new THREE.BoxGeometry(0.4, 1, 0.4);
+    const chimneyMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+    const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
+    chimney.position.set(1, 3.8, 0.5);
+    chimney.castShadow = true;
+    houseGroup.add(chimney);
+
+    // Дым из трубы
+    for (let i = 0; i < 3; i++) {
+        const smokeGeometry = new THREE.SphereGeometry(0.15 + i * 0.05, 8, 8);
+        const smokeMaterial = new THREE.MeshPhongMaterial({
+            color: 0xCCCCCC,
+            transparent: true,
+            opacity: 0.4 - i * 0.1
+        });
+        const smoke = new THREE.Mesh(smokeGeometry, smokeMaterial);
+        smoke.position.set(1 + (Math.random() - 0.5) * 0.2, 4.5 + i * 0.3, 0.5 + (Math.random() - 0.5) * 0.2);
+        houseGroup.add(smoke);
+    }
+
+    // Крыльцо
+    const porchGeometry = new THREE.BoxGeometry(1.5, 0.2, 0.8);
+    const porchMaterial = new THREE.MeshPhongMaterial({ color: 0xA0522D });
+    const porch = new THREE.Mesh(porchGeometry, porchMaterial);
+    porch.position.set(0, 0.4, 2.1);
+    porch.castShadow = true;
+    houseGroup.add(porch);
+
+    // Ступеньки
+    for (let i = 0; i < 2; i++) {
+        const stepGeometry = new THREE.BoxGeometry(1.5, 0.15, 0.3);
+        const stepMaterial = new THREE.MeshPhongMaterial({ color: 0x8B7355 });
+        const step = new THREE.Mesh(stepGeometry, stepMaterial);
+        step.position.set(0, 0.075 + i * 0.15, 2.5 + i * 0.3);
+        step.castShadow = true;
+        houseGroup.add(step);
+    }
+
+    return houseGroup;
+}
+
 function createTrees() {
-    for (let i = 0; i < 25; i++) {
+    // Увеличиваем количество деревьев до 100 с каждой стороны
+    for (let i = 0; i < 100; i++) {
         const tree = createTree();
         tree.position.set(-5.5, 0, -i * 5 - 5);
+        tree.userData.isTree = true; // Помечаем как дерево для рубки
+        tree.userData.canChop = true; // Можно рубить
         scene.add(tree);
         decorations.push(tree);
     }
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 100; i++) {
         const tree = createTree();
         tree.position.set(5.5, 0, -i * 5 - 5);
+        tree.userData.isTree = true; // Помечаем как дерево для рубки
+        tree.userData.canChop = true; // Можно рубить
+        scene.add(tree);
+        decorations.push(tree);
+    }
+
+    // Добавляем еще деревья в разных местах карты для разнообразия
+    for (let i = 0; i < 50; i++) {
+        const tree = createTree();
+        const side = Math.random() > 0.5 ? -7 : 7;
+        tree.position.set(side + (Math.random() - 0.5) * 2, 0, -i * 8 - Math.random() * 10);
+        tree.userData.isTree = true;
+        tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }

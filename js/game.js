@@ -15,6 +15,8 @@ var lives = 3;
 var ammo = 80;
 var maxAmmo = 80;
 var coins = 50000; // Всегда начинаем с 50000 монет
+var wood = 0; // Собранная древесина для постройки дома
+var playerHouse = null; // Построенный дом игрока
 var gameActive = true;
 var playerVelocityY = 0;
 var isJumping = false;
@@ -84,6 +86,129 @@ function updateAmmoDisplay() {
 
 function updateCoinsDisplay() {
     document.getElementById('coinsDisplay').textContent = '💰 Монеты: ' + coins;
+}
+
+function updateWoodDisplay() {
+    document.getElementById('woodDisplay').textContent = '🪵 Древесина: ' + wood;
+}
+
+function buildHouse() {
+    const woodRequired = 50; // Нужно 50 дерева для постройки дома
+
+    if (wood >= woodRequired) {
+        if (playerHouse) {
+            // Уже построен дом
+            showNotification('🏠 У вас уже есть дом!', 'info');
+            return;
+        }
+
+        wood -= woodRequired;
+        updateWoodDisplay();
+
+        // Создаем дом рядом с игроком
+        playerHouse = createHouse();
+        playerHouse.position.set(-10, 0, player.position.z - 5); // Ставим слева от дорожки
+        scene.add(playerHouse);
+
+        // Показываем уведомление
+        showNotification('🏠 Дом построен! Отличная работа!', 'success');
+
+        // Даем бонус за постройку дома
+        coins += 500;
+        updateCoinsDisplay();
+        lives = Math.min(lives + 1, 5); // Добавляем жизнь (максимум 5)
+        updateScoreDisplay();
+
+    } else {
+        showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
+    }
+}
+
+function chopTree(tree) {
+    if (tree.userData.canChop) {
+        // Удаляем дерево из сцены
+        scene.remove(tree);
+
+        // Удаляем из массива декораций
+        const index = decorations.indexOf(tree);
+        if (index > -1) {
+            decorations.splice(index, 1);
+        }
+
+        // Добавляем древесину
+        wood += 1;
+        updateWoodDisplay();
+
+        // Визуальный эффект
+        createWoodParticles(tree.position);
+
+        // Звуковой эффект через визуальное уведомление
+        showQuickNotification('+1 🪵', tree.position);
+    }
+}
+
+function createWoodParticles(position) {
+    // Создаем частицы дерева для эффекта рубки
+    for (let i = 0; i < 10; i++) {
+        const particleGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        const particleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+
+        particle.position.copy(position);
+        particle.position.y += 1;
+
+        const velocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.2,
+            Math.random() * 0.3,
+            (Math.random() - 0.5) * 0.2
+        );
+
+        particle.userData.velocity = velocity;
+        particle.userData.lifetime = 60; // Кадры жизни частицы
+
+        scene.add(particle);
+        bullets.push(particle); // Используем массив bullets для временного хранения
+    }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 30px 50px;
+        border-radius: 15px;
+        font-size: 28px;
+        font-weight: bold;
+        z-index: 500;
+        text-align: center;
+        border: 3px solid white;
+        color: white;
+    `;
+
+    if (type === 'success') {
+        notification.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+    } else if (type === 'error') {
+        notification.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+    } else {
+        notification.style.background = 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)';
+    }
+
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+        }
+    }, 2000);
+}
+
+function showQuickNotification(text, position) {
+    // Быстрое уведомление над срубленным деревом (через DOM, так как это проще)
+    // В реальной игре это были бы 3D спрайты
 }
 
 function loseLife() {
@@ -437,22 +562,27 @@ function returnToSkinMenu() {
     obstacleSpeed = 0.02;
     playerVelocityY = 0;
     isJumping = false;
-    
+    wood = 0; // Сбрасываем древесину
+
     if (animationId) {
         cancelAnimationFrame(animationId);
         animationId = null;
     }
-    
+
     if (scene) {
         obstacles.forEach(obstacle => scene.remove(obstacle));
         bullets.forEach(bullet => scene.remove(bullet));
         decorations.forEach(decoration => scene.remove(decoration));
+        if (playerHouse) {
+            scene.remove(playerHouse);
+            playerHouse = null;
+        }
     }
-    
+
     obstacles = [];
     bullets = [];
     decorations = [];
-    
+
     document.getElementById('gameOver').style.display = 'none';
     document.getElementById('score').style.display = 'none';
     document.getElementById('instructions').style.display = 'none';
@@ -462,7 +592,9 @@ function returnToSkinMenu() {
     document.getElementById('crosshair').style.display = 'none';
     document.getElementById('coinsDisplay').style.display = 'none';
     document.getElementById('openShopBtn').style.display = 'none';
+    document.getElementById('woodDisplay').style.display = 'none';
+    document.getElementById('buildHouseBtn').style.display = 'none';
     document.getElementById('skinMenu').style.display = 'block';
-    
+
     selectedSkin = null;
 }

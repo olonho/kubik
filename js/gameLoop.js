@@ -413,12 +413,44 @@ function updateBullets() {
     for (let i = bullets.length - 1; i >= 0; i--) {
         const bullet = bullets[i];
 
+        // Если это частица от рубки дерева
+        if (bullet.userData.velocity) {
+            bullet.position.add(bullet.userData.velocity);
+            bullet.userData.velocity.y += gravity; // Гравитация
+            bullet.userData.lifetime--;
+
+            if (bullet.userData.lifetime <= 0) {
+                scene.remove(bullet);
+                bullets.splice(i, 1);
+            }
+            continue;
+        }
+
         // Пули летят по направлению камеры (автоприцеливание)
         if (bullet.userData.direction) {
             bullet.position.x += bullet.userData.direction.x * bulletSpeed;
             bullet.position.y += bullet.userData.direction.y * bulletSpeed;
             bullet.position.z += bullet.userData.direction.z * bulletSpeed;
         }
+
+        // Проверяем столкновение с деревьями
+        let treeHit = false;
+        for (let k = decorations.length - 1; k >= 0; k--) {
+            const decoration = decorations[k];
+            if (decoration.userData.isTree && decoration.userData.canChop) {
+                const distance = bullet.position.distanceTo(decoration.position);
+                if (distance < 1.5) {
+                    // Попали в дерево!
+                    scene.remove(bullet);
+                    bullets.splice(i, 1);
+                    chopTree(decoration);
+                    treeHit = true;
+                    break;
+                }
+            }
+        }
+
+        if (treeHit) continue;
 
         // Проверяем столкновение с препятствиями
         for (let j = obstacles.length - 1; j >= 0; j--) {
@@ -513,6 +545,117 @@ function loseLife() {
 // Функция updateLevel перенесена в js/game.js как startNewWave()
 
 function updateObstacles() {
+    if (!gameActive) return;
+
+    // Создаём зомби если волна активна
+    if (waveActive && zombiesInCurrentWave > 0) {
+        if (Math.random() < 0.02) { // 2% шанс каждый кадр
+            createZombie();
+            zombiesInCurrentWave--;
+        }
+    }
+
+    // Двигаем и обрабатываем зомби
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacleGroup = obstacles[i];
+        obstacleGroup.position.z += obstacleSpeed;
+
+        // Анимация ног зомби
+        const leftLeg = obstacleGroup.userData.leftLeg;
+        const rightLeg = obstacleGroup.userData.rightLeg;
+        if (leftLeg && rightLeg) {
+            obstacleGroup.userData.legPhase += 0.1;
+            const swingAngle = Math.sin(obstacleGroup.userData.legPhase) * 0.3;
+            leftLeg.rotation.x = swingAngle;
+            rightLeg.rotation.x = -swingAngle;
+        }
+
+        // Анимация ауры босса
+        if (obstacleGroup.userData.aura) {
+            const time = Date.now() * 0.001;
+            obstacleGroup.userData.aura.material.opacity = 0.2 + Math.sin(time * 2) * 0.1;
+        }
+
+        // Обновление HP бара
+        if (obstacleGroup.userData.hpBar) {
+            const hpRatio = obstacleGroup.userData.hp / obstacleGroup.userData.maxHp;
+            obstacleGroup.userData.hpBar.scale.x = hpRatio;
+            obstacleGroup.userData.hpBar.position.x = -(1 - hpRatio) * 0.4;
+
+            // Цвет HP бара
+            if (hpRatio > 0.6) {
+                obstacleGroup.userData.hpBar.material.color.setHex(0x00ff00);
+            } else if (hpRatio > 0.3) {
+                obstacleGroup.userData.hpBar.material.color.setHex(0xffff00);
+            } else {
+                obstacleGroup.userData.hpBar.material.color.setHex(0xff0000);
+            }
+        }
+
+        // Зомби дошёл до игрока - потеря жизни
+        if (obstacleGroup.position.z > 10) {
+            scene.remove(obstacleGroup);
+            obstacles.splice(i, 1);
+            loseLife();
+        }
+    }
+
+    // Проверяем конец волны
+    if (waveActive && zombiesInCurrentWave === 0 && obstacles.length === 0) {
+        waveActive = false;
+
+        // Перерыв между 10 и 11 волной (4 минуты)
+        if (wave === 10) {
+            gameActive = false;
+            showNotification('🎉 Волна 10 завершена! Перерыв 4 минуты ⏰', 'success');
+
+            // Таймер обратного отсчёта
+            let timeLeft = 240; // 4 минуты = 240 секунд
+            const timerDiv = document.createElement('div');
+            timerDiv.id = 'waveTimer';
+            timerDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 50px;
+                border-radius: 20px;
+                font-size: 48px;
+                font-weight: bold;
+                z-index: 1000;
+                text-align: center;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: 5px solid gold;
+            `;
+            document.body.appendChild(timerDiv);
+
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDiv.innerHTML = `⏰ Перерыв<br>${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.body.removeChild(timerDiv);
+                    gameActive = true;
+                    startNewWave();
+                    showNotification('⚔️ Волна 11 начинается!', 'info');
+                }
+            }, 1000);
+        } else {
+            // Обычная награда между волнами
+            coins += 100;
+            updateCoinsDisplay();
+            showNotification(`✅ Волна ${wave} завершена! +100 монет`, 'success');
+
+            setTimeout(() => {
+                startNewWave();
+            }, 2000);
+        }
+    }
+}
 
 // Обновление питомцев
 function updatePets() {
@@ -804,14 +947,23 @@ function restartGame() {
     level = 1;
     lives = 3;
     ammo = maxAmmo;
+    wood = 0; // Сбрасываем древесину
     obstacleSpeed = 0.015; // Медленная скорость зомби
     spawnRate = 0.03; // Много зомби
     canShoot = true;
     isBurstFiring = false;
     burstCount = 0;
     cameraMode = 'firstPerson';
+
+    // Удаляем построенный дом
+    if (playerHouse) {
+        scene.remove(playerHouse);
+        playerHouse = null;
+    }
+
     updateScoreDisplay();
     updateAmmoDisplay();
+    updateWoodDisplay();
     document.getElementById('gameOver').style.display = 'none';
     document.getElementById('crosshair').style.display = 'block';
     document.getElementById('cameraMode').style.display = 'block';
@@ -1076,7 +1228,7 @@ function animate() {
         updateObstacles();
         updateBullets();
         updateTurrets();
-        //updatePets();
+        updatePets();
         updateCamera();
     }
     if (renderer && scene && camera) {
