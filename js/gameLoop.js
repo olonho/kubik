@@ -31,8 +31,8 @@ function changeWeapon(weaponType) {
             console.log('Создаем FPS руки в changeWeapon...');
             fpsHands = createFPSHands();
             console.log('FPS руки созданы:', fpsHands);
-            camera.add(fpsHands);
-            console.log('FPS руки добавлены к камере');
+            fpsScene.add(fpsHands);
+            console.log('FPS руки добавлены в fpsScene');
         }
 
         // Вид от первого лица - оружие в руки (как в CS:GO)
@@ -216,14 +216,12 @@ function updatePlayer() {
             // Показываем персонажа в режиме третьего лица
             player.visible = true;
 
-            // Переносим оружие от рук/камеры к игроку
+            // Переносим оружие от рук/fpsScene к игроку
             if (currentWeapon) {
                 if (fpsHands) {
                     fpsHands.remove(currentWeapon);
-                    camera.remove(fpsHands);
+                    fpsScene.remove(fpsHands);
                     fpsHands = null;
-                } else {
-                    camera.remove(currentWeapon);
                 }
                 currentWeapon.position.set(0.15, 0.2, -0.4);
                 currentWeapon.rotation.y = 0;
@@ -247,7 +245,7 @@ function updatePlayer() {
                 // Создаем руки если их нет
                 if (!fpsHands) {
                     fpsHands = createFPSHands();
-                    camera.add(fpsHands);
+                    fpsScene.add(fpsHands);
                 }
 
                 currentWeapon.position.set(0.05, -0.2, -0.45);
@@ -1367,9 +1365,24 @@ function animate() {
         updatePets();
         updateCamera();
         checkHouseProximity(); // Проверяем близость к дому
+
+        // Обновляем позицию FPS рук чтобы они следовали за камерой
+        if (fpsHands && cameraMode === 'firstPerson') {
+            fpsHands.position.copy(camera.position);
+            fpsHands.rotation.copy(camera.rotation);
+        }
     }
     if (renderer && scene && camera) {
+        // Рендерим основную сцену
         renderer.render(scene, camera);
+
+        // Рендерим FPS сцену (руки и оружие) поверх основной
+        if (fpsScene && cameraMode === 'firstPerson') {
+            renderer.autoClear = false; // Не очищаем canvas
+            renderer.clearDepth(); // Очищаем только depth buffer
+            renderer.render(fpsScene, camera);
+            renderer.autoClear = true; // Восстанавливаем
+        }
     }
 }
 

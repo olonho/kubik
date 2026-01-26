@@ -67,6 +67,18 @@ function init() {
 
     scene = new THREE.Scene();
 
+    // Создаем отдельную сцену для FPS рук и оружия (viewmodel)
+    fpsScene = new THREE.Scene();
+    console.log('FPS сцена создана для viewmodel');
+
+    // Добавляем освещение в FPS сцену
+    const fpsAmbientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    fpsScene.add(fpsAmbientLight);
+    const fpsDirectionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    fpsDirectionalLight.position.set(1, 1, 1);
+    fpsScene.add(fpsDirectionalLight);
+    console.log('Освещение добавлено в FPS сцену');
+
     // Градиентное небо
     const skyColor = new THREE.Color(0x87ceeb);
     scene.background = skyColor;
@@ -345,8 +357,10 @@ function init() {
         console.log('Функция createFPSHands доступна?', typeof createFPSHands);
         fpsHands = createFPSHands();
         console.log('FPS руки созданы:', fpsHands);
-        camera.add(fpsHands);
-        console.log('FPS руки добавлены к камере');
+
+        // Добавляем руки в FPS сцену (НЕ к камере!)
+        fpsScene.add(fpsHands);
+        console.log('FPS руки добавлены в fpsScene');
 
         // ТЕСТОВЫЙ КУБ - должен быть хорошо виден!
         const testCubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
@@ -355,9 +369,9 @@ function init() {
             wireframe: true
         });
         const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterial);
-        testCube.position.set(0, 0, -1); // Прямо перед камерой
-        camera.add(testCube);
-        console.log('Тестовый зеленый куб добавлен перед камерой');
+        testCube.position.set(0.5, 0, -1); // Справа от центра
+        fpsScene.add(testCube);
+        console.log('Тестовый зеленый куб добавлен в fpsScene');
 
         // Вид от первого лица - оружие в руки
         currentWeapon.position.set(0.05, -0.2, -0.45);

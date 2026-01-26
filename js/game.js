@@ -4,6 +4,7 @@ console.log('✅ game.js загружен');
 
 // Глобальные переменные (используем var для совместимости с inline скриптом)
 var scene, camera, renderer;
+var fpsScene; // Отдельная сцена для FPS рук и оружия
 var player, ground, currentWeapon, fpsHands;
 var obstacles = [];
 var bullets = [];
@@ -268,8 +269,9 @@ function enterHouseInterior() {
     // Показываем кровать внутри (относительно внутреннего пространства)
     if (playerBed && hasBed) {
         playerBed.visible = true;
-        playerBed.position.set(-1.2, 0.3, -0.5); // Позиция внутри интерьера
-        playerBed.rotation.y = Math.PI / 2;
+        playerBed.position.set(1.5, 0.3, 1); // Позиция в правом углу интерьера
+        playerBed.rotation.y = 0;
+        playerBed.userData.isFurniture = true; // Добавляем метку для коллизий
         // Добавляем кровать в интерьер если её там нет
         if (playerBed.parent !== houseInterior) {
             scene.remove(playerBed);
