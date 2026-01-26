@@ -35,12 +35,12 @@ function changeWeapon(weaponType) {
             console.log('FPS руки добавлены в fpsScene');
         }
 
-        // Вид от первого лица - оружие в руки (как в CS:GO)
-        currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
-        currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+        // Вид от первого лица - оружие в ПРАВОЙ руке (как в CS:GO)
+        currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
         currentWeapon.rotation.x = 0;
-        currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
-        currentWeapon.scale.set(1, 1, 1);
+        currentWeapon.rotation.y = -Math.PI / 16; // Небольшой поворот к центру
+        currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
+        currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
         fpsHands.add(currentWeapon);
     } else {
         // Вид от третьего лица - оружие к игроку
@@ -241,11 +241,11 @@ function updatePlayer() {
                     fpsScene.add(fpsHands);
                 }
 
-                currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
-                currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+                currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
                 currentWeapon.rotation.x = 0;
-                currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
-                currentWeapon.scale.set(1, 1, 1);
+                currentWeapon.rotation.y = -Math.PI / 16; // Небольшой поворот к центру
+                currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
+                currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
                 fpsHands.add(currentWeapon);
             }
         }
@@ -1408,7 +1408,10 @@ function animate() {
         // Обновляем позицию FPS рук чтобы они следовали за камерой
         if (fpsHands && cameraMode === 'firstPerson') {
             fpsHands.position.copy(camera.position);
-            fpsHands.rotation.copy(camera.rotation);
+            // Копируем только горизонтальный поворот (yaw), игнорируем pitch (вверх-вниз)
+            fpsHands.rotation.x = 0;
+            fpsHands.rotation.y = camera.rotation.y;
+            fpsHands.rotation.z = 0;
         }
     }
     if (renderer && scene && camera) {

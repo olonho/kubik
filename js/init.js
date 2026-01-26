@@ -369,13 +369,14 @@ function init() {
         fpsScene.add(fpsHands);
         console.log('FPS руки добавлены в fpsScene');
 
-        // Вид от первого лица - оружие в руки
-        currentWeapon.position.set(0.15, -0.25, -0.5); // Немного правее и ниже
-        currentWeapon.rotation.y = 0; // Смотрит прямо вперед
+        // Вид от первого лица - оружие в ПРАВОЙ руке
+        currentWeapon.position.set(0.3, -0.3, -0.6); // Справа, ниже и дальше
         currentWeapon.rotation.x = 0;
-        currentWeapon.rotation.z = Math.PI / 12; // Небольшой наклон
-        currentWeapon.scale.set(1, 1, 1);
+        currentWeapon.rotation.y = -Math.PI / 16; // Небольшой поворот к центру
+        currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
+        currentWeapon.scale.set(0.8, 0.8, 0.8); // Немного меньше
         fpsHands.add(currentWeapon);
+        console.log('Оружие позиционировано в правой руке');
         console.log('Оружие добавлено к рукам. Руки имеют', fpsHands.children.length, 'детей');
         console.log('Позиция рук относительно камеры:', fpsHands.position);
         console.log('Позиция оружия относительно рук:', currentWeapon.position);

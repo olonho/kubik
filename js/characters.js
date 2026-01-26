@@ -10,7 +10,7 @@ function createFPSHands() {
     console.log('createFPSHands() вызвана');
     const handsGroup = new THREE.Group();
 
-    // Левая рука
+    // Левая рука (далеко слева, почти не видна - как в большинстве FPS)
     const leftArmGeometry = new THREE.BoxGeometry(0.12, 0.45, 0.12);
     const skinMaterial = new THREE.MeshStandardMaterial({
         color: 0xFFDBB0, // Нормальный цвет кожи
@@ -18,26 +18,26 @@ function createFPSHands() {
         metalness: 0.0
     });
     const leftArm = new THREE.Mesh(leftArmGeometry, skinMaterial);
-    leftArm.position.set(-0.25, -0.15, -0.35);
-    leftArm.rotation.x = Math.PI / 6;
-    leftArm.rotation.z = -Math.PI / 12;
+    leftArm.position.set(-0.45, -0.25, -0.5); // Сдвинута сильно влево и вниз
+    leftArm.rotation.x = Math.PI / 4;
+    leftArm.rotation.z = -Math.PI / 8;
     leftArm.castShadow = true;
     handsGroup.add(leftArm);
 
-    // Левая кисть
+    // Левая кисть (еще дальше)
     const leftHandGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.18);
     const leftHand = new THREE.Mesh(leftHandGeometry, skinMaterial);
-    leftHand.position.set(-0.25, -0.38, -0.5);
+    leftHand.position.set(-0.5, -0.45, -0.65);
     leftHand.rotation.x = Math.PI / 3;
-    leftHand.rotation.z = -Math.PI / 12;
+    leftHand.rotation.z = -Math.PI / 8;
     leftHand.castShadow = true;
     handsGroup.add(leftHand);
 
-    // Пальцы левой руки (упрощенно)
+    // Пальцы левой руки (почти не видны)
     for (let i = 0; i < 4; i++) {
         const fingerGeometry = new THREE.BoxGeometry(0.03, 0.05, 0.05);
         const finger = new THREE.Mesh(fingerGeometry, skinMaterial);
-        finger.position.set(-0.19 - i * 0.035, -0.42, -0.58);
+        finger.position.set(-0.44 - i * 0.035, -0.5, -0.72);
         finger.rotation.x = Math.PI / 3;
         handsGroup.add(finger);
     }
