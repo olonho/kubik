@@ -100,26 +100,6 @@ function updateGamepad() {
         keys['KeyW'] = false;
     }
 
-    // □ (Square) - смена вида камеры
-    if (gp.buttons[2] && gp.buttons[2].pressed) {
-        if (!lastCameraButton) {
-            if (cameraMode === 'firstPerson') {
-                cameraMode = 'thirdPerson';
-                document.getElementById('crosshair').style.display = 'none';
-                const camModeEl = document.getElementById('cameraMode');
-                if (camModeEl) camModeEl.textContent = 'Вид: От третьего лица';
-            } else {
-                cameraMode = 'firstPerson';
-                document.getElementById('crosshair').style.display = 'block';
-                const camModeEl = document.getElementById('cameraMode');
-                if (camModeEl) camModeEl.textContent = 'Вид: От первого лица';
-            }
-            lastCameraButton = true;
-        }
-    } else {
-        lastCameraButton = false;
-    }
-
     // △ (Triangle) - открыть магазин
     if (gp.buttons[3] && gp.buttons[3].pressed) {
         if (!lastShopButton) {
@@ -285,7 +265,7 @@ function removeClickIndicator() {
 // Показываем индикатор при начале игры
 window.addEventListener('load', () => {
     setTimeout(() => {
-        if (gameActive && !pointerLocked) {
+        if (typeof gameActive !== 'undefined' && gameActive && !pointerLocked) {
             createClickIndicator();
         }
     }, 3000);
@@ -293,7 +273,7 @@ window.addEventListener('load', () => {
 
 // Захват указателя при клике на canvas
 document.addEventListener('click', () => {
-    if (gameActive && !pointerLocked && renderer && renderer.domElement) {
+    if (typeof gameActive !== 'undefined' && gameActive && !pointerLocked && typeof renderer !== 'undefined' && renderer && renderer.domElement) {
         removeClickIndicator();
         renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock ||
                                                  renderer.domElement.mozRequestPointerLock ||

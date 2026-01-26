@@ -142,11 +142,6 @@ function updatePlayer() {
         lastPlayerDirection = Math.PI / 2; // Назад
     }
 
-    // Применяем сохраненное направление к персонажу в режиме третьего лица
-    if (cameraMode === 'thirdPerson') {
-        player.rotation.y = lastPlayerDirection;
-    }
-
     // Прыжок на пробел
     if (keys['Space'] && !isJumping) {
         playerVelocityY = jumpPower;

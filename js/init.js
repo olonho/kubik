@@ -51,7 +51,6 @@ function selectSkin(skin) {
     document.getElementById('score').style.display = 'block';
     document.getElementById('instructions').style.display = 'block';
     document.getElementById('crosshair').style.display = 'block';
-    document.getElementById('cameraMode').style.display = 'block';
     document.getElementById('coinsDisplay').style.display = 'block';
     document.getElementById('openShopBtn').style.display = 'block';
     document.getElementById('openItemsShopBtn').style.display = 'block';
@@ -59,9 +58,13 @@ function selectSkin(skin) {
     document.getElementById('woodDisplay').style.display = 'block';
     document.getElementById('buildHouseBtn').style.display = 'block';
     document.getElementById('buildBedBtn').style.display = 'block';
-    updateCoinsDisplay();
-    updateWoodDisplay();
+
+    // Вызываем init сначала чтобы инициализировать игру
     init();
+
+    // Затем обновляем дисплеи (функции определены в game.js)
+    if (typeof updateCoinsDisplay === 'function') updateCoinsDisplay();
+    if (typeof updateWoodDisplay === 'function') updateWoodDisplay();
 }
 
 // Делаем функцию selectSkin глобальной сразу после определения
