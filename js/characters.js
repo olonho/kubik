@@ -13,9 +13,11 @@ function createFPSHands() {
     // Левая рука
     const leftArmGeometry = new THREE.BoxGeometry(0.12, 0.45, 0.12);
     const skinMaterial = new THREE.MeshStandardMaterial({
-        color: 0xFFDBB0, // Цвет кожи
+        color: 0xFF0000, // ЯРКИЙ КРАСНЫЙ для тестирования!
         roughness: 0.9,
-        metalness: 0.0
+        metalness: 0.0,
+        emissive: 0xFF0000, // Светится красным
+        emissiveIntensity: 0.5
     });
     const leftArm = new THREE.Mesh(leftArmGeometry, skinMaterial);
     leftArm.position.set(-0.25, -0.15, -0.35);
@@ -99,9 +101,11 @@ function createFPSHands() {
     console.log('FPS руки созданы. Всего элементов:', handsGroup.children.length);
     console.log('Руки включают:', handsGroup.children.map(c => c.type).join(', '));
 
-    // Временно: увеличиваем руки и двигаем ближе для теста видимости
-    handsGroup.scale.set(2, 2, 2);
-    handsGroup.position.set(0, -0.3, -0.5);
+    // ТЕСТ: делаем руки огромными и прямо перед камерой
+    handsGroup.scale.set(5, 5, 5);
+    handsGroup.position.set(0, 0, -2); // Прямо по центру, немного впереди
+
+    console.log('Руки увеличены в 5 раз, позиция:', handsGroup.position);
 
     return handsGroup;
 }

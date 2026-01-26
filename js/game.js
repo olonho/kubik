@@ -199,6 +199,44 @@ function buildBed() {
     }
 }
 
+// Функция проверки коллизий внутри дома
+function checkCollisionInHouse(newX, newZ) {
+    if (!isInsideHouse || !houseInterior) return false;
+
+    // Проверяем коллизии со всеми объектами в интерьере
+    let hasCollision = false;
+
+    houseInterior.children.forEach(child => {
+        // Проверяем только объекты с метками isWall или isFurniture
+        if (!child.userData.isWall && !child.userData.isFurniture) return;
+
+        // Получаем мировую позицию объекта
+        const worldPos = new THREE.Vector3();
+        child.getWorldPosition(worldPos);
+
+        // Получаем размеры объекта
+        const box = new THREE.Box3().setFromObject(child);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+
+        // Радиус игрока
+        const playerRadius = 0.3;
+
+        // Проверяем пересечение (AABB collision с учетом радиуса игрока)
+        const distX = Math.abs(newX - worldPos.x);
+        const distZ = Math.abs(newZ - worldPos.z);
+
+        const halfSizeX = size.x / 2 + playerRadius;
+        const halfSizeZ = size.z / 2 + playerRadius;
+
+        if (distX < halfSizeX && distZ < halfSizeZ) {
+            hasCollision = true;
+        }
+    });
+
+    return hasCollision;
+}
+
 function enterHouseInterior() {
     if (isInsideHouse) return;
 
@@ -239,8 +277,8 @@ function enterHouseInterior() {
         }
     }
 
-    // Перемещаем игрока внутрь дома
-    player.position.set(0, 0.5, 1);
+    // Перемещаем игрока внутрь дома (ближе к двери)
+    player.position.set(0, 0.5, 1.5);
     player.rotation.y = -Math.PI; // Смотрит внутрь дома
 
     // Меняем фон на более темный

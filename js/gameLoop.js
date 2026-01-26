@@ -82,15 +82,33 @@ function updatePlayer() {
     if (!gameActive) return;
 
     // Движение влево-вправо
-    if (keys['ArrowLeft'] && player.position.x > -4) {
-        player.position.x -= playerSpeed;
+    if (keys['ArrowLeft']) {
+        const newX = player.position.x - playerSpeed;
+        // Разные границы для дома и улицы
+        const leftBound = isInsideHouse ? -2.2 : -4;
+
+        if (newX > leftBound) {
+            // Проверяем коллизии только внутри дома
+            if (!isInsideHouse || !checkCollisionInHouse(newX, player.position.z)) {
+                player.position.x = newX;
+            }
+        }
         // В режиме от третьего лица поворачиваем персонажа
         if (cameraMode === 'thirdPerson') {
             player.rotation.y = -Math.PI; // Поворот влево
         }
     }
-    if (keys['ArrowRight'] && player.position.x < 4) {
-        player.position.x += playerSpeed;
+    if (keys['ArrowRight']) {
+        const newX = player.position.x + playerSpeed;
+        // Разные границы для дома и улицы
+        const rightBound = isInsideHouse ? 2.2 : 4;
+
+        if (newX < rightBound) {
+            // Проверяем коллизии только внутри дома
+            if (!isInsideHouse || !checkCollisionInHouse(newX, player.position.z)) {
+                player.position.x = newX;
+            }
+        }
         // В режиме от третьего лица поворачиваем персонажа
         if (cameraMode === 'thirdPerson') {
             player.rotation.y = 0; // Поворот вправо
@@ -102,15 +120,33 @@ function updatePlayer() {
     }
 
     // Движение вперёд-назад (в пределах базы)
-    if (keys['ArrowUp'] && player.position.z > -40) {
-        player.position.z -= playerSpeed;
+    if (keys['ArrowUp']) {
+        const newZ = player.position.z - playerSpeed;
+        // Разные границы для дома и улицы
+        const forwardBound = isInsideHouse ? -2 : -40;
+
+        if (newZ > forwardBound) {
+            // Проверяем коллизии только внутри дома
+            if (!isInsideHouse || !checkCollisionInHouse(player.position.x, newZ)) {
+                player.position.z = newZ;
+            }
+        }
         // В режиме от третьего лица поворачиваем персонажа
         if (cameraMode === 'thirdPerson') {
             player.rotation.y = -Math.PI / 2; // Смотрит вперед
         }
     }
-    if (keys['ArrowDown'] && player.position.z < 5) {
-        player.position.z += playerSpeed;
+    if (keys['ArrowDown']) {
+        const newZ = player.position.z + playerSpeed;
+        // Разные границы для дома и улицы
+        const backBound = isInsideHouse ? 2 : 5;
+
+        if (newZ < backBound) {
+            // Проверяем коллизии только внутри дома
+            if (!isInsideHouse || !checkCollisionInHouse(player.position.x, newZ)) {
+                player.position.z = newZ;
+            }
+        }
         // В режиме от третьего лица поворачиваем персонажа
         if (cameraMode === 'thirdPerson') {
             player.rotation.y = Math.PI / 2; // Смотрит назад

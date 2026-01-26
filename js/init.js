@@ -348,6 +348,17 @@ function init() {
         camera.add(fpsHands);
         console.log('FPS руки добавлены к камере');
 
+        // ТЕСТОВЫЙ КУБ - должен быть хорошо виден!
+        const testCubeGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const testCubeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00FF00, // Ярко-зеленый
+            wireframe: true
+        });
+        const testCube = new THREE.Mesh(testCubeGeometry, testCubeMaterial);
+        testCube.position.set(0, 0, -1); // Прямо перед камерой
+        camera.add(testCube);
+        console.log('Тестовый зеленый куб добавлен перед камерой');
+
         // Вид от первого лица - оружие в руки
         currentWeapon.position.set(0.05, -0.2, -0.45);
         currentWeapon.rotation.y = Math.PI / 24;
