@@ -35,13 +35,13 @@ function changeWeapon(weaponType) {
             console.log('FPS руки добавлены в fpsScene');
         }
 
-        // Вид от первого лица - оружие в ПРАВОЙ руке (у края экрана)
-        currentWeapon.position.set(0.5, -0.5, -0.7); // Дальше вправо, ниже, дальше от камеры
+        // Вид от первого лица - оружие БЕЗ РУК, ближе к центру и выше
+        currentWeapon.position.set(0.2, -0.15, -0.6); // Ближе к центру, выше, перед камерой
         // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
         currentWeapon.rotation.x = 0;
-        currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
-        currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
-        currentWeapon.scale.set(0.7, 0.7, 0.7); // Немного меньше для лучшего обзора
+        currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 20; // -90° + небольшой поворот
+        currentWeapon.rotation.z = Math.PI / 20; // Небольшой наклон
+        currentWeapon.scale.set(0.9, 0.9, 0.9); // Нормальный размер
         fpsHands.add(currentWeapon);
     } else {
         // Вид от третьего лица - оружие к игроку
@@ -242,12 +242,12 @@ function updatePlayer() {
                     fpsScene.add(fpsHands);
                 }
 
-                currentWeapon.position.set(0.5, -0.5, -0.7); // Дальше вправо, ниже, дальше от камеры
+                currentWeapon.position.set(0.2, -0.15, -0.6); // Ближе к центру, выше, перед камерой
                 // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
                 currentWeapon.rotation.x = 0;
-                currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 16; // -90° + небольшой поворот
-                currentWeapon.rotation.z = Math.PI / 16; // Небольшой наклон
-                currentWeapon.scale.set(0.7, 0.7, 0.7); // Немного меньше для лучшего обзора
+                currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 20; // -90° + небольшой поворот
+                currentWeapon.rotation.z = Math.PI / 20; // Небольшой наклон
+                currentWeapon.scale.set(0.9, 0.9, 0.9); // Нормальный размер
                 fpsHands.add(currentWeapon);
             }
         }

@@ -903,62 +903,161 @@ function checkWaveComplete() {
     }
 }
 
-// Функция воспроизведения победной музыки "Only You" (Far Cry 5)
+// Функция воспроизведения победной музыки "Only You" (синтезированная версия)
 function playVictoryMusic() {
     try {
-        // Пытаемся загрузить песню "Only You" из разных источников
-        const audio = new Audio();
-        audio.volume = 0.4; // Умеренная громкость
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioContext.currentTime;
 
-        // Список возможных путей к файлу
-        const audioPaths = [
-            'audio/only-you.mp3',
-            'only-you.mp3',
-            'assets/only-you.mp3',
-            // Публичный URL как запасной вариант (The Platters - Only You)
-            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' // Заглушка, замените на настоящий файл
+        // Создаем мастер-усилитель для контроля громкости
+        const masterGain = audioContext.createGain();
+        masterGain.connect(audioContext.destination);
+        masterGain.gain.value = 0.3;
+
+        // Мелодия "Only You" - основная тема (медленная, романтичная)
+        // Частоты: E4=329.63, G4=392.00, A4=440.00, B4=493.88, C5=523.25, D5=587.33, E5=659.25
+        const melody = [
+            // "Only you..."
+            { freq: 329.63, time: 0, duration: 0.8 },      // E
+            { freq: 329.63, time: 0.9, duration: 0.8 },    // E
+            { freq: 392.00, time: 1.8, duration: 0.6 },    // G
+            { freq: 440.00, time: 2.5, duration: 1.0 },    // A
+            { freq: 392.00, time: 3.6, duration: 0.8 },    // G
+            { freq: 329.63, time: 4.5, duration: 1.2 },    // E
+
+            // "Can make this world seem right..."
+            { freq: 293.66, time: 6.0, duration: 0.6 },    // D
+            { freq: 329.63, time: 6.7, duration: 0.6 },    // E
+            { freq: 392.00, time: 7.4, duration: 0.8 },    // G
+            { freq: 440.00, time: 8.3, duration: 0.6 },    // A
+            { freq: 493.88, time: 9.0, duration: 1.0 },    // B
+            { freq: 523.25, time: 10.1, duration: 1.5 },   // C
+
+            // Вторая фраза
+            { freq: 329.63, time: 12.0, duration: 0.8 },   // E
+            { freq: 329.63, time: 12.9, duration: 0.8 },   // E
+            { freq: 392.00, time: 13.8, duration: 0.6 },   // G
+            { freq: 440.00, time: 14.5, duration: 1.0 },   // A
+            { freq: 493.88, time: 15.6, duration: 0.8 },   // B
+            { freq: 523.25, time: 16.5, duration: 1.5 },   // C
+
+            // Финал
+            { freq: 587.33, time: 18.3, duration: 0.8 },   // D
+            { freq: 523.25, time: 19.2, duration: 1.0 },   // C
+            { freq: 440.00, time: 20.3, duration: 1.2 },   // A
+            { freq: 392.00, time: 21.6, duration: 2.0 },   // G (долгая нота)
         ];
 
-        // Пробуем первый путь
-        audio.src = audioPaths[0];
+        // Играем мелодию с мягким звуком (имитация голоса)
+        melody.forEach(note => {
+            // Основной тон
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
 
-        audio.play().then(() => {
-            console.log('🎵 "Only You" играет!');
-            // Показываем уведомление о музыке
-            const musicNotification = document.createElement('div');
-            musicNotification.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 25px; border-radius: 10px; font-size: 18px; z-index: 1001; border: 2px solid gold;';
-            musicNotification.innerHTML = '🎵 The Platters - Only You';
-            document.body.appendChild(musicNotification);
+            osc.connect(gain);
+            gain.connect(masterGain);
 
-            setTimeout(() => {
-                if (document.body.contains(musicNotification)) {
-                    document.body.removeChild(musicNotification);
-                }
-            }, 5000);
-        }).catch(e => {
-            console.warn('Не удалось воспроизвести "Only You":', e);
-            console.log('💡 Подсказка: Добавьте файл "only-you.mp3" в папку "audio" для воспроизведения песни из Far Cry 5');
+            osc.frequency.value = note.freq;
+            osc.type = 'sine'; // Мягкий звук
 
-            // Показываем подсказку пользователю
-            const hint = document.createElement('div');
-            hint.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(255, 100, 100, 0.9); color: white; padding: 15px 25px; border-radius: 10px; font-size: 16px; z-index: 1001; border: 2px solid white; max-width: 300px;';
-            hint.innerHTML = '🎵 Добавьте файл "only-you.mp3"<br>в папку "audio" для музыки';
-            document.body.appendChild(hint);
+            // Плавное нарастание и затухание (имитация вокала)
+            gain.gain.setValueAtTime(0, now + note.time);
+            gain.gain.linearRampToValueAtTime(0.15, now + note.time + 0.1);
+            gain.gain.setValueAtTime(0.15, now + note.time + note.duration - 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + note.time + note.duration);
 
-            setTimeout(() => {
-                if (document.body.contains(hint)) {
-                    document.body.removeChild(hint);
-                }
-            }, 7000);
+            osc.start(now + note.time);
+            osc.stop(now + note.time + note.duration);
+
+            // Добавляем вторую гармонику для богатства звука
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+
+            osc2.connect(gain2);
+            gain2.connect(masterGain);
+
+            osc2.frequency.value = note.freq * 2; // Октава выше
+            osc2.type = 'sine';
+
+            gain2.gain.setValueAtTime(0, now + note.time);
+            gain2.gain.linearRampToValueAtTime(0.05, now + note.time + 0.1);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + note.time + note.duration);
+
+            osc2.start(now + note.time);
+            osc2.stop(now + note.time + note.duration);
         });
 
-        // Событие окончания музыки
-        audio.onended = () => {
-            console.log('🎵 Музыка закончилась');
-        };
+        // Аккомпанемент (аккорды на фоне)
+        const chords = [
+            { freqs: [261.63, 329.63, 392.00], time: 0, duration: 6 },      // C Major (C-E-G)
+            { freqs: [293.66, 369.99, 440.00], time: 6, duration: 6 },      // D Minor (D-F-A)
+            { freqs: [261.63, 329.63, 392.00], time: 12, duration: 6 },     // C Major
+            { freqs: [246.94, 293.66, 369.99], time: 18, duration: 5.5 },   // B Diminished (B-D-F)
+        ];
 
-        // Сохраняем ссылку на аудио для возможности остановки
-        window.victoryAudio = audio;
+        chords.forEach(chord => {
+            chord.freqs.forEach(freq => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+
+                osc.frequency.value = freq;
+                osc.type = 'triangle'; // Мягкий аккомпанемент
+
+                gain.gain.setValueAtTime(0, now + chord.time);
+                gain.gain.linearRampToValueAtTime(0.03, now + chord.time + 0.5);
+                gain.gain.setValueAtTime(0.03, now + chord.time + chord.duration - 0.5);
+                gain.gain.linearRampToValueAtTime(0, now + chord.time + chord.duration);
+
+                osc.start(now + chord.time);
+                osc.stop(now + chord.time + chord.duration);
+            });
+        });
+
+        // Бас (низкие ноты для глубины)
+        const bassLine = [
+            { freq: 130.81, time: 0, duration: 3 },      // C
+            { freq: 146.83, time: 3, duration: 3 },      // D
+            { freq: 130.81, time: 6, duration: 3 },      // C
+            { freq: 146.83, time: 9, duration: 3 },      // D
+            { freq: 130.81, time: 12, duration: 3 },     // C
+            { freq: 146.83, time: 15, duration: 3 },     // D
+            { freq: 123.47, time: 18, duration: 3 },     // B
+            { freq: 130.81, time: 21, duration: 2.5 },   // C
+        ];
+
+        bassLine.forEach(note => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+
+            osc.frequency.value = note.freq;
+            osc.type = 'sine';
+
+            gain.gain.setValueAtTime(0.08, now + note.time);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + note.time + note.duration);
+
+            osc.start(now + note.time);
+            osc.stop(now + note.time + note.duration);
+        });
+
+        console.log('🎵 "Only You" (синтезированная версия) запущена!');
+
+        // Показываем уведомление о музыке
+        const musicNotification = document.createElement('div');
+        musicNotification.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 25px; border-radius: 10px; font-size: 18px; z-index: 1001; border: 2px solid gold;';
+        musicNotification.innerHTML = '🎵 "Only You" (The Platters)';
+        document.body.appendChild(musicNotification);
+
+        setTimeout(() => {
+            if (document.body.contains(musicNotification)) {
+                document.body.removeChild(musicNotification);
+            }
+        }, 5000);
 
     } catch (e) {
         console.error('Ошибка воспроизведения музыки:', e);
