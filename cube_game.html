@@ -140,9 +140,10 @@
             position: absolute;
             width: 24px;
             height: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            opacity: 0.3;
         }
 
         @keyframes rotateRing {
@@ -169,8 +170,9 @@
         /* Крестик - линии */
         .crosshair-bracket {
             position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.9);
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+            opacity: 0.3;
         }
 
         .crosshair-bracket::before,
@@ -228,12 +230,13 @@
             position: absolute;
             width: 3px;
             height: 3px;
-            background: rgba(255, 50, 50, 0.9);
+            background: rgba(255, 50, 50, 0.4);
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 4px rgba(255, 50, 50, 0.8), 0 0 2px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 2px rgba(255, 50, 50, 0.3);
+            opacity: 0.4;
             animation: none;
         }
 
@@ -1299,7 +1302,7 @@
     <!-- Данные (без зависимостей) -->
     <script src="js/shopData.js?t=1769634200"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769634200"></script>
+    <script src="js/weapons.js?t=1769635020"></script>
     <script src="js/characters.js?t=1769634200"></script>
     <script src="js/decorations.js?t=1769634200"></script>
     <script src="js/turrets.js?t=1769634200"></script>

@@ -783,6 +783,7 @@ function createWeapon(type) {
     else if (type === 'machinegun') return createMachinegun();
     else if (type === 'shotgun') return createShotgun();
     else if (type === 'sniper') return createSniper();
+    else if (type === 'awp') return createAWP();
     else if (type === 'rocket') return createRocket();
     else if (type === 'crossbow') return createCrossbow();
     else if (type === 'minigun') return createMinigun();
@@ -868,6 +869,140 @@ function createSniper() {
 
     group.scale.set(2.0, 2.0, 2.0);
     return group;
+}
+
+// AWP - легендарная снайперская винтовка из CS:GO
+function createAWP() {
+    const awpGroup = new THREE.Group();
+
+    // Материалы
+    const greenMetal = new THREE.MeshStandardMaterial({
+        color: 0x2d5016,
+        roughness: 0.4,
+        metalness: 0.7
+    });
+    const blackMetal = new THREE.MeshStandardMaterial({
+        color: 0x1a1a1a,
+        roughness: 0.3,
+        metalness: 0.8
+    });
+    const scopeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.2,
+        metalness: 0.9
+    });
+
+    // ДЛИННЫЙ СТВОЛ (характерный для AWP)
+    const barrelGeometry = new THREE.CylinderGeometry(0.025, 0.03, 1.4, 8);
+    const barrel = new THREE.Mesh(barrelGeometry, blackMetal);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.x = 0.3;
+    barrel.castShadow = true;
+    awpGroup.add(barrel);
+
+    // Дульный тормоз (muzzle brake)
+    const muzzleGeometry = new THREE.CylinderGeometry(0.04, 0.035, 0.1, 8);
+    const muzzle = new THREE.Mesh(muzzleGeometry, blackMetal);
+    muzzle.rotation.z = Math.PI / 2;
+    muzzle.position.x = 1.0;
+    awpGroup.add(muzzle);
+
+    // КОРПУС (зеленый, характерный для AWP)
+    const bodyGeometry = new THREE.BoxGeometry(0.6, 0.12, 0.15);
+    const body = new THREE.Mesh(bodyGeometry, greenMetal);
+    body.position.set(-0.1, 0, 0);
+    body.castShadow = true;
+    awpGroup.add(body);
+
+    // Задняя часть приклада
+    const stockGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.12);
+    const stock = new THREE.Mesh(stockGeometry, greenMetal);
+    stock.position.set(-0.55, -0.02, 0);
+    stock.castShadow = true;
+    awpGroup.add(stock);
+
+    // Приклад (увеличенный для AWP)
+    const buttGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.12);
+    const butt = new THREE.Mesh(buttGeometry, greenMetal);
+    butt.position.set(-0.75, -0.02, 0);
+    butt.castShadow = true;
+    awpGroup.add(butt);
+
+    // МАГАЗИН (длинный как у AWP)
+    const magazineGeometry = new THREE.BoxGeometry(0.18, 0.35, 0.08);
+    const magazineMaterial = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.6,
+        metalness: 0.3
+    });
+    const magazine = new THREE.Mesh(magazineGeometry, magazineMaterial);
+    magazine.position.set(-0.05, -0.22, 0);
+    magazine.castShadow = true;
+    awpGroup.add(magazine);
+
+    // БОЛЬШОЙ ОПТИЧЕСКИЙ ПРИЦЕЛ (8x как у AWP)
+    const scopeBodyGeometry = new THREE.CylinderGeometry(0.06, 0.06, 0.45, 12);
+    const scopeBody = new THREE.Mesh(scopeBodyGeometry, scopeMaterial);
+    scopeBody.position.set(0.1, 0.14, 0);
+    scopeBody.castShadow = true;
+    awpGroup.add(scopeBody);
+
+    // Передняя линза прицела
+    const frontLensGeometry = new THREE.CylinderGeometry(0.07, 0.07, 0.03, 12);
+    const lensGlassMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4444ff,
+        roughness: 0.1,
+        metalness: 0.9,
+        transparent: true,
+        opacity: 0.6
+    });
+    const frontLens = new THREE.Mesh(frontLensGeometry, lensGlassMaterial);
+    frontLens.position.set(0.32, 0.14, 0);
+    awpGroup.add(frontLens);
+
+    // Задняя линза прицела
+    const backLens = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.02, 12), lensGlassMaterial);
+    backLens.position.set(-0.12, 0.14, 0);
+    awpGroup.add(backLens);
+
+    // Крепления прицела
+    const mountGeometry = new THREE.BoxGeometry(0.08, 0.03, 0.04);
+    const mount1 = new THREE.Mesh(mountGeometry, blackMetal);
+    mount1.position.set(0.15, 0.08, 0);
+    awpGroup.add(mount1);
+
+    const mount2 = new THREE.Mesh(mountGeometry, blackMetal);
+    mount2.position.set(-0.05, 0.08, 0);
+    awpGroup.add(mount2);
+
+    // Рукоятка
+    const gripGeometry = new THREE.BoxGeometry(0.08, 0.18, 0.1);
+    const grip = new THREE.Mesh(gripGeometry, greenMetal);
+    grip.position.set(-0.25, -0.14, 0);
+    grip.rotation.z = 0.2;
+    grip.castShadow = true;
+    awpGroup.add(grip);
+
+    // Спусковой крючок
+    const triggerGeometry = new THREE.BoxGeometry(0.03, 0.06, 0.02);
+    const trigger = new THREE.Mesh(triggerGeometry, blackMetal);
+    trigger.position.set(-0.2, -0.1, 0);
+    awpGroup.add(trigger);
+
+    // Биопод (сошки) - характерная деталь AWP
+    const bipodGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.2, 6);
+    const bipodLeft = new THREE.Mesh(bipodGeometry, blackMetal);
+    bipodLeft.position.set(0.5, -0.15, -0.05);
+    bipodLeft.rotation.x = 0.3;
+    awpGroup.add(bipodLeft);
+
+    const bipodRight = new THREE.Mesh(bipodGeometry, blackMetal);
+    bipodRight.position.set(0.5, -0.15, 0.05);
+    bipodRight.rotation.x = -0.3;
+    awpGroup.add(bipodRight);
+
+    awpGroup.scale.set(2.2, 2.2, 2.2);
+    return awpGroup;
 }
 
 function createRocket() {
@@ -1140,7 +1275,7 @@ function createBFG() {
     // Индикаторы заряда
     for (let i = 0; i < 3; i++) {
         const ledGeometry = new THREE.BoxGeometry(0.04, 0.04, 0.04);
-        const ledMaterial = new THREE.MeshPhongMaterial({ 
+        const ledMaterial = new THREE.MeshPhongMaterial({
             color: 0xFF0000,
             emissive: 0xFF0000,
             emissiveIntensity: 1.5
@@ -1149,7 +1284,13 @@ function createBFG() {
         led.position.set(-0.3, 0.1 - i * 0.05, 0.1);
         bfgGroup.add(led);
     }
-    
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0, 0.2, 0); // Сверху на корпусе
+    redDot.scale.set(1.8, 1.8, 1.8);
+    bfgGroup.add(redDot);
+
     bfgGroup.scale.set(2.0, 2.0, 2.0);
     return bfgGroup;
 }
@@ -1219,7 +1360,13 @@ function createPlasmaCannon() {
     grip.position.set(-0.1, -0.2, 0);
     grip.castShadow = true;
     plasmaGroup.add(grip);
-    
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.05, 0.17, 0); // Сверху на корпусе
+    redDot.scale.set(1.5, 1.5, 1.5);
+    plasmaGroup.add(redDot);
+
     plasmaGroup.scale.set(1.7, 1.7, 1.7);
     return plasmaGroup;
 }

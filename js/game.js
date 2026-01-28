@@ -47,6 +47,9 @@ var finalBossConditionsMet = false; // Выполнены ли условия д
 // Система тренировочного полигона
 var isOnTrainingMap = false; // Находится ли игрок на тренировочном полигоне
 var savedGameState = null; // Сохраненное состояние игры перед телепортацией
+var trainingMovementLocked = false; // Блокировка движения в тренировке (как в Standoff)
+var trainingTargetsDestroyed = 0; // Счетчик уничтоженных целей
+var spawnRandomTarget = null; // Функция спавна случайной цели
 
 var petPats = 0; // Количество поглаживаний питомца
 var hasCompanion = false; // Есть ли напарник
@@ -58,7 +61,7 @@ var isJumping = false;
 var keys = {};
 var selectedSkin = null;
 var selectedWeapon = 'pistol';
-var unlockedWeapons = JSON.parse(localStorage.getItem('cubeGameUnlockedWeapons')) || ['pistol', 'rifle', 'laser', 'gravity'];
+var unlockedWeapons = JSON.parse(localStorage.getItem('cubeGameUnlockedWeapons')) || ['pistol', 'rifle', 'laser', 'gravity', 'awp'];
 var maxWaveReached = parseInt(localStorage.getItem('cubeGameMaxWave')) || 1;
 var animationId = null;
 var decorations = [];
@@ -78,7 +81,7 @@ var bulletSpeed = 0.5;
 var jumpPower = 0.3;
 var cameraLookTarget;
 var ownedSkins = ['dog', 'cat', 'fox', 'panda', 'rabbit', 'robot', 'cube', 'oval'];
-var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle', 'ak47'];
+var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || ['pistol', 'rifle', 'ak47', 'awp'];
 var turrets = [];
 // Управление камерой через тач
 var cameraYaw = 0; // Горизонтальный поворот камеры (влево-вправо)
@@ -2989,25 +2992,38 @@ function createCyberTrainingSpace() {
         scene.add(pillar);
     });
 
-    // ========== ГОЛОГРАММНЫЕ МИШЕНИ ==========
-    // Создаём голограммные мишени (3 ряда по 5)
-    for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 5; col++) {
-            const hologram = createHologramTarget();
-            hologram.position.set(
-                (col - 2) * 6,  // X: -12, -6, 0, 6, 12
-                0,
-                -20 - row * 10   // Z: -20, -30, -40
-            );
-            hologram.userData.type = 'trainingDummy';
-            hologram.userData.hp = 3;
-            hologram.userData.maxHp = 3;
-            hologram.userData.row = row;
-            hologram.userData.col = col;
-            scene.add(hologram);
-            obstacles.push(hologram);
-        }
-    }
+    // ========== СИСТЕМА ТРЕНИРОВКИ КАК В STANDOFF ==========
+    // Игрок стоит на месте, цели появляются по одной в случайных местах
+
+    // Блокируем движение игрока в тренировке
+    trainingMovementLocked = true;
+
+    // Функция спавна случайной цели
+    spawnRandomTarget = function() {
+        if (gameMode !== 'training') return;
+
+        const hologram = createHologramTarget();
+
+        // Случайная позиция в пределах полигона
+        const randomX = (Math.random() - 0.5) * 30; // От -15 до 15
+        const randomZ = -15 - Math.random() * 30; // От -15 до -45
+
+        hologram.position.set(randomX, 0, randomZ);
+        hologram.userData.type = 'trainingDummy';
+        hologram.userData.hp = 1; // Убивается с одного попадания
+        hologram.userData.maxHp = 1;
+
+        scene.add(hologram);
+        obstacles.push(hologram);
+
+        console.log('🎯 Цель появилась:', randomX.toFixed(1), randomZ.toFixed(1));
+    };
+
+    // Сбрасываем счетчик уничтоженных целей
+    trainingTargetsDestroyed = 0;
+
+    // Спавним первую цель
+    spawnRandomTarget();
 
     // Анимация голограмм (пульсация)
     const animateHolograms = () => {

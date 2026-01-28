@@ -82,6 +82,45 @@ function changeWeapon(weaponType) {
 function updatePlayer() {
     if (!gameActive) return;
 
+    // В режиме тренировки блокируем движение (как в Standoff)
+    if (gameMode === 'training' && trainingMovementLocked) {
+        // Игрок может только поворачиваться и стрелять, но не двигаться
+        // Прыжок всё ещё работает
+        if (keys['Space'] && !isJumping) {
+            playerVelocityY = jumpPower;
+            isJumping = true;
+        }
+
+        // Смена оружия работает
+        if (keys['Digit1']) changeWeapon('pistol');
+        if (keys['Digit2']) changeWeapon('rifle');
+        if (keys['Digit3']) changeWeapon('ak47');
+        if (keys['Digit4']) changeWeapon('laser');
+        if (keys['Digit5']) changeWeapon('shotgun');
+        if (keys['Digit6']) changeWeapon('machinegun');
+        if (keys['Digit7']) changeWeapon('sniper');
+        if (keys['Digit8']) changeWeapon('awp');
+
+        // Гравитация работает
+        playerVelocityY += gravity;
+        player.position.y += playerVelocityY;
+        if (player.position.y <= 0) {
+            player.position.y = 0;
+            playerVelocityY = 0;
+            isJumping = false;
+        }
+
+        // Обновляем персонажа и оружие
+        if (selectedSkin && selectedSkin.update) {
+            selectedSkin.update();
+        }
+        if (currentWeapon && currentWeapon.update) {
+            currentWeapon.update();
+        }
+
+        return; // Выходим, не обрабатываем движение
+    }
+
     // Эффективная скорость (замедляется при прицеливании)
     const effectiveSpeed = isAiming ? playerSpeed * 0.5 : playerSpeed;
 
@@ -458,7 +497,7 @@ function shoot() {
         bullet.position.set(player.position.x, player.position.y + 0.5, player.position.z);
     }
 
-    // Направление пули
+    // Направление пули с разбросом (recoil spread)
     const direction = new THREE.Vector3();
     if (cameraMode === 'firstPerson') {
         // От первого лица - куда смотрит камера
@@ -467,7 +506,46 @@ function shoot() {
         // От третьего лица - от игрока к цели автоприцеливания
         direction.subVectors(cameraLookTarget, bullet.position).normalize();
     }
+
+    // Добавляем разброс в зависимости от оружия (как в CS:GO)
+    let spreadX = 0;
+    let spreadY = 0;
+
+    if (selectedWeapon === 'pistol') {
+        // Пистолет - минимальный разброс
+        spreadX = (Math.random() - 0.5) * 0.01;
+        spreadY = (Math.random() - 0.5) * 0.01;
+    } else if (selectedWeapon === 'rifle') {
+        // Винтовка - средний разброс
+        spreadX = (Math.random() - 0.5) * 0.02;
+        spreadY = (Math.random() - 0.5) * 0.02;
+    } else if (selectedWeapon === 'ak47') {
+        // AK-47 - большой разброс как в CS:GO
+        spreadX = (Math.random() - 0.5) * 0.04;
+        spreadY = (Math.random() - 0.5) * 0.03 + 0.015; // Уходит вверх
+    } else if (selectedWeapon === 'shotgun') {
+        // Дробовик - огромный разброс
+        spreadX = (Math.random() - 0.5) * 0.08;
+        spreadY = (Math.random() - 0.5) * 0.08;
+    } else if (selectedWeapon === 'sniper' || selectedWeapon === 'awp') {
+        // Снайперка/AWP - нет разброса при прицеливании
+        if (!isAiming) {
+            spreadX = (Math.random() - 0.5) * 0.05;
+            spreadY = (Math.random() - 0.5) * 0.05;
+        }
+    } else if (selectedWeapon === 'machinegun') {
+        // Пулемёт - большой разброс при длительной стрельбе
+        spreadX = (Math.random() - 0.5) * 0.05;
+        spreadY = (Math.random() - 0.5) * 0.04 + 0.02;
+    }
+
+    // Применяем разброс к направлению
+    direction.x += spreadX;
+    direction.y += spreadY;
+    direction.normalize();
+
     bullet.userData.direction = direction;
+    bullet.userData.weaponType = selectedWeapon; // Сохраняем тип оружия для расчета урона
 
     bullet.castShadow = true;
     scene.add(bullet);
@@ -694,6 +772,12 @@ function updateBullets() {
                         }
                     }
                 });
+            } else if (obstacleGroup.userData.type === 'trainingDummy' && gameMode === 'training') {
+                // Проверка попадания в голограммную цель (более широкий радиус)
+                const distance = bullet.position.distanceTo(targetWorldPos);
+                if (distance < 2.0) {
+                    hitDetected = true;
+                }
             } else {
                 // Стандартная проверка для обычных врагов
                 const distance = bullet.position.distanceTo(targetWorldPos);
@@ -707,15 +791,46 @@ function updateBullets() {
                 scene.remove(bullet);
                 bullets.splice(i, 1);
 
+                // Расчет урона в зависимости от оружия
+                let damage = 1; // Базовый урон
+
+                if (bullet.userData.weaponType) {
+                    switch (bullet.userData.weaponType) {
+                        case 'pistol':
+                            damage = isHeadshot ? 20 : 10;
+                            break;
+                        case 'rifle':
+                            damage = isHeadshot ? 30 : 15;
+                            break;
+                        case 'ak47':
+                            damage = isHeadshot ? 40 : 20;
+                            break;
+                        case 'awp':
+                            // AWP как в CS:GO - убивает с одного выстрела
+                            damage = isHeadshot ? 999 : 150;
+                            break;
+                        case 'sniper':
+                            damage = isHeadshot ? 80 : 40;
+                            break;
+                        case 'shotgun':
+                            damage = isHeadshot ? 60 : 30;
+                            break;
+                        case 'machinegun':
+                            damage = isHeadshot ? 25 : 12;
+                            break;
+                        default:
+                            damage = isHeadshot ? 20 : 10;
+                    }
+                } else {
+                    damage = isHeadshot ? 20 : 10;
+                }
+
                 // Статистика для тренировки
                 if (gameMode === 'training' && obstacleGroup.userData.type === 'trainingBot') {
                     trainingStats.hits++;
                     if (isHeadshot) {
                         trainingStats.headshots++;
                         showNotification('🎯 ХЕДШОТ!', 'success');
-                        obstacleGroup.userData.hp -= 50; // Хедшот наносит больше урона
-                    } else {
-                        obstacleGroup.userData.hp -= 10;
                     }
                     updateTrainingStatsUI();
                 }
@@ -725,10 +840,8 @@ function updateBullets() {
                     obstacleGroup.userData.hp = 1; // Если HP не установлен, считаем что 1
                 }
 
-                // Обычный урон для не-тренировочных ботов
-                if (obstacleGroup.userData.type !== 'trainingBot') {
-                    obstacleGroup.userData.hp--;
-                }
+                // Применяем урон
+                obstacleGroup.userData.hp -= damage;
 
                 // Обновляем HP бар для босса
                 if (obstacleGroup.userData.isBoss && obstacleGroup.userData.hpBar) {
@@ -753,6 +866,26 @@ function updateBullets() {
                         obstacleGroup.userData.hp = obstacleGroup.userData.maxHp;
                         showNotification('✅ БОТ УНИЧТОЖЕН!', 'info');
                         // Не удаляем бота, просто восстанавливаем HP
+                        break;
+                    }
+
+                    // Голограммные цели - удаляем и спавним новую
+                    if (gameMode === 'training' && obstacleGroup.userData.type === 'trainingDummy') {
+                        scene.remove(obstacleGroup);
+                        obstacles.splice(j, 1);
+
+                        // Увеличиваем счетчик уничтоженных целей
+                        if (typeof trainingTargetsDestroyed !== 'undefined') {
+                            trainingTargetsDestroyed++;
+                        }
+
+                        // Спавним новую цель
+                        showNotification('🎯 +1 ЦЕЛЬ', 'success');
+                        if (typeof spawnRandomTarget === 'function') {
+                            setTimeout(() => {
+                                spawnRandomTarget();
+                            }, 500); // Задержка 0.5 секунды перед новой целью
+                        }
                         break;
                     }
 
