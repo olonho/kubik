@@ -2628,8 +2628,193 @@ function initTrainingMode() {
 
     // Создаём полигон с мишенями после инициализации
     setTimeout(() => {
-        createTrainingRange();
+        createStandoffTrainingRange();
     }, 100);
+}
+
+// Глобальные переменные для статистики тренировки
+let trainingStats = {
+    shots: 0,
+    hits: 0,
+    headshots: 0,
+    accuracy: 0
+};
+
+// Создание тренировочного тира в стиле Standoff 2
+function createStandoffTrainingRange() {
+    console.log('🎯 Создание тренировочного полигона Standoff 2...');
+
+    // Очищаем сцену от старых объектов
+    obstacles.forEach(obj => scene.remove(obj));
+    obstacles = [];
+
+    // ========== ОКРУЖЕНИЕ ==========
+    // Светлое небо как в CS:GO
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+
+    // Удаляем старый пол
+    if (ground) {
+        scene.remove(ground);
+    }
+
+    // БЕТОННЫЙ ПОЛ
+    const floorSize = 100;
+    const floorGeometry = new THREE.PlaneGeometry(floorSize, floorSize);
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        color: 0x808080,
+        roughness: 0.9,
+        metalness: 0.1
+    });
+    ground = new THREE.Mesh(floorGeometry, floorMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Сетка на полу для визуализации расстояний
+    const gridHelper = new THREE.GridHelper(floorSize, 50, 0x555555, 0x444444);
+    gridHelper.position.y = 0.01;
+    scene.add(gridHelper);
+
+    // ========== ОСВЕЩЕНИЕ ==========
+    // Убираем старое освещение
+    while(scene.children.find(child => child.isDirectionalLight || child.isAmbientLight || child.isHemisphereLight)) {
+        const light = scene.children.find(child => child.isDirectionalLight || child.isAmbientLight || child.isHemisphereLight);
+        scene.remove(light);
+    }
+
+    // Яркое освещение как на улице
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    sunLight.position.set(10, 20, 5);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
+
+    // ========== СТЕНЫ ТИРА ==========
+    const wallMaterial = new THREE.MeshStandardMaterial({
+        color: 0x8b7355,
+        roughness: 0.8,
+        metalness: 0.1
+    });
+
+    // Задняя стена
+    const backWallGeometry = new THREE.BoxGeometry(40, 10, 1);
+    const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+    backWall.position.set(0, 5, -50);
+    backWall.receiveShadow = true;
+    backWall.castShadow = true;
+    scene.add(backWall);
+
+    // Боковые стены
+    const sideWallGeometry = new THREE.BoxGeometry(1, 10, 100);
+
+    const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+    leftWall.position.set(-20, 5, 0);
+    leftWall.receiveShadow = true;
+    leftWall.castShadow = true;
+    scene.add(leftWall);
+
+    const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+    rightWall.position.set(20, 5, 0);
+    rightWall.receiveShadow = true;
+    rightWall.castShadow = true;
+    scene.add(rightWall);
+
+    // ========== МАРКЕРЫ ДИСТАНЦИЙ ==========
+    const distances = [10, 20, 30, 40];
+    distances.forEach(dist => {
+        // Текст на полу
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffff00';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 3;
+        ctx.font = 'bold 64px Arial';
+        ctx.textAlign = 'center';
+        ctx.strokeText(dist + 'M', 128, 80);
+        ctx.fillText(dist + 'M', 128, 80);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.scale.set(3, 1.5, 1);
+        sprite.position.set(-15, 0.1, -dist);
+        scene.add(sprite);
+    });
+
+    // ========== СТАТИЧНЫЕ БОТЫ ==========
+    // 4 ряда ботов на разных дистанциях
+    distances.forEach((dist, rowIndex) => {
+        for (let i = -2; i <= 2; i++) {
+            const bot = createStandoffBot(false); // статичный
+            bot.position.set(i * 4, 0, -dist);
+            bot.userData.type = 'trainingBot';
+            bot.userData.hp = 100;
+            bot.userData.maxHp = 100;
+            bot.userData.distance = dist;
+            bot.userData.isMoving = false;
+            scene.add(bot);
+            obstacles.push(bot);
+        }
+    });
+
+    // ========== ДВИЖУЩИЕСЯ БОТЫ ==========
+    // 2 бота на 15м и 25м, которые двигаются влево-вправо
+    [15, 25].forEach(dist => {
+        const movingBot = createStandoffBot(true); // движущийся
+        movingBot.position.set(0, 0, -dist);
+        movingBot.userData.type = 'trainingBot';
+        movingBot.userData.hp = 100;
+        movingBot.userData.maxHp = 100;
+        movingBot.userData.distance = dist;
+        movingBot.userData.isMoving = true;
+        movingBot.userData.moveDirection = 1;
+        movingBot.userData.moveSpeed = 0.05;
+        movingBot.userData.moveRange = 8;
+        movingBot.userData.startX = 0;
+        scene.add(movingBot);
+        obstacles.push(movingBot);
+    });
+
+    // ========== UI СТАТИСТИКИ ==========
+    createTrainingStatsUI();
+
+    // ========== АНИМАЦИЯ ДВИЖУЩИХСЯ БОТОВ ==========
+    const animateMovingBots = () => {
+        if (gameMode !== 'training') return;
+
+        obstacles.forEach(bot => {
+            if (bot.userData.isMoving && bot.userData.type === 'trainingBot') {
+                // Движение влево-вправо
+                bot.position.x += bot.userData.moveSpeed * bot.userData.moveDirection;
+
+                // Разворот при достижении края
+                if (Math.abs(bot.position.x - bot.userData.startX) > bot.userData.moveRange) {
+                    bot.userData.moveDirection *= -1;
+                    bot.rotation.y = bot.userData.moveDirection > 0 ? Math.PI / 2 : -Math.PI / 2;
+                }
+            }
+        });
+
+        requestAnimationFrame(animateMovingBots);
+    };
+    animateMovingBots();
+
+    // Перемещаем игрока на стартовую позицию
+    player.position.set(0, 0, 0);
+
+    // Безлимитные патроны в тренировке
+    ammo = 999;
+    updateAmmoDisplay();
+
+    console.log('✅ Тренировочный полигон создан с', obstacles.length, 'ботами');
 }
 
 // Создание КИБЕРПРОСТРАНСТВЕННОГО тренировочного полигона
@@ -2934,6 +3119,211 @@ function createHologramTarget() {
 
     // Создание неподвижной мишени-зомби (старая функция, оставляем для совместимости)
     return hologramGroup;
+}
+
+// Создание бота для тренировки в стиле Standoff 2
+function createStandoffBot(isMoving) {
+    const botGroup = new THREE.Group();
+
+    // Цвет бота - оранжевый для статичных, красный для движущихся
+    const botColor = isMoving ? 0xff3333 : 0xff8800;
+    const headColor = isMoving ? 0xff6666 : 0xffaa44;
+
+    // ТЕЛО
+    const bodyGeometry = new THREE.BoxGeometry(0.6, 0.9, 0.3);
+    const bodyMaterial = new THREE.MeshStandardMaterial({
+        color: botColor,
+        roughness: 0.7,
+        metalness: 0.2
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = 0.8;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    body.userData.isPart = 'body';
+    botGroup.add(body);
+
+    // ГОЛОВА (важна для хедшотов)
+    const headGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+    const headMaterial = new THREE.MeshStandardMaterial({
+        color: headColor,
+        roughness: 0.6,
+        metalness: 0.1
+    });
+    const head = new THREE.Mesh(headGeometry, headMaterial);
+    head.position.y = 1.5;
+    head.castShadow = true;
+    head.receiveShadow = true;
+    head.userData.isPart = 'head';
+    botGroup.add(head);
+
+    // РУКИ
+    const armGeometry = new THREE.BoxGeometry(0.2, 0.6, 0.2);
+    const armMaterial = new THREE.MeshStandardMaterial({
+        color: botColor,
+        roughness: 0.7,
+        metalness: 0.2
+    });
+
+    const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+    leftArm.position.set(-0.4, 0.7, 0);
+    leftArm.castShadow = true;
+    botGroup.add(leftArm);
+
+    const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+    rightArm.position.set(0.4, 0.7, 0);
+    rightArm.castShadow = true;
+    botGroup.add(rightArm);
+
+    // НОГИ
+    const legGeometry = new THREE.BoxGeometry(0.2, 0.7, 0.2);
+    const legMaterial = new THREE.MeshStandardMaterial({
+        color: botColor,
+        roughness: 0.8,
+        metalness: 0.1
+    });
+
+    const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+    leftLeg.position.set(-0.15, 0.15, 0);
+    leftLeg.castShadow = true;
+    botGroup.add(leftLeg);
+
+    const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+    rightLeg.position.set(0.15, 0.15, 0);
+    rightLeg.castShadow = true;
+    botGroup.add(rightLeg);
+
+    // ГЛАЗА
+    const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);
+    const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.1, 1.55, 0.15);
+    botGroup.add(leftEye);
+
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.1, 1.55, 0.15);
+    botGroup.add(rightEye);
+
+    // Метка над головой
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = isMoving ? '#ff3333' : '#ff8800';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(isMoving ? 'MOVING' : 'STATIC', 128, 40);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(2, 0.5, 1);
+    sprite.position.y = 2.2;
+    botGroup.add(sprite);
+
+    return botGroup;
+}
+
+// Создание UI панели статистики для тренировки
+function createTrainingStatsUI() {
+    // Удаляем старую панель если есть
+    const oldPanel = document.getElementById('trainingStatsPanel');
+    if (oldPanel) {
+        oldPanel.remove();
+    }
+
+    // Создаем панель
+    const panel = document.createElement('div');
+    panel.id = 'trainingStatsPanel';
+    panel.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, rgba(30, 30, 30, 0.95), rgba(50, 50, 50, 0.9));
+        padding: 20px;
+        border-radius: 15px;
+        border: 2px solid rgba(255, 215, 0, 0.6);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        font-family: Arial, sans-serif;
+        min-width: 250px;
+        backdrop-filter: blur(5px);
+    `;
+
+    panel.innerHTML = `
+        <div style="color: #ffd700; font-size: 24px; font-weight: bold; margin-bottom: 15px; text-align: center; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
+            📊 СТАТИСТИКА
+        </div>
+        <div style="color: #ffffff; font-size: 16px; line-height: 1.8;">
+            <div style="margin-bottom: 8px;">
+                <span style="color: #aaaaaa;">Выстрелов:</span>
+                <span id="trainingShotsCount" style="color: #00ff00; font-weight: bold; float: right;">0</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: #aaaaaa;">Попаданий:</span>
+                <span id="trainingHitsCount" style="color: #00ffff; font-weight: bold; float: right;">0</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: #aaaaaa;">Хедшотов:</span>
+                <span id="trainingHeadshotsCount" style="color: #ff00ff; font-weight: bold; float: right;">0</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <span style="color: #aaaaaa;">Точность:</span>
+                <span id="trainingAccuracy" style="color: #ffff00; font-weight: bold; float: right;">0%</span>
+            </div>
+        </div>
+        <div style="margin-top: 15px; text-align: center;">
+            <button id="resetStatsBtn" style="
+                background: linear-gradient(135deg, #ff4444, #cc0000);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                cursor: pointer;
+                font-size: 14px;
+                box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
+            ">🔄 Сбросить</button>
+        </div>
+    `;
+
+    document.body.appendChild(panel);
+
+    // Кнопка сброса статистики
+    document.getElementById('resetStatsBtn').addEventListener('click', () => {
+        trainingStats.shots = 0;
+        trainingStats.hits = 0;
+        trainingStats.headshots = 0;
+        trainingStats.accuracy = 0;
+        updateTrainingStatsUI();
+    });
+
+    updateTrainingStatsUI();
+}
+
+// Обновление UI статистики
+function updateTrainingStatsUI() {
+    const shotsEl = document.getElementById('trainingShotsCount');
+    const hitsEl = document.getElementById('trainingHitsCount');
+    const headshotsEl = document.getElementById('trainingHeadshotsCount');
+    const accuracyEl = document.getElementById('trainingAccuracy');
+
+    if (shotsEl) shotsEl.textContent = trainingStats.shots;
+    if (hitsEl) hitsEl.textContent = trainingStats.hits;
+    if (headshotsEl) headshotsEl.textContent = trainingStats.headshots;
+    if (accuracyEl) {
+        const acc = trainingStats.shots > 0
+            ? Math.round((trainingStats.hits / trainingStats.shots) * 100)
+            : 0;
+        accuracyEl.textContent = acc + '%';
+
+        // Цветовое кодирование точности
+        if (acc >= 75) accuracyEl.style.color = '#00ff00';
+        else if (acc >= 50) accuracyEl.style.color = '#ffff00';
+        else if (acc >= 25) accuracyEl.style.color = '#ff8800';
+        else accuracyEl.style.color = '#ff0000';
+    }
 }
 
 function createTrainingDummy() {

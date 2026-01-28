@@ -374,12 +374,22 @@ function updatePlayer() {
 }
 
 function shoot() {
-    // Проверяем наличие патронов
-    if (ammo <= 0) {
+    // Проверяем наличие патронов (в тренировке безлимитные патроны)
+    if (ammo <= 0 && gameMode !== 'training') {
         return;
     }
+
+    // Статистика выстрелов для тренировки
+    if (gameMode === 'training') {
+        trainingStats.shots++;
+        updateTrainingStatsUI();
+        // Безлимитные патроны в тренировке
+        ammo = 999;
+        updateAmmoDisplay();
+    }
+
     // Лазерная пушка не расходует патроны
-    if (selectedWeapon !== 'laser' && selectedWeapon !== 'gravity') {
+    if (selectedWeapon !== 'laser' && selectedWeapon !== 'gravity' && gameMode !== 'training') {
         ammo--;
         updateAmmoDisplay();
     }
@@ -664,17 +674,61 @@ function updateBullets() {
             const targetWorldPos = new THREE.Vector3();
             target.getWorldPosition(targetWorldPos);
 
-            const distance = bullet.position.distanceTo(targetWorldPos);
-            if (distance < 1.5) {
+            // Проверяем попадание в тренировочных ботов (более точная проверка по частям тела)
+            let hitDetected = false;
+            let isHeadshot = false;
+
+            if (obstacleGroup.userData.type === 'trainingBot' && gameMode === 'training') {
+                // Проверяем попадание в каждую часть тела
+                obstacleGroup.children.forEach(part => {
+                    if (part.userData.isPart && !hitDetected) {
+                        const partWorldPos = new THREE.Vector3();
+                        part.getWorldPosition(partWorldPos);
+                        const distToPart = bullet.position.distanceTo(partWorldPos);
+
+                        if (distToPart < 0.8) {
+                            hitDetected = true;
+                            if (part.userData.isPart === 'head') {
+                                isHeadshot = true;
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Стандартная проверка для обычных врагов
+                const distance = bullet.position.distanceTo(targetWorldPos);
+                if (distance < 1.5) {
+                    hitDetected = true;
+                }
+            }
+
+            if (hitDetected) {
                 // Попадание!
                 scene.remove(bullet);
                 bullets.splice(i, 1);
+
+                // Статистика для тренировки
+                if (gameMode === 'training' && obstacleGroup.userData.type === 'trainingBot') {
+                    trainingStats.hits++;
+                    if (isHeadshot) {
+                        trainingStats.headshots++;
+                        showNotification('🎯 ХЕДШОТ!', 'success');
+                        obstacleGroup.userData.hp -= 50; // Хедшот наносит больше урона
+                    } else {
+                        obstacleGroup.userData.hp -= 10;
+                    }
+                    updateTrainingStatsUI();
+                }
 
                 // Отнимаем HP
                 if (!obstacleGroup.userData.hp) {
                     obstacleGroup.userData.hp = 1; // Если HP не установлен, считаем что 1
                 }
-                obstacleGroup.userData.hp--;
+
+                // Обычный урон для не-тренировочных ботов
+                if (obstacleGroup.userData.type !== 'trainingBot') {
+                    obstacleGroup.userData.hp--;
+                }
 
                 // Обновляем HP бар для босса
                 if (obstacleGroup.userData.isBoss && obstacleGroup.userData.hpBar) {
@@ -692,8 +746,16 @@ function updateBullets() {
                     }
                 }
 
-                // Если HP <= 0, удаляем зомби
+                // Если HP <= 0, удаляем зомби (кроме тренировочных ботов)
                 if (obstacleGroup.userData.hp <= 0) {
+                    // Тренировочные боты восстанавливают HP вместо смерти
+                    if (gameMode === 'training' && obstacleGroup.userData.type === 'trainingBot') {
+                        obstacleGroup.userData.hp = obstacleGroup.userData.maxHp;
+                        showNotification('✅ БОТ УНИЧТОЖЕН!', 'info');
+                        // Не удаляем бота, просто восстанавливаем HP
+                        break;
+                    }
+
                     scene.remove(obstacleGroup);
                     obstacles.splice(j, 1);
 
@@ -785,13 +847,16 @@ function loseLife() {
 function updateObstacles() {
     if (!gameActive) return;
 
-    // Не спавним и не двигаем зомби если игрок внутри дома
-    if (isInsideHouse) return;
+    // Не спавним и не двигаем зомби если игрок внутри дома или на тренировочном полигоне
+    if (isInsideHouse || isOnTrainingMap) return;
 
     // Создаём зомби постоянно пока не вызван финальный босс
     if (!finalBossSpawned && gameActive) {
-        // Вероятность спавна увеличивается со временем
-        const spawnChance = Math.min(0.01 + (zombiesKilled / 10000), 0.04); // От 1% до 4%
+        // Нормальная вероятность спавна как в оригинале (2% базовая)
+        // Постепенно увеличивается до 5% по мере прогресса
+        const baseChance = 0.02; // 2% базовый шанс
+        const progressBonus = Math.min(zombiesKilled / 5000, 0.03); // +3% максимум
+        const spawnChance = baseChance + progressBonus; // От 2% до 5%
 
         if (Math.random() < spawnChance) {
             createZombie();

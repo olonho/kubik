@@ -522,6 +522,20 @@ window.addEventListener('DOMContentLoaded', () => {
         buildSecondFloor();
     });
 
+    // Обработчик кнопки телепортации на тренировочный полигон
+    document.getElementById('teleportToTrainingBtn').addEventListener('click', () => {
+        if (typeof teleportToTraining === 'function') {
+            teleportToTraining();
+        }
+    });
+
+    // Обработчик кнопки возврата с тренировочного полигона
+    document.getElementById('returnFromTrainingBtn').addEventListener('click', () => {
+        if (typeof returnFromTraining === 'function') {
+            returnFromTraining();
+        }
+    });
+
     // Обработчик клавиши A для поглаживания собаки (когда рядом)
     // Обрабатывается в updatePlayer() где проверяется близость к собаке
 });

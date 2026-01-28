@@ -585,7 +585,13 @@ function createLaserGun() {
     muzzle.rotation.z = Math.PI / 2;
     muzzle.position.set(0.45, 0, 0);
     laserGroup.add(muzzle);
-    
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.05, 0.13, 0); // Сверху на корпусе
+    redDot.scale.set(1.4, 1.4, 1.4);
+    laserGroup.add(redDot);
+
     laserGroup.scale.set(1.5, 1.5, 1.5);
     return laserGroup;
 }
@@ -986,7 +992,13 @@ function createMinigun() {
     const belt = new THREE.Mesh(beltGeometry, beltMaterial);
     belt.position.set(-0.2, 0.15, 0);
     minigunGroup.add(belt);
-    
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.1, 0.15, 0); // Сверху между стволами
+    redDot.scale.set(1.5, 1.5, 1.5);
+    minigunGroup.add(redDot);
+
     minigunGroup.scale.set(1.7, 1.7, 1.7);
     return minigunGroup;
 }
@@ -1055,17 +1067,12 @@ function createRailgun() {
     grip.castShadow = true;
     railgunGroup.add(grip);
     
-    // Прицел
-    const scopeGeometry = new THREE.BoxGeometry(0.15, 0.06, 0.06);
-    const scopeMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0xFF0000,
-        emissive: 0xFF0000,
-        emissiveIntensity: 0.5
-    });
-    const scope = new THREE.Mesh(scopeGeometry, scopeMaterial);
-    scope.position.set(0, 0.12, 0);
-    railgunGroup.add(scope);
-    
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.15, 0.14, 0); // Сверху на корпусе
+    redDot.scale.set(1.6, 1.6, 1.6);
+    railgunGroup.add(redDot);
+
     railgunGroup.scale.set(1.6, 1.6, 1.6);
     return railgunGroup;
 }

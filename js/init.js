@@ -60,7 +60,8 @@ function selectSkin(skin) {
         'score', 'instructions', 'crosshair', 'coinsDisplay',
         'openShopBtn', 'openItemsShopBtn', 'openWeaponsShopBtn',
         'woodDisplay', 'hungerDisplay', 'thirstDisplay',
-        'buildHouseBtn', 'buildBedBtn', 'buildSecondFloorBtn'
+        'buildHouseBtn', 'buildBedBtn', 'buildSecondFloorBtn',
+        'teleportToTrainingBtn'
     ];
 
     uiElements.forEach(id => {
