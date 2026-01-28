@@ -86,7 +86,7 @@ function updatePlayer() {
     if (keys['ArrowLeft']) {
         const newX = player.position.x - playerSpeed;
         // Разные границы для дома и улицы (широкие границы, основная проверка в checkCollisionInHouse)
-        const leftBound = isInsideHouse ? -3 : -4;
+        const leftBound = isInsideHouse ? -3 : -8; // Увеличена в 2 раза
 
         if (newX > leftBound) {
             // Проверяем коллизии
@@ -100,7 +100,7 @@ function updatePlayer() {
     if (keys['ArrowRight']) {
         const newX = player.position.x + playerSpeed;
         // Разные границы для дома и улицы
-        const rightBound = isInsideHouse ? 3 : 4;
+        const rightBound = isInsideHouse ? 3 : 8; // Увеличена в 2 раза
 
         if (newX < rightBound) {
             // Проверяем коллизии
@@ -116,7 +116,7 @@ function updatePlayer() {
     if (keys['ArrowUp']) {
         const newZ = player.position.z - playerSpeed;
         // Разные границы для дома и улицы
-        const forwardBound = isInsideHouse ? -2.5 : -40;
+        const forwardBound = isInsideHouse ? -2.5 : -80; // Увеличена в 2 раза
 
         if (newZ > forwardBound) {
             // Проверяем коллизии
@@ -130,7 +130,7 @@ function updatePlayer() {
     if (keys['ArrowDown']) {
         const newZ = player.position.z + playerSpeed;
         // Разные границы для дома и улицы
-        const backBound = isInsideHouse ? 2.5 : 5;
+        const backBound = isInsideHouse ? 2.5 : 10; // Увеличена в 2 раза
 
         if (newZ < backBound) {
             // Проверяем коллизии
@@ -792,8 +792,8 @@ function updateObstacles() {
                 obstacleGroup.position.z += (dz / distance) * bossSpeed;
 
                 // Ограничиваем позицию босса в разумных пределах (предотвращаем выход за границы)
-                obstacleGroup.position.x = Math.max(-10, Math.min(10, obstacleGroup.position.x));
-                obstacleGroup.position.z = Math.max(-50, Math.min(15, obstacleGroup.position.z));
+                obstacleGroup.position.x = Math.max(-15, Math.min(15, obstacleGroup.position.x));
+                obstacleGroup.position.z = Math.max(-100, Math.min(20, obstacleGroup.position.z));
             } else {
                 // На расстоянии 5 метров - атакует!
                 // Инициализируем таймер атаки если его нет
@@ -861,8 +861,20 @@ function updateObstacles() {
                 }
             }
         } else {
-            // Обычные зомби двигаются просто вперед
-            obstacleGroup.position.z += obstacleSpeed;
+            // Обычные зомби двигаются к игроку (как босс)
+            const dx = player.position.x - obstacleGroup.position.x;
+            const dz = player.position.z - obstacleGroup.position.z;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+
+            // Поворачиваются к игроку
+            if (distance > 0.1) {
+                const targetAngle = Math.atan2(dx, dz);
+                obstacleGroup.rotation.y = targetAngle;
+
+                // Двигаются к игроку
+                obstacleGroup.position.x += (dx / distance) * obstacleSpeed;
+                obstacleGroup.position.z += (dz / distance) * obstacleSpeed;
+            }
         }
 
         // Анимация ног зомби
@@ -916,8 +928,8 @@ function updateObstacles() {
                         obstacleGroup.position.z += (dz / distance) * rushSpeed;
 
                         // Ограничиваем позицию босса в разумных пределах
-                        obstacleGroup.position.x = Math.max(-10, Math.min(10, obstacleGroup.position.x));
-                        obstacleGroup.position.z = Math.max(-50, Math.min(15, obstacleGroup.position.z));
+                        obstacleGroup.position.x = Math.max(-15, Math.min(15, obstacleGroup.position.x));
+                        obstacleGroup.position.z = Math.max(-100, Math.min(20, obstacleGroup.position.z));
                     }
 
                     // Поворачивается к игроку
@@ -942,7 +954,7 @@ function updateObstacles() {
         }
 
         // Зомби дошёл до игрока - потеря жизни (НЕ для финального босса)
-        if (!obstacleGroup.userData.isFinalBoss && obstacleGroup.position.z > 10) {
+        if (!obstacleGroup.userData.isFinalBoss && obstacleGroup.position.z > 15) {
             scene.remove(obstacleGroup);
             obstacles.splice(i, 1);
             loseLife();

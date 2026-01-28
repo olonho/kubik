@@ -11,6 +11,7 @@ var bullets = [];
 var score = 0;
 var highScore = parseInt(localStorage.getItem('cubeGameHighScore')) || 0;
 var wave = 1;
+var level = 1; // Уровень игры (используется для системы вознаграждений)
 var zombiesPerWave = 5;
 var zombiesInCurrentWave = 0;
 var waveActive = false;
@@ -872,8 +873,8 @@ function loseLife() {
 function startNewWave() {
     wave++;
 
-    // Увеличиваем количество зомби с каждой волной (более агрессивная прогрессия)
-    zombiesPerWave = 5 + (wave - 1) * 4; // 5, 9, 13, 17, 21, 25...
+    // Увеличиваем количество зомби с каждой волной (меньше зомби для комфортной игры)
+    zombiesPerWave = 3 + (wave - 1) * 2; // 3, 5, 7, 9, 11, 13...
 
     // ВАЖНО: Для волны 20 (финальный босс) НЕ спавним обычных зомби
     if (wave === 20) {
