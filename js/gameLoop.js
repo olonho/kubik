@@ -315,32 +315,21 @@ function updatePlayer() {
         }
     }
 
-    // Прицеливание на клавишу K
+    // Прицеливание на клавишу K (ADS - Aim Down Sights)
     if (keys['KeyK']) {
         keys['KeyK'] = false;
         isAiming = !isAiming;
 
-        // Плавное изменение FOV для зума
-        const targetFov = isAiming ? aimFov : normalFov;
-        const fovStep = (targetFov - camera.fov) / 10;
-
-        let currentStep = 0;
-        const fovInterval = setInterval(() => {
-            currentStep++;
-            camera.fov += fovStep;
-            camera.updateProjectionMatrix();
-
-            if (currentStep >= 10) {
-                camera.fov = targetFov;
-                camera.updateProjectionMatrix();
-                clearInterval(fovInterval);
-            }
-        }, 16); // ~60fps
+        // Скрываем 2D прицел CS:GO при ADS
+        const crosshair = document.getElementById('crosshair');
+        if (crosshair) {
+            crosshair.style.display = isAiming ? 'none' : 'block';
+        }
 
         // Показываем уведомление
         const notification = document.createElement('div');
         notification.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; z-index: 999; border: 2px solid #ff6347;';
-        notification.textContent = isAiming ? '🔍 Прицел включен' : '👁️ Прицел выключен';
+        notification.textContent = isAiming ? '🔍 Прицеливание' : '👁️ Обычный режим';
         document.body.appendChild(notification);
 
         setTimeout(() => {
@@ -348,12 +337,6 @@ function updatePlayer() {
                 document.body.removeChild(notification);
             }
         }, 1500);
-
-        // Показываем/скрываем визуальный прицел
-        const aimOverlay = document.getElementById('aimOverlay');
-        if (aimOverlay) {
-            aimOverlay.style.display = isAiming ? 'block' : 'none';
-        }
     }
 
     // Стрельба на клавишу W
@@ -1467,10 +1450,48 @@ function updateCamera() {
     if (!gameActive) return;
 
     if (cameraMode === 'firstPerson') {
-        // Вид от первого лица - камера на уровне глаз
-        camera.position.x = player.position.x;
-        camera.position.y = player.position.y + 0.7;
-        camera.position.z = player.position.z;
+        // Вид от первого лица
+
+        if (isAiming && currentWeapon) {
+            // РЕЖИМ ADS - камера заходит В прицел
+            // Ищем красную точку прицела
+            let redDotPosition = null;
+            currentWeapon.traverse((child) => {
+                if (child.name === 'redDotCenter') {
+                    // Получаем мировую позицию красной точки
+                    const worldPos = new THREE.Vector3();
+                    child.getWorldPosition(worldPos);
+                    redDotPosition = worldPos;
+                }
+            });
+
+            if (redDotPosition) {
+                // Плавно перемещаем камеру к позиции прицела
+                camera.position.lerp(redDotPosition, 0.2);
+
+                // Небольшой зум FOV
+                if (camera.fov > 60) {
+                    camera.fov -= 2;
+                    camera.updateProjectionMatrix();
+                }
+            } else {
+                // Fallback если прицел не найден
+                camera.position.x = player.position.x;
+                camera.position.y = player.position.y + 0.65;
+                camera.position.z = player.position.z;
+            }
+        } else {
+            // Обычный режим - камера на уровне глаз
+            camera.position.x = player.position.x;
+            camera.position.y = player.position.y + 0.7;
+            camera.position.z = player.position.z;
+
+            // Возвращаем FOV обратно
+            if (camera.fov < 75) {
+                camera.fov += 2;
+                camera.updateProjectionMatrix();
+            }
+        }
 
         if (manualCameraControl) {
             // Ручное управление камерой через тач/мышь

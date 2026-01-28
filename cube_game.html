@@ -1015,8 +1015,12 @@
 
         // ========== КНОПКА МАГАЗИНА ПИТОМЦЕВ ==========
         document.getElementById('petsShopBtn').addEventListener('click', () => {
-            // TODO: Открыть магазин питомцев
-            alert('Магазин питомцев в разработке! Скоро здесь можно будет покупать и называть животных! 🐾');
+            console.log('🐾 Открытие магазина питомцев из главного меню');
+            if (typeof openPetsShop === 'function') {
+                openPetsShop();
+            } else {
+                console.error('Функция openPetsShop не найдена');
+            }
         });
     </script>
 
@@ -1138,22 +1142,23 @@
 
     <!-- Игровые скрипты (загружаются после DOM) -->
     <!-- Данные (без зависимостей) -->
-    <script src="js/shopData.js?t=1769633800"></script>
+    <script src="js/shopData.js?t=1769634000"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769633800"></script>
-    <script src="js/characters.js?t=1769633800"></script>
-    <script src="js/decorations.js?t=1769633800"></script>
-    <script src="js/turrets.js?t=1769633800"></script>
-    <script src="js/enemies.js?t=1769633800"></script>
-    <script src="js/pets.js?t=1769633800"></script>
+    <script src="js/weapons.js?t=1769634000"></script>
+    <script src="js/characters.js?t=1769634000"></script>
+    <script src="js/decorations.js?t=1769634000"></script>
+    <script src="js/turrets.js?t=1769634000"></script>
+    <script src="js/enemies.js?t=1769634000"></script>
+    <script src="js/pets.js?t=1769634000"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769633800"></script>
-    <script src="js/shop.js?t=1769633800"></script>
-    <script src="js/shopUI.js?t=1769633800"></script>
+    <script src="js/game.js?t=1769634000"></script>
+    <script src="js/shop.js?t=1769634000"></script>
+    <script src="js/shopUI.js?t=1769634000"></script>
+    <script src="js/petsShop.js?t=1769634000"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769633800"></script>
-    <script src="js/controls.js?t=1769633800"></script>
+    <script src="js/gameLoop.js?t=1769634000"></script>
+    <script src="js/controls.js?t=1769634000"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769633800"></script>
+    <script src="js/init.js?t=1769634000"></script>
 </body>
 </html>

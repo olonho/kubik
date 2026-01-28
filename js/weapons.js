@@ -1,6 +1,6 @@
 // Создание оружия
 
-// Функция создания Red Dot Sight (коллиматорный прицел)
+// Функция создания Red Dot Sight (коллиматорный прицел) - круглый как в Far Cry
 function createRedDotSight() {
     const sightGroup = new THREE.Group();
 
@@ -17,34 +17,34 @@ function createRedDotSight() {
     body.position.set(0, 0, 0);
     sightGroup.add(body);
 
-    // Передняя рамка
-    const frontFrameGeometry = new THREE.BoxGeometry(0.002, 0.05, 0.06);
-    const frontFrame = new THREE.Mesh(frontFrameGeometry, blackMetal);
-    frontFrame.position.set(0.04, 0.005, 0);
-    sightGroup.add(frontFrame);
+    // КРУГЛАЯ РАМКА (как в Far Cry)
+    const ringGeometry = new THREE.TorusGeometry(0.025, 0.003, 8, 32);
+    const ring = new THREE.Mesh(ringGeometry, blackMetal);
+    ring.rotation.y = Math.PI / 2;
+    ring.position.set(0, 0.005, 0);
+    sightGroup.add(ring);
 
-    // Задняя рамка
-    const backFrame = new THREE.Mesh(frontFrameGeometry, blackMetal);
-    backFrame.position.set(-0.04, 0.005, 0);
-    sightGroup.add(backFrame);
+    // Стойки крепления круга (4 шт)
+    const strutGeometry = new THREE.BoxGeometry(0.002, 0.03, 0.002);
+    const struts = [
+        { x: 0, y: 0.02, z: 0.025 },   // верх
+        { x: 0, y: -0.01, z: 0.025 },  // низ
+        { x: 0.025, y: 0.005, z: 0 },  // право
+        { x: -0.025, y: 0.005, z: 0 }  // лево
+    ];
 
-    // Верхняя рамка
-    const topFrameGeometry = new THREE.BoxGeometry(0.08, 0.002, 0.06);
-    const topFrame = new THREE.Mesh(topFrameGeometry, blackMetal);
-    topFrame.position.set(0, 0.03, 0);
-    sightGroup.add(topFrame);
+    struts.forEach(pos => {
+        const strut = new THREE.Mesh(strutGeometry, blackMetal);
+        strut.position.set(pos.x, pos.y, pos.z);
+        sightGroup.add(strut);
+    });
 
-    // Нижняя рамка
-    const bottomFrame = new THREE.Mesh(topFrameGeometry, blackMetal);
-    bottomFrame.position.set(0, -0.02, 0);
-    sightGroup.add(bottomFrame);
-
-    // Стеклянная линза (полупрозрачная)
-    const lensGeometry = new THREE.PlaneGeometry(0.075, 0.055);
+    // Стеклянная линза (круглая, полупрозрачная)
+    const lensGeometry = new THREE.CircleGeometry(0.025, 32);
     const lensMaterial = new THREE.MeshBasicMaterial({
         color: 0x1a3050,
         transparent: true,
-        opacity: 0.15,
+        opacity: 0.1,
         side: THREE.DoubleSide
     });
     const lens = new THREE.Mesh(lensGeometry, lensMaterial);
@@ -52,18 +52,19 @@ function createRedDotSight() {
     lens.rotation.y = Math.PI / 2;
     sightGroup.add(lens);
 
-    // КРАСНАЯ ТОЧКА В ЦЕНТРЕ (светящаяся)
-    const dotGeometry = new THREE.CircleGeometry(0.003, 16);
+    // КРАСНАЯ ТОЧКА В ЦЕНТРЕ (светящаяся) - точно по центру круга
+    const dotGeometry = new THREE.CircleGeometry(0.002, 16);
     const dotMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0000,
         emissive: 0xff0000,
-        emissiveIntensity: 2.0,
+        emissiveIntensity: 3.0,
         transparent: true,
-        opacity: 0.9
+        opacity: 1.0
     });
     const redDot = new THREE.Mesh(dotGeometry, dotMaterial);
     redDot.position.set(0, 0.005, 0.001); // Чуть впереди линзы
     redDot.rotation.y = Math.PI / 2;
+    redDot.name = 'redDotCenter'; // Имя для поиска
     sightGroup.add(redDot);
 
     // Крепление снизу (picatinny rail mount)
