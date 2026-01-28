@@ -43,6 +43,11 @@ var savedOutdoorPosition = null; // Сохраненная позиция на �
 var zombiesKilled = 0; // Количество убитых зомби
 var finalBossSpawned = false; // Был ли вызван финальный босс
 var finalBossConditionsMet = false; // Выполнены ли условия для финального босса
+
+// Система тренировочного полигона
+var isOnTrainingMap = false; // Находится ли игрок на тренировочном полигоне
+var savedGameState = null; // Сохраненное состояние игры перед телепортацией
+
 var petPats = 0; // Количество поглаживаний питомца
 var hasCompanion = false; // Есть ли напарник
 var companion = null; // Объект напарника
@@ -3113,4 +3118,194 @@ function returnToSkinMenu() {
     }
 
     selectedSkin = null;
+}
+
+// ========== СИСТЕМА ТЕЛЕПОРТАЦИИ НА ТРЕНИРОВОЧНЫЙ ПОЛИГОН ==========
+
+// Телепортация на тренировочный полигон
+function teleportToTraining() {
+    if (isOnTrainingMap) {
+        console.log('❌ Уже на тренировочном полигоне');
+        return;
+    }
+
+    console.log('🌀 Телепортация на тренировочный полигон...');
+
+    // Сохраняем текущее состояние игры
+    savedGameState = {
+        playerPosition: player.position.clone(),
+        gameMode: gameMode,
+        waveActive: waveActive,
+        background: scene.background ? scene.background.clone() : null,
+        fog: scene.fog ? { color: scene.fog.color.clone(), near: scene.fog.near, far: scene.fog.far } : null,
+        obstacles: [...obstacles],
+        lives: lives,
+        score: score
+    };
+
+    // Показываем эффект телепортации
+    showTeleportEffect();
+
+    setTimeout(() => {
+        // Очищаем текущую сцену
+        clearCurrentScene();
+
+        // Устанавливаем режим тренировки
+        isOnTrainingMap = true;
+        gameMode = 'training';
+        waveActive = false; // Останавливаем зомби
+
+        // Создаем киберпространство
+        createCyberTrainingSpace();
+
+        // Перемещаем игрока в центр
+        player.position.set(0, 0, 0);
+
+        // Показываем кнопку возврата
+        const returnBtn = document.getElementById('returnFromTrainingBtn');
+        if (returnBtn) {
+            returnBtn.style.display = 'block';
+        }
+
+        // Скрываем кнопку телепортации
+        const teleportBtn = document.getElementById('teleportToTrainingBtn');
+        if (teleportBtn) {
+            teleportBtn.style.display = 'none';
+        }
+
+        showNotification('💠 Добро пожаловать в Киберпространство!', 'success');
+    }, 1000);
+}
+
+// Возврат с тренировочного полигона
+function returnFromTraining() {
+    if (!isOnTrainingMap) {
+        console.log('❌ Не на тренировочном полигоне');
+        return;
+    }
+
+    console.log('🌀 Возврат с тренировочного полигона...');
+
+    // Показываем эффект телепортации
+    showTeleportEffect();
+
+    setTimeout(() => {
+        // Очищаем киберпространство
+        clearCurrentScene();
+
+        // Восстанавливаем состояние игры
+        if (savedGameState) {
+            player.position.copy(savedGameState.playerPosition);
+            gameMode = savedGameState.gameMode;
+            waveActive = savedGameState.waveActive;
+
+            // Восстанавливаем фон
+            if (savedGameState.background) {
+                scene.background = savedGameState.background;
+            } else {
+                scene.background = new THREE.Color(0x87CEEB);
+            }
+
+            // Восстанавливаем туман
+            if (savedGameState.fog) {
+                scene.fog = new THREE.Fog(
+                    savedGameState.fog.color,
+                    savedGameState.fog.near,
+                    savedGameState.fog.far
+                );
+            }
+
+            // Восстанавливаем препятствия
+            obstacles = [...savedGameState.obstacles];
+            obstacles.forEach(obs => {
+                if (!scene.children.includes(obs)) {
+                    scene.add(obs);
+                }
+            });
+
+            lives = savedGameState.lives;
+            score = savedGameState.score;
+        }
+
+        // Восстанавливаем обычное окружение
+        initGame(); // Переинициализируем игру
+
+        isOnTrainingMap = false;
+        savedGameState = null;
+
+        // Показываем кнопку телепортации обратно
+        const teleportBtn = document.getElementById('teleportToTrainingBtn');
+        if (teleportBtn) {
+            teleportBtn.style.display = 'block';
+        }
+
+        // Скрываем кнопку возврата
+        const returnBtn = document.getElementById('returnFromTrainingBtn');
+        if (returnBtn) {
+            returnBtn.style.display = 'none';
+        }
+
+        showNotification('🏠 Возвращение в основной мир!', 'success');
+    }, 1000);
+}
+
+// Очистка текущей сцены
+function clearCurrentScene() {
+    // Удаляем все препятствия
+    obstacles.forEach(obs => scene.remove(obs));
+    obstacles = [];
+
+    // Удаляем пули
+    bullets.forEach(bullet => scene.remove(bullet));
+    bullets = [];
+
+    // Удаляем декорации (деревья, камни, облака)
+    const toRemove = [];
+    scene.children.forEach(child => {
+        if (child.userData && (
+            child.userData.isTree ||
+            child.userData.isRock ||
+            child.userData.isCloud ||
+            child.userData.isBuilding ||
+            child.name === 'GridHelper' ||
+            child.type === 'GridHelper'
+        )) {
+            toRemove.push(child);
+        }
+    });
+    toRemove.forEach(obj => scene.remove(obj));
+}
+
+// Эффект телепортации
+function showTeleportEffect() {
+    const effect = document.createElement('div');
+    effect.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(0, 255, 255, 0.8) 0%, rgba(255, 0, 255, 0.8) 50%, rgba(0, 0, 0, 1) 100%);
+        z-index: 9999;
+        animation: teleportPulse 1s ease-out;
+        pointer-events: none;
+    `;
+    document.body.appendChild(effect);
+
+    // Добавляем анимацию
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes teleportPulse {
+            0% { opacity: 0; transform: scale(2); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    setTimeout(() => {
+        if (effect.parentNode) {
+            document.body.removeChild(effect);
+        }
+    }, 1000);
 }

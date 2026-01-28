@@ -1450,45 +1450,20 @@ function updateCamera() {
     if (!gameActive) return;
 
     if (cameraMode === 'firstPerson') {
-        // Вид от первого лица
+        // Вид от первого лица - камера ВСЕГДА на уровне глаз игрока
+        camera.position.x = player.position.x;
+        camera.position.y = player.position.y + 0.7;
+        camera.position.z = player.position.z;
 
-        if (isAiming && currentWeapon) {
-            // РЕЖИМ ADS - камера заходит В прицел
-            // Ищем красную точку прицела
-            let redDotPosition = null;
-            currentWeapon.traverse((child) => {
-                if (child.name === 'redDotCenter') {
-                    // Получаем мировую позицию красной точки
-                    const worldPos = new THREE.Vector3();
-                    child.getWorldPosition(worldPos);
-                    redDotPosition = worldPos;
-                }
-            });
-
-            if (redDotPosition) {
-                // Плавно перемещаем камеру к позиции прицела
-                camera.position.lerp(redDotPosition, 0.2);
-
-                // Небольшой зум FOV
-                if (camera.fov > 60) {
-                    camera.fov -= 2;
-                    camera.updateProjectionMatrix();
-                }
-            } else {
-                // Fallback если прицел не найден
-                camera.position.x = player.position.x;
-                camera.position.y = player.position.y + 0.65;
-                camera.position.z = player.position.z;
+        // При прицеливании только меняем FOV
+        if (isAiming) {
+            if (camera.fov > 50) {
+                camera.fov -= 3;
+                camera.updateProjectionMatrix();
             }
         } else {
-            // Обычный режим - камера на уровне глаз
-            camera.position.x = player.position.x;
-            camera.position.y = player.position.y + 0.7;
-            camera.position.z = player.position.z;
-
-            // Возвращаем FOV обратно
             if (camera.fov < 75) {
-                camera.fov += 2;
+                camera.fov += 3;
                 camera.updateProjectionMatrix();
             }
         }
@@ -1746,6 +1721,31 @@ function turretShoot(turret, targetPos) {
 // Переменная для хранения индикатора кровати
 let bedIndicator = null;
 
+// Функция обновления позиции оружия для ADS
+function updateWeaponADS() {
+    if (!currentWeapon || cameraMode !== 'firstPerson') return;
+
+    // Целевая позиция оружия
+    let targetX, targetY, targetZ;
+
+    if (isAiming) {
+        // При прицеливании - оружие ближе к камере и по центру
+        targetX = 0.05;  // Почти по центру
+        targetY = -0.08; // Чуть ниже
+        targetZ = -0.4;  // Ближе к камере
+    } else {
+        // Обычная позиция
+        targetX = 0.2;
+        targetY = -0.15;
+        targetZ = -0.6;
+    }
+
+    // Плавно перемещаем оружие к целевой позиции
+    currentWeapon.position.x += (targetX - currentWeapon.position.x) * 0.15;
+    currentWeapon.position.y += (targetY - currentWeapon.position.y) * 0.15;
+    currentWeapon.position.z += (targetZ - currentWeapon.position.z) * 0.15;
+}
+
 function animate() {
     animationId = requestAnimationFrame(animate);
     if (gameActive) {
@@ -1755,6 +1755,7 @@ function animate() {
         updateTurrets();
         updatePets();
         updateCamera();
+        updateWeaponADS(); // Обновляем позицию оружия для ADS
 
         // Уменьшаем голод и жажду с течением времени
         if (!window.hungerThirstFrame) window.hungerThirstFrame = 0;

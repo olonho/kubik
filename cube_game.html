@@ -480,6 +480,9 @@
     <button id="openWeaponsShopBtn" style="display: none; position: absolute; bottom: 200px; left: 20px; padding: 12px 24px; background-color: rgba(255, 100, 50, 0.95); border: 3px solid #ff6633; border-radius: 12px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: 0 4px 15px rgba(255, 100, 50, 0.6); transition: transform 0.2s;">
         🔫 Магазин оружия
     </button>
+    <button id="teleportToTrainingBtn" style="display: none; position: absolute; bottom: 260px; left: 20px; padding: 12px 24px; background: linear-gradient(135deg, rgba(0, 255, 255, 0.95), rgba(255, 0, 255, 0.95)); border: 3px solid #00ffff; border-radius: 12px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 0 0 10px #00ffff, 1px 1px 2px rgba(0,0,0,0.8); box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 4px 15px rgba(0, 255, 255, 0.6); transition: all 0.3s; animation: cyberGlow 2s infinite;">
+        💠 Тренировочный полигон
+    </button>
     <!-- Индикатор "подойдите к собаке" -->
     <div id="petDogIndicator" style="display: none; position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); padding: 15px 30px; background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)); border: 3px solid #FFB6C1; border-radius: 15px; color: white; font-size: 20px; font-weight: bold; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); box-shadow: 0 6px 20px rgba(255, 182, 193, 0.8); animation: pulse 2s infinite;">
         🐶 Нажмите <kbd style="background: rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 5px; margin: 0 5px; font-size: 22px;">A</kbd> чтобы погладить (<span id="petPatsCount">0</span>/5)
@@ -580,6 +583,16 @@
         @keyframes titleGlow {
             0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 4px 4px 8px rgba(0,0,0,0.9); }
             50% { text-shadow: 0 0 40px rgba(255, 215, 0, 1), 4px 4px 8px rgba(0,0,0,0.9), 0 0 60px rgba(255, 215, 0, 0.6); }
+        }
+        @keyframes cyberGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 4px 15px rgba(0, 255, 255, 0.6);
+                border-color: #00ffff;
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 0, 255, 1), 0 4px 15px rgba(255, 0, 255, 0.8);
+                border-color: #ff00ff;
+            }
         }
     </style>
 
@@ -1142,23 +1155,23 @@
 
     <!-- Игровые скрипты (загружаются после DOM) -->
     <!-- Данные (без зависимостей) -->
-    <script src="js/shopData.js?t=1769634000"></script>
+    <script src="js/shopData.js?t=1769634200"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769634000"></script>
-    <script src="js/characters.js?t=1769634000"></script>
-    <script src="js/decorations.js?t=1769634000"></script>
-    <script src="js/turrets.js?t=1769634000"></script>
-    <script src="js/enemies.js?t=1769634000"></script>
-    <script src="js/pets.js?t=1769634000"></script>
+    <script src="js/weapons.js?t=1769634200"></script>
+    <script src="js/characters.js?t=1769634200"></script>
+    <script src="js/decorations.js?t=1769634200"></script>
+    <script src="js/turrets.js?t=1769634200"></script>
+    <script src="js/enemies.js?t=1769634200"></script>
+    <script src="js/pets.js?t=1769634200"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769634000"></script>
-    <script src="js/shop.js?t=1769634000"></script>
-    <script src="js/shopUI.js?t=1769634000"></script>
-    <script src="js/petsShop.js?t=1769634000"></script>
+    <script src="js/game.js?t=1769634200"></script>
+    <script src="js/shop.js?t=1769634200"></script>
+    <script src="js/shopUI.js?t=1769634200"></script>
+    <script src="js/petsShop.js?t=1769634200"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769634000"></script>
-    <script src="js/controls.js?t=1769634000"></script>
+    <script src="js/gameLoop.js?t=1769634200"></script>
+    <script src="js/controls.js?t=1769634200"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769634000"></script>
+    <script src="js/init.js?t=1769634200"></script>
 </body>
 </html>
