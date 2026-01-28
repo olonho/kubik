@@ -33,9 +33,16 @@ var sodaItem = null; // Объект газировки в доме
 var playerHouse = null; // Построенный дом игрока
 var playerBed = null; // Кровать в доме
 var hasBed = false; // Есть ли кровать
+var playerSecondFloor = null; // Второй этаж дома
+var hasSecondFloor = false; // Построен ли второй этаж
 var houseInterior = null; // Интерьер дома
 var isInsideHouse = false; // Находится ли игрок внутри дома
 var savedOutdoorPosition = null; // Сохраненная позиция на улице
+
+// Система финального босса
+var zombiesKilled = 0; // Количество убитых зомби
+var finalBossSpawned = false; // Был ли вызван финальный босс
+var finalBossConditionsMet = false; // Выполнены ли условия для финального босса
 var petPats = 0; // Количество поглаживаний питомца
 var hasCompanion = false; // Есть ли напарник
 var companion = null; // Объект напарника
@@ -114,7 +121,19 @@ var petNames = JSON.parse(localStorage.getItem('cubeGamePetNames')) || {};
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);
-    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | Волна: ' + wave + ' | Зомби: ' + zombiesInCurrentWave + ' | Жизни: ' + heartsDisplay;
+
+    // Если финальный босс ещё не вызван, показываем прогресс
+    if (!finalBossSpawned) {
+        const zombiesProgress = zombiesKilled + '/1000';
+        const houseIcon = playerHouse ? '✅' : '❌';
+        const bedIcon = hasBed ? '✅' : '❌';
+        const floorIcon = hasSecondFloor ? '✅' : '❌';
+
+        document.getElementById('score').textContent = 'Счёт: ' + score + ' | Убито зомби: ' + zombiesProgress + ' | Дом: ' + houseIcon + ' | Кровать: ' + bedIcon + ' | 2 этаж: ' + floorIcon + ' | Жизни: ' + heartsDisplay;
+    } else {
+        // После вызова финального босса показываем просто счет
+        document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | ФИНАЛЬНАЯ БИТВА! | Жизни: ' + heartsDisplay;
+    }
 }
 
 function updateAmmoDisplay() {
@@ -399,6 +418,9 @@ function buildHouse() {
         lives = Math.min(lives + 1, 5); // Добавляем жизнь (максимум 5)
         updateScoreDisplay();
 
+        // Проверяем условия финального босса
+        checkFinalBossConditions();
+
     } else {
         showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
     }
@@ -458,9 +480,180 @@ function buildBed() {
             bedBtn.style.display = 'none';
         }
 
+        // Проверяем условия финального босса
+        checkFinalBossConditions();
+
     } else {
         showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
     }
+}
+
+function buildSecondFloor() {
+    const woodRequired = 100; // Нужно 100 дерева для постройки второго этажа
+
+    if (!playerHouse) {
+        showNotification('❌ Сначала постройте дом!', 'error');
+        return;
+    }
+
+    if (hasSecondFloor) {
+        showNotification('🏠 У вас уже есть второй этаж!', 'info');
+        return;
+    }
+
+    if (wood >= woodRequired) {
+        wood -= woodRequired;
+        updateWoodDisplay();
+        hasSecondFloor = true;
+
+        // Создаем второй этаж (копия первого, но выше)
+        const secondFloorMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+
+        // Стены второго этажа
+        const wallGeometry = new THREE.BoxGeometry(5, 3, 0.3);
+
+        // Передняя стена
+        const frontWall = new THREE.Mesh(wallGeometry, secondFloorMaterial);
+        frontWall.position.set(playerHouse.position.x, playerHouse.position.y + 4.5, playerHouse.position.z + 2.25);
+        scene.add(frontWall);
+
+        // Задняя стена
+        const backWall = new THREE.Mesh(wallGeometry, secondFloorMaterial);
+        backWall.position.set(playerHouse.position.x, playerHouse.position.y + 4.5, playerHouse.position.z - 2.25);
+        scene.add(backWall);
+
+        // Боковые стены
+        const sideWallGeometry = new THREE.BoxGeometry(0.3, 3, 4.5);
+        const leftWall = new THREE.Mesh(sideWallGeometry, secondFloorMaterial);
+        leftWall.position.set(playerHouse.position.x - 2.5, playerHouse.position.y + 4.5, playerHouse.position.z);
+        scene.add(leftWall);
+
+        const rightWall = new THREE.Mesh(sideWallGeometry, secondFloorMaterial);
+        rightWall.position.set(playerHouse.position.x + 2.5, playerHouse.position.y + 4.5, playerHouse.position.z);
+        scene.add(rightWall);
+
+        // Крыша второго этажа
+        const roofGeometry = new THREE.ConeGeometry(4, 2, 4);
+        const roofMaterial = new THREE.MeshPhongMaterial({ color: 0x654321 });
+        const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+        roof.position.set(playerHouse.position.x, playerHouse.position.y + 7, playerHouse.position.z);
+        roof.rotation.y = Math.PI / 4;
+        scene.add(roof);
+
+        // Сохраняем ссылки
+        playerSecondFloor = new THREE.Group();
+        playerSecondFloor.add(frontWall, backWall, leftWall, rightWall, roof);
+
+        // Сохраняем в localStorage
+        localStorage.setItem('cubeGameHasSecondFloor', 'true');
+
+        // Показываем уведомление
+        showNotification('🏠 Второй этаж построен! Ваш дом теперь двухэтажный!', 'success');
+
+        // Даем бонус за постройку второго этажа
+        coins += 500;
+        updateCoinsDisplay();
+
+        // Обновляем кнопку
+        const secondFloorBtn = document.getElementById('buildSecondFloorBtn');
+        if (secondFloorBtn) {
+            secondFloorBtn.style.display = 'none';
+        }
+
+        // Проверяем условия финального босса
+        checkFinalBossConditions();
+
+    } else {
+        showNotification('❌ Недостаточно древесины! Нужно: ' + woodRequired + ', есть: ' + wood, 'error');
+    }
+}
+
+// Проверка условий для вызова финального босса
+function checkFinalBossConditions() {
+    // Если финальный босс уже был вызван, не проверяем
+    if (finalBossSpawned) return;
+
+    // Проверяем все условия
+    const hasKilled1000Zombies = zombiesKilled >= 1000;
+    const hasHouse = playerHouse !== null;
+    const hasBedBuilt = hasBed;
+    const hasSecondFloorBuilt = hasSecondFloor;
+
+    // Выводим текущий прогресс в консоль
+    console.log('🎯 Прогресс финального босса:');
+    console.log('  Убито зомби: ' + zombiesKilled + '/1000 ' + (hasKilled1000Zombies ? '✅' : '❌'));
+    console.log('  Дом построен: ' + (hasHouse ? '✅' : '❌'));
+    console.log('  Кровать построена: ' + (hasBedBuilt ? '✅' : '❌'));
+    console.log('  Второй этаж построен: ' + (hasSecondFloorBuilt ? '✅' : '❌'));
+
+    // Если все условия выполнены
+    if (hasKilled1000Zombies && hasHouse && hasBedBuilt && hasSecondFloorBuilt) {
+        finalBossConditionsMet = true;
+        spawnFinalBoss();
+    }
+}
+
+// Вызов финального босса
+function spawnFinalBoss() {
+    if (finalBossSpawned) return;
+
+    finalBossSpawned = true;
+    waveActive = false; // Останавливаем спавн обычных зомби
+
+    console.log('🎮 ВСЕ УСЛОВИЯ ВЫПОЛНЕНЫ! ФИНАЛЬНЫЙ БОСС ПРИБЛИЖАЕТСЯ!');
+
+    // Удаляем всех обычных зомби
+    obstacles.forEach(obs => {
+        if (!obs.userData.isBoss) {
+            scene.remove(obs);
+        }
+    });
+    obstacles = obstacles.filter(obs => obs.userData.isBoss);
+
+    // Драматичное уведомление
+    const notification = document.createElement('div');
+    notification.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #000000 0%, #8B0000 50%, #FF0000 100%); color: white; padding: 50px 80px; border-radius: 25px; font-size: 56px; font-weight: bold; z-index: 1000; text-align: center; border: 8px solid gold; box-shadow: 0 0 100px rgba(255, 0, 0, 1); animation: pulse 0.8s infinite;';
+    notification.innerHTML = '⚠️ ФИНАЛЬНЫЙ БОСС ⚠️<br><br><span style="font-size: 32px; color: #FFD700;">Повелитель Зомби</span><br><br><span style="font-size: 24px; color: #FF6347;">Вы выполнили все условия!<br>Финальная битва начинается!</span>';
+    document.body.appendChild(notification);
+
+    // Спавним финального босса через 3 секунды
+    setTimeout(() => {
+        document.body.removeChild(notification);
+
+        if (gameActive) {
+            console.log('🧟 Создание финального босса...');
+            window.finalBoss = createFinalBoss();
+            console.log('✅ Финальный босс создан:', window.finalBoss);
+
+            // Показываем HP бар игрока для боя с боссом
+            document.getElementById('playerHPContainer').style.display = 'block';
+            playerHP = maxPlayerHP;
+            updatePlayerHPDisplay();
+
+            // Интенсивная тряска экрана
+            let shakeIntensity = 40;
+            let shakeCount = 0;
+            const shakeInterval = setInterval(() => {
+                if (camera) {
+                    camera.position.x += (Math.random() - 0.5) * shakeIntensity * 0.015;
+                    camera.position.y += (Math.random() - 0.5) * shakeIntensity * 0.015;
+                }
+                shakeCount++;
+                if (shakeCount > 40) {
+                    clearInterval(shakeInterval);
+                }
+            }, 40);
+
+            // Темнота и красная вспышка
+            scene.background = new THREE.Color(0x000000);
+            setTimeout(() => {
+                scene.background = new THREE.Color(0xFF0000);
+                setTimeout(() => {
+                    scene.background = new THREE.Color(0x87CEEB); // Обратно к небу
+                }, 200);
+            }, 500);
+        }
+    }, 3000);
 }
 
 // Функция проверки коллизий внутри дома

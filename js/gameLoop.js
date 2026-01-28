@@ -748,11 +748,15 @@ function updateBullets() {
                         score += 100;
                         coins += 50;
                         zombiesInCurrentWave--; // Обычные боссы считаются в волне
+                        zombiesKilled++; // Увеличиваем счетчик убитых зомби
+                        checkFinalBossConditions(); // Проверяем условия финального босса
                     } else {
                         // Обычный зомби
                         score += 10;
                         coins += 5;
                         zombiesInCurrentWave--;
+                        zombiesKilled++; // Увеличиваем счетчик убитых зомби
+                        checkFinalBossConditions(); // Проверяем условия финального босса
                     }
 
                     updateCoinsDisplay();
@@ -1241,6 +1245,8 @@ function petAttack(pet, targetPos, targetGroup) {
                 obstacles.splice(obstacles.indexOf(targetGroup), 1);
                 score += targetGroup.userData.isBoss ? 100 : 10;
                 coins += targetGroup.userData.isBoss ? 50 : 5;
+                zombiesKilled++; // Увеличиваем счетчик убитых зомби
+                checkFinalBossConditions(); // Проверяем условия финального босса
                 updateCoinsDisplay();
                 // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
                 zombiesInCurrentWave--;

@@ -511,6 +511,11 @@ window.addEventListener('DOMContentLoaded', () => {
         buildBed();
     });
 
+    // Обработчик кнопки постройки второго этажа
+    document.getElementById('buildSecondFloorBtn').addEventListener('click', () => {
+        buildSecondFloor();
+    });
+
     // Обработчик клавиши A для поглаживания собаки (когда рядом)
     // Обрабатывается в updatePlayer() где проверяется близость к собаке
 });
