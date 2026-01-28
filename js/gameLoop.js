@@ -86,7 +86,7 @@ function updatePlayer() {
     if (keys['ArrowLeft']) {
         const newX = player.position.x - playerSpeed;
         // Разные границы для дома и улицы (широкие границы, основная проверка в checkCollisionInHouse)
-        const leftBound = isInsideHouse ? -3 : -8; // Увеличена в 2 раза
+        const leftBound = isInsideHouse ? -3 : -15; // Увеличена в 3 раза
 
         if (newX > leftBound) {
             // Проверяем коллизии
@@ -100,7 +100,7 @@ function updatePlayer() {
     if (keys['ArrowRight']) {
         const newX = player.position.x + playerSpeed;
         // Разные границы для дома и улицы
-        const rightBound = isInsideHouse ? 3 : 8; // Увеличена в 2 раза
+        const rightBound = isInsideHouse ? 3 : 15; // Увеличена в 3 раза
 
         if (newX < rightBound) {
             // Проверяем коллизии
@@ -116,7 +116,7 @@ function updatePlayer() {
     if (keys['ArrowUp']) {
         const newZ = player.position.z - playerSpeed;
         // Разные границы для дома и улицы
-        const forwardBound = isInsideHouse ? -2.5 : -80; // Увеличена в 2 раза
+        const forwardBound = isInsideHouse ? -2.5 : -120; // Увеличена в 3 раза
 
         if (newZ > forwardBound) {
             // Проверяем коллизии
@@ -130,7 +130,7 @@ function updatePlayer() {
     if (keys['ArrowDown']) {
         const newZ = player.position.z + playerSpeed;
         // Разные границы для дома и улицы
-        const backBound = isInsideHouse ? 2.5 : 10; // Увеличена в 2 раза
+        const backBound = isInsideHouse ? 2.5 : 15; // Увеличена в 3 раза
 
         if (newZ < backBound) {
             // Проверяем коллизии
@@ -792,8 +792,8 @@ function updateObstacles() {
                 obstacleGroup.position.z += (dz / distance) * bossSpeed;
 
                 // Ограничиваем позицию босса в разумных пределах (предотвращаем выход за границы)
-                obstacleGroup.position.x = Math.max(-15, Math.min(15, obstacleGroup.position.x));
-                obstacleGroup.position.z = Math.max(-100, Math.min(20, obstacleGroup.position.z));
+                obstacleGroup.position.x = Math.max(-18, Math.min(18, obstacleGroup.position.x));
+                obstacleGroup.position.z = Math.max(-150, Math.min(20, obstacleGroup.position.z));
             } else {
                 // На расстоянии 5 метров - атакует!
                 // Инициализируем таймер атаки если его нет
@@ -928,8 +928,8 @@ function updateObstacles() {
                         obstacleGroup.position.z += (dz / distance) * rushSpeed;
 
                         // Ограничиваем позицию босса в разумных пределах
-                        obstacleGroup.position.x = Math.max(-15, Math.min(15, obstacleGroup.position.x));
-                        obstacleGroup.position.z = Math.max(-100, Math.min(20, obstacleGroup.position.z));
+                        obstacleGroup.position.x = Math.max(-18, Math.min(18, obstacleGroup.position.x));
+                        obstacleGroup.position.z = Math.max(-150, Math.min(20, obstacleGroup.position.z));
                     }
 
                     // Поворачивается к игроку

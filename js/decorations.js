@@ -1009,12 +1009,100 @@ function createHouseInterior() {
         interiorGroup.add(candleLight);
     }
 
+    // ЕДА на столе (мясо/стейк)
+    const foodGroup = new THREE.Group();
+
+    // Тарелка
+    const plate = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.15, 0.15, 0.02, 16),
+        new THREE.MeshStandardMaterial({ color: 0xEEEEEE, roughness: 0.4, metalness: 0.2 })
+    );
+    plate.position.y = 0.86;
+    foodGroup.add(plate);
+
+    // Мясо/стейк
+    const meat = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 0.06, 0.15),
+        new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.6 })
+    );
+    meat.position.y = 0.92;
+    meat.rotation.y = 0.3;
+    foodGroup.add(meat);
+
+    // Косточка для декора
+    const bone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.12, 6),
+        new THREE.MeshStandardMaterial({ color: 0xF5DEB3 })
+    );
+    bone.position.set(0.08, 0.92, 0.05);
+    bone.rotation.z = Math.PI / 4;
+    foodGroup.add(bone);
+
+    foodGroup.position.set(0.4, 0, -0.5);
+    foodGroup.userData.isFood = true;
+    foodGroup.userData.canBuy = true;
+    foodGroup.userData.cost = 50;
+    interiorGroup.add(foodGroup);
+
+    // ГАЗИРОВКА на столе
+    const sodaGroup = new THREE.Group();
+
+    // Бутылка
+    const bottleBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.06, 0.25, 12),
+        new THREE.MeshStandardMaterial({
+            color: 0x00CED1,
+            transparent: true,
+            opacity: 0.7,
+            roughness: 0.2,
+            metalness: 0.3
+        })
+    );
+    bottleBody.position.y = 0.985;
+    sodaGroup.add(bottleBody);
+
+    // Крышка
+    const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055, 0.05, 0.03, 12),
+        new THREE.MeshStandardMaterial({ color: 0xFF0000, roughness: 0.5, metalness: 0.4 })
+    );
+    cap.position.y = 1.125;
+    sodaGroup.add(cap);
+
+    // Этикетка
+    const label = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.052, 0.062, 0.12, 12),
+        new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 })
+    );
+    label.position.y = 0.95;
+    sodaGroup.add(label);
+
+    // Блик на бутылке
+    const highlight = new THREE.Mesh(
+        new THREE.SphereGeometry(0.02, 8, 8),
+        new THREE.MeshPhongMaterial({
+            color: 0xFFFFFF,
+            emissive: 0xFFFFFF,
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0.6
+        })
+    );
+    highlight.position.set(0.03, 1.0, 0.03);
+    sodaGroup.add(highlight);
+
+    sodaGroup.position.set(-0.4, 0, -0.5);
+    sodaGroup.userData.isSoda = true;
+    sodaGroup.userData.canBuy = true;
+    sodaGroup.userData.cost = 50;
+    interiorGroup.add(sodaGroup);
+
     return interiorGroup;
 }
 
 function createTrees() {
-    // Деревья по центру поля для удобной рубки (вдоль дороги)
-    for (let i = 0; i < 100; i++) {
+    // Деревья по центру поля для удобной рубки (вдоль дороги) - больше деревьев!
+    for (let i = 0; i < 150; i++) {
         const tree = createTree();
         // Слева от центра (-2 до -1)
         tree.position.set(-1.5 + Math.random() * 0.5, 0, -i * 5 - 5);
@@ -1023,7 +1111,7 @@ function createTrees() {
         scene.add(tree);
         decorations.push(tree);
     }
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 150; i++) {
         const tree = createTree();
         // Справа от центра (1 до 2)
         tree.position.set(1.5 - Math.random() * 0.5, 0, -i * 5 - 5);
@@ -1033,37 +1121,37 @@ function createTrees() {
         decorations.push(tree);
     }
 
-    // Дополнительные деревья в центре для разнообразия
-    for (let i = 0; i < 50; i++) {
+    // Дополнительные деревья в центре для разнообразия - больше и шире!
+    for (let i = 0; i < 100; i++) {
         const tree = createTree();
-        // Центральная зона от -2 до 2
-        tree.position.set((Math.random() - 0.5) * 4, 0, -i * 8 - Math.random() * 10);
+        // Центральная зона от -4 до 4 (шире!)
+        tree.position.set((Math.random() - 0.5) * 8, 0, -i * 8 - Math.random() * 10);
         tree.userData.isTree = true;
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
 
-    // Добавляем деревья по всему полю, но с приоритетом к центру
-    for (let i = 0; i < 200; i++) {
+    // Добавляем деревья по всему полю, но с приоритетом к центру - еще больше!
+    for (let i = 0; i < 400; i++) {
         const tree = createTree();
 
-        // Случайная позиция X с приоритетом к центру (от -4 до 4)
+        // Случайная позиция X с приоритетом к центру (от -15 до 15 для новой карты)
         let randomX;
         if (Math.random() > 0.3) {
-            // 70% деревьев в центральной зоне (от -4 до 4)
-            randomX = (Math.random() - 0.5) * 8;
+            // 70% деревьев в центральной зоне (от -8 до 8)
+            randomX = (Math.random() - 0.5) * 16;
         } else {
             // 30% деревьев по краям
             if (Math.random() > 0.5) {
-                randomX = 4 + Math.random() * 5;
+                randomX = 8 + Math.random() * 7;
             } else {
-                randomX = -4 - Math.random() * 5;
+                randomX = -8 - Math.random() * 7;
             }
         }
 
-        // Случайная позиция Z по всей длине карты
-        const randomZ = -Math.random() * 500 - 10;
+        // Случайная позиция Z по всей длине карты (больше)
+        const randomZ = -Math.random() * 700 - 10;
 
         tree.position.set(randomX, 0, randomZ);
         tree.userData.isTree = true;
@@ -1072,20 +1160,20 @@ function createTrees() {
         decorations.push(tree);
     }
 
-    // Добавляем группы деревьев (леса)
-    for (let i = 0; i < 10; i++) {
-        // Центр группы деревьев
-        const centerX = (Math.random() > 0.5 ? 1 : -1) * (4 + Math.random() * 4);
-        const centerZ = -Math.random() * 400 - 20;
+    // Добавляем группы деревьев (леса) - больше лесов!
+    for (let i = 0; i < 20; i++) {
+        // Центр группы деревьев (шире по X для новой карты)
+        const centerX = (Math.random() > 0.5 ? 1 : -1) * (8 + Math.random() * 7);
+        const centerZ = -Math.random() * 600 - 20;
 
-        // Создаем группу из 8-15 деревьев вокруг центра
-        const treesInGroup = 8 + Math.floor(Math.random() * 8);
+        // Создаем группу из 10-20 деревьев вокруг центра (больше!)
+        const treesInGroup = 10 + Math.floor(Math.random() * 11);
         for (let j = 0; j < treesInGroup; j++) {
             const tree = createTree();
 
-            // Деревья в радиусе 3-5 единиц от центра
+            // Деревья в радиусе 3-6 единиц от центра (шире)
             const angle = (j / treesInGroup) * Math.PI * 2 + Math.random();
-            const distance = 1.5 + Math.random() * 3.5;
+            const distance = 2 + Math.random() * 4;
 
             tree.position.set(
                 centerX + Math.cos(angle) * distance,
@@ -1100,17 +1188,19 @@ function createTrees() {
         }
     }
     
-    for (let i = 0; i < 20; i++) {
+    // Камни вдоль краев карты - больше камней!
+    for (let i = 0; i < 50; i++) {
         const rock = createRock();
-        const side = Math.random() > 0.5 ? -6 : 6;
-        rock.position.set(side + (Math.random() - 0.5) * 0.5, 0, -i * 6 - 10);
+        const side = Math.random() > 0.5 ? -12 : 12; // Дальше по краям
+        rock.position.set(side + (Math.random() - 0.5) * 3, 0, -i * 6 - 10);
         scene.add(rock);
         decorations.push(rock);
     }
-    
-    for (let i = 0; i < 20; i++) {
+
+    // Облака в небе - больше облаков для большой карты!
+    for (let i = 0; i < 40; i++) {
         const cloud = createCloud();
-        cloud.position.set((Math.random() - 0.5) * 20, 8 + Math.random() * 4, -i * 8 - 20);
+        cloud.position.set((Math.random() - 0.5) * 40, 8 + Math.random() * 4, -i * 8 - 20);
         scene.add(cloud);
         decorations.push(cloud);
     }

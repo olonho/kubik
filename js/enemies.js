@@ -115,8 +115,8 @@ function createZombie() {
     shadow.position.y = 0.01;
     zombieGroup.add(shadow);
 
-    // Увеличенная зона спавна (в 2 раза шире)
-    zombieGroup.position.set((Math.random() - 0.5) * 10, 0, -50);
+    // Увеличенная зона спавна (в 3 раза шире)
+    zombieGroup.position.set((Math.random() - 0.5) * 20, 0, -80);
 
     scene.add(zombieGroup);
     obstacles.push(zombieGroup);
@@ -241,8 +241,8 @@ function createBoss() {
     shadow.position.y = 0.01;
     zombieGroup.add(shadow);
 
-    // Увеличенная зона спавна (в 2 раза шире)
-    zombieGroup.position.set((Math.random() - 0.5) * 10, 0, -50);
+    // Увеличенная зона спавна (в 3 раза шире)
+    zombieGroup.position.set((Math.random() - 0.5) * 20, 0, -80);
     zombieGroup.scale.set(2.5, 2.5, 2.5); // Увеличиваем размер в 2.5 раза
 
     scene.add(zombieGroup);
