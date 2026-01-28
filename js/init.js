@@ -34,18 +34,15 @@ function selectSkin(skin) {
     // Загружаем сохранённые параметры игры или используем дефолтные
     score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
 
-    // Стартуем с 1 волны
-    wave = parseInt(localStorage.getItem('cubeGameWave')) || 1;
+    // Стартуем с 0 волны, чтобы при вызове startNewWave() стало 1
+    wave = parseInt(localStorage.getItem('cubeGameWave')) || 0;
 
     lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
     ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
     coins = parseInt(localStorage.getItem('cubeGameCoins')) || 5000;
     wood = parseInt(localStorage.getItem('cubeGameWood')) || 0;
 
-    // Если начинаем с 18 волны, устанавливаем соответствующую сложность
-    level = Math.floor(wave / 1); // Уровень зависит от волны
-    obstacleSpeed = 0.015 + (wave - 1) * 0.002; // Скорость увеличивается с каждой волной
-    spawnRate = 0.03 + (wave - 1) * 0.001; // Частота спавна тоже
+    // Сложность будет установлена в startNewWave(), которая вызывается в init()
     playerVelocityY = 0;
     isJumping = false;
     gameActive = true;
