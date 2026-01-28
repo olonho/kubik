@@ -90,6 +90,7 @@ function createPetNameTag(petGroup, name) {
 }
 
 function createDogPet() {
+    console.log('🐕 Создание собаки-питомца...');
     const petGroup = new THREE.Group();
     const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
 
@@ -126,8 +127,11 @@ function createDogPet() {
     petGroup.userData.damage = 2;
     petGroup.userData.attackRange = 2;
     petGroup.userData.speed = 0.08;
+    petGroup.userData.isPet = true; // Маркер что это питомец
 
     scene.add(petGroup);
+    console.log('🐕 Собака-питомец создана и добавлена в сцену на позиции:', petGroup.position);
+    console.log('🐕 Собака находится СПРАВА от игрока на расстоянии 2 метра');
     return petGroup;
 }
 
@@ -560,7 +564,7 @@ function petAttack(pet, targetPos, targetGroup) {
                 score += targetGroup.userData.isBoss ? 100 : 10;
                 coins += targetGroup.userData.isBoss ? 50 : 5;
                 updateCoinsDisplay();
-                localStorage.setItem('cubeGameCoins', coins);
+                // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
                 zombiesInCurrentWave--;
                 updateScoreDisplay();
                 checkWaveComplete();

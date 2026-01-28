@@ -31,16 +31,13 @@ function selectSkin(skin) {
     console.log('cameraMode:', cameraMode);
     selectedSkin = skin;
 
-    // Загружаем сохранённые параметры игры или используем дефолтные
-    score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
-
-    // Стартуем с 0 волны, чтобы при вызове startNewWave() стало 1
-    wave = parseInt(localStorage.getItem('cubeGameWave')) || 0;
-
-    lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
-    ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
-    coins = parseInt(localStorage.getItem('cubeGameCoins')) || 5000;
-    wood = parseInt(localStorage.getItem('cubeGameWood')) || 0;
+    // Всегда начинаем игру с дефолтных значений (сохранение отключено)
+    score = 0;
+    wave = 0; // Стартуем с 0 волны, чтобы при вызове startNewWave() стало 1
+    lives = 3;
+    ammo = maxAmmo;
+    coins = 5000; // Начальные деньги
+    wood = 0;
 
     // Сложность будет установлена в startNewWave(), которая вызывается в init()
     playerVelocityY = 0;
@@ -617,144 +614,8 @@ function init() {
         console.log('🐾 Собака создана с именем:', dogName);
     }
 
-    // 🎁 СТАРТОВЫЙ ПАКЕТ: Создаем всех питомцев и все турели
-    console.log('🎁 Создаем стартовый пакет: все турели и всех питомцев!');
-
-    // Добавляем всех питомцев в список владения (для магазина)
-    ownedPets = ['dog', 'cat', 'wolf', 'bear', 'eagle', 'panda', 'fox', 'dragon', 'unicorn', 'robot', 'tiger', 'lion'];
-    localStorage.setItem('cubeGameOwnedPets', JSON.stringify(ownedPets));
-
-    // Добавляем все оружие в список владения
-    ownedWeapons = ['machinegun', 'shotgun', 'sniper', 'crossbow', 'flamethrower', 'railgun', 'minigun', 'grenade', 'plasma', 'rocket'];
-    localStorage.setItem('cubeGameOwnedWeapons', JSON.stringify(ownedWeapons));
-
-    // Создаем всех питомцев (кроме собаки - она уже есть)
-    const allPets = ['cat', 'wolf', 'bear', 'eagle', 'panda', 'fox', 'dragon', 'unicorn', 'robot', 'tiger', 'lion'];
-    allPets.forEach(petType => {
-        createPet(petType, petType.charAt(0).toUpperCase() + petType.slice(1));
-        console.log('🐾 Создан питомец:', petType);
-    });
-
-    // Создаем все турели
-    console.log('⚡ Создаем все турели...');
-
-    // Базовая турель
-    hasTurret = true;
-    createTurret();
-
-    // Огневая турель
-    hasFireTurret = true;
-    createFireTurret();
-
-    // Лазерная турель
-    hasLaserTurret = true;
-    createLaserTurret();
-
-    // Ракетная турель
-    hasRocketTurret = true;
-    createRocketTurret();
-
-    // Морозная турель
-    hasFreezeTurret = true;
-    createFreezeTurret();
-
-    // Электрическая турель
-    hasElectricTurret = true;
-    createElectricTurret();
-
-    // Ядовитая турель
-    hasPoisonTurret = true;
-    createPoisonTurret();
-
-    // Взрывная турель
-    hasExplosiveTurret = true;
-    createExplosiveTurret();
-
-    // Звуковая турель
-    hasSonicTurret = true;
-    createSonicTurret();
-
-    // Плазменная турель
-    hasPlasmaTurret = true;
-    createPlasmaTurret();
-
-    // Тесла турель
-    hasTeslaTurret = true;
-    createTeslaTurret();
-
-    // Гравитационная турель
-    hasGravityTurret = true;
-    createGravityTurret();
-
-    // Рельсотрон турель
-    hasRailgunTurret = true;
-    createRailgunTurret();
-
-    // Минигат турель
-    hasMinigunTurret = true;
-    createMinigunTurret();
-
-    // Огнемёт турель
-    hasFlamethrowerTurret = true;
-    createFlamethrowerTurret();
-
-    // Снайпер турель
-    hasSniperTurret = true;
-    createSniperTurret();
-
-    // Дробовик турель
-    hasShotgunTurret = true;
-    createShotgunTurret();
-
-    // Пушка турель
-    hasCannonTurret = true;
-    createCannonTurret();
-
-    // Ядерная турель
-    hasNuclearTurret = true;
-    createNuclearTurret();
-
-    // Радужная турель
-    hasRainbowTurret = true;
-    createRainbowTurret();
-
-    // Лечащая турель
-    hasHealingTurret = true;
-    createHealingTurret();
-
-    // Щитовая турель
-    hasShieldTurret = true;
-    createShieldTurret();
-
-    // Квантовая турель
-    hasQuantumTurret = true;
-    createQuantumTurret();
-
-    // Чёрная дыра турель
-    hasBlackholeTurret = true;
-    createBlackholeTurret();
-
-    // Временная турель
-    hasTimeTurret = true;
-    createTimeTurret();
-
-    // Энергетическая турель
-    hasEnergyTurret = true;
-    createEnergyTurret();
-
-    // Метеор турель
-    hasMeteorTurret = true;
-    createMeteorTurret();
-
-    // Штормовая турель
-    hasStormTurret = true;
-    createStormTurret();
-
-    // Антиматерия турель
-    hasAntimatterTurret = true;
-    createAntimatterTurret();
-
-    console.log('✅ Стартовый пакет создан! Турелей:', turrets.length, 'Питомцев:', pets.length);
+    // Стартовый пакет убран - игрок начинает только с собакой и базовым оружием
+    console.log('🎮 Игра начинается! Покупайте оружие, турели и питомцев в магазинах!');
 
     // Запускаем первую волну
     console.log('🌊 Запускаем первую волну...');

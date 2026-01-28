@@ -199,7 +199,7 @@ function buyTurret(type) {
 
         updateShopDisplay();
         updateCoinsDisplay();
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
     } else {
         alert('Недостаточно монет! Нужно: ' + price + ', у вас: ' + coins);
     }
@@ -386,7 +386,7 @@ function buyWeaponFromShop(item) {
         localStorage.setItem('cubeGameOwnedWeapons', JSON.stringify(ownedWeapons));
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
         alert('✅ Куплено: ' + item.name + '!\nИспользуйте клавишу ' + item.description.split('|')[0].trim() + ' для выбора.');
     } else {
         alert('Недостаточно монет! Нужно: ' + item.price + ', у вас: ' + coins);
@@ -525,7 +525,7 @@ function buyTurretFromShop(type) {
 
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
         alert('✅ Куплена турель: ' + turret.name + '!\nТурель установлена на поле боя.');
     } else {
         alert('Недостаточно монет! Нужно: ' + turret.price + ', у вас: ' + coins);
@@ -585,7 +585,7 @@ function showPetNameDialog(type, pet) {
 
         updateWeaponsShopDisplay();
         updateCoinsDisplay();
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
 
         // Скрываем диалог
         dialog.style.display = 'none';

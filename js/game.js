@@ -572,18 +572,13 @@ function enterHouseInterior() {
     showNotification('🏠 Вы вошли в дом! Нажмите E чтобы выйти | Cmd для сохранения в кровати', 'success');
 }
 
-// Функция сохранения игры
+// Функция сохранения игры (отключена - игра всегда начинается с нуля)
 function saveGame() {
-    localStorage.setItem('cubeGameCoins', coins);
-    localStorage.setItem('cubeGameWood', wood);
-    localStorage.setItem('cubeGameWave', wave);
-    localStorage.setItem('cubeGameScore', score);
-    localStorage.setItem('cubeGameLives', lives);
-    localStorage.setItem('cubeGameMaxWave', maxWaveReached);
-    localStorage.setItem('cubeGameAmmo', ammo);
+    // Сохранение отключено - игра не сохраняет прогресс между сессиями
+    // При перезагрузке страницы все начнется заново
 
-    console.log('💾 Игра сохранена!');
-    showNotification('💾 Игра сохранена!', 'success');
+    console.log('💾 Сохранение отключено - игра начнется заново при перезагрузке');
+    showNotification('💾 Сохранение отключено в этой версии', 'info');
 }
 
 // Проверка близости к кровати
@@ -666,7 +661,7 @@ function eatInHouse() {
     if (coins >= foodCost) {
         coins -= foodCost;
         updateCoinsDisplay();
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
 
         // Добавляем жизнь (максимум 10)
         lives = Math.min(lives + 1, 10);
@@ -1051,7 +1046,7 @@ function startNewWave() {
             // Даем награду
             coins += 10000;
             updateCoinsDisplay();
-            localStorage.setItem('cubeGameCoins', coins);
+            // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
 
             // Глобальные функции для кнопок
             window.continueAfterVictory = function() {
@@ -1073,7 +1068,7 @@ function startNewWave() {
 
     if (wave > maxWaveReached) {
         maxWaveReached = wave;
-        localStorage.setItem('cubeGameMaxWave', maxWaveReached);
+        // localStorage.setItem('cubeGameMaxWave', maxWaveReached); // Сохранение отключено
     }
 
     // Спавним всех зомби волны
@@ -1423,23 +1418,32 @@ function victoryScene() {
                 victoryScreen.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.85); padding: 50px; border-radius: 20px; z-index: 1000; text-align: center; color: white; border: 5px solid gold; box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);';
 
                 victoryScreen.innerHTML = `
-                    <h1 style="font-size: 72px; margin: 20px; text-shadow: 0 0 20px #FFD700;">🎉 ПОБЕДА! 🎉</h1>
-                    <p style="font-size: 36px; margin: 10px;">Вы победили Повелителя Зомби!</p>
-                    <p style="font-size: 28px; margin: 10px; color: #FFD700;">Счёт: ${score}</p>
+                    <h1 style="font-size: 64px; margin: 20px; text-shadow: 0 0 20px #8B0000; color: #FFD700;">You Win... But at What Cost?</h1>
+                    <p style="font-size: 32px; margin: 10px; color: #FF6347;">Финальный счёт: ${score}</p>
                     <hr style="border: 2px solid #8B0000; margin: 30px 0;">
-                    <p style="font-size: 24px; margin: 15px; color: #FF6347;">Но победа далась дорогой ценой...</p>
-                    <p style="font-size: 22px; margin: 15px; color: #FFA07A;">В последний момент босс успел укусить героя 🩸</p>
-                    <p style="font-size: 20px; margin: 15px; opacity: 0.9;">Вирус зомби начал распространяться по телу...</p>
-                    <p style="font-size: 22px; margin: 20px; opacity: 0.8; font-style: italic; color: #FFD700;">Герой принял единственное правильное решение 💀</p>
-                    <p style="font-size: 18px; margin: 10px; opacity: 0.7;">"Лучше умереть человеком, чем стать монстром"</p>
-                    <hr style="border: 2px solid gold; margin: 30px 0;">
-                    <p style="font-size: 20px; margin: 10px;">🎆 Праздничный салют в честь павшего героя! 🎆</p>
+                    <p style="font-size: 26px; margin: 15px; color: #FF6347; font-style: italic;">Угроза Повелителя Зомби уничтожена...</p>
+                    <p style="font-size: 24px; margin: 15px; color: #FFA07A;">Но цена победы оказалась невыносимой 🩸</p>
+                    <p style="font-size: 22px; margin: 15px; opacity: 0.9;">Укус в последний момент... Проклятье зомби...</p>
+                    <p style="font-size: 20px; margin: 15px; opacity: 0.85; color: #DC143C;">Превращение неизбежно...</p>
+                    <hr style="border: 2px solid #444; margin: 30px 0;">
+                    <p style="font-size: 24px; margin: 20px; opacity: 0.9; font-style: italic; color: #FFD700;">В последнем акте человечности...</p>
+                    <p style="font-size: 22px; margin: 15px; opacity: 0.8; color: #FFF;">Герой сделал выбор</p>
+                    <p style="font-size: 28px; margin: 20px; opacity: 0.95; font-weight: bold; text-shadow: 2px 2px 8px #000;">💀</p>
+                    <p style="font-size: 18px; margin: 15px; opacity: 0.7; font-style: italic; color: #AAA;">"Лучше умереть свободным, чем жить монстром"</p>
+                    <hr style="border: 2px solid #8B0000; margin: 30px 0;">
+                    <p style="font-size: 20px; margin: 10px; opacity: 0.8;">🎆 Салют в память о павшем герое 🎆</p>
                 `;
                 document.body.appendChild(victoryScreen);
 
                 // Показываем кнопки через 8 секунд (после салюта)
                 setTimeout(() => {
                     victoryScreen.innerHTML += `
+                        <button onclick="showCredits(); document.getElementById('victoryScreen').remove();"
+                                style="margin: 20px; padding: 20px 40px; font-size: 24px; background: linear-gradient(135deg, #8B0000, #DC143C); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: transform 0.2s; border: 2px solid gold;"
+                                onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            🎬 Титры
+                        </button>
+                        <br>
                         <button onclick="restartGame(); document.getElementById('victoryScreen').remove();"
                                 style="margin: 20px; padding: 20px 40px; font-size: 24px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: transform 0.2s;"
                                 onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
@@ -1456,6 +1460,180 @@ function victoryScene() {
 
         }, 1000);
     }, 1000);
+}
+
+// Показ титров в конце игры
+function showCredits() {
+    // Останавливаем салют
+    gameActive = false;
+
+    // Создаём контейнер для титров
+    const creditsContainer = document.createElement('div');
+    creditsContainer.id = 'creditsContainer';
+    creditsContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #000000 0%, #1a0000 50%, #000000 100%);
+        z-index: 2000;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+    `;
+
+    // Создаём прокручивающийся текст титров
+    const creditsText = document.createElement('div');
+    creditsText.style.cssText = `
+        position: absolute;
+        bottom: -100%;
+        width: 80%;
+        text-align: center;
+        color: white;
+        font-family: Arial, sans-serif;
+        animation: scrollCredits 60s linear forwards;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    `;
+
+    creditsText.innerHTML = `
+        <div style="height: 100vh;"></div>
+
+        <h1 style="font-size: 72px; margin: 60px 0; color: #FFD700; text-shadow: 0 0 30px #8B0000;">
+            PERSY HOUSE
+        </h1>
+
+        <p style="font-size: 32px; margin: 40px 0; font-style: italic; color: #DC143C;">
+            "Некоторые победы приходят слишком дорого..."
+        </p>
+
+        <div style="height: 80px;"></div>
+
+        <h2 style="font-size: 48px; margin: 50px 0; color: #FFD700;">ГЛАВНЫЕ РОЛИ</h2>
+
+        <p style="font-size: 32px; margin: 30px 0; line-height: 1.8;">
+            <span style="color: #FFA500;">Dani Rojas</span><br>
+            <span style="font-size: 24px; color: #AAA;">Герой</span>
+        </p>
+
+        <p style="font-size: 32px; margin: 30px 0; line-height: 1.8;">
+            <span style="color: #8B0000;">Повелитель Зомби</span><br>
+            <span style="font-size: 24px; color: #AAA;">Финальный Босс</span>
+        </p>
+
+        <p style="font-size: 32px; margin: 30px 0; line-height: 1.8;">
+            <span style="color: #4169E1;">${petNames['dog'] || 'Верный друг'}</span><br>
+            <span style="font-size: 24px; color: #AAA;">Собака-компаньон</span>
+        </p>
+
+        <div style="height: 120px;"></div>
+
+        <h2 style="font-size: 48px; margin: 50px 0; color: #FFD700;">РАЗРАБОТКА</h2>
+
+        <p style="font-size: 28px; margin: 25px 0; line-height: 2;">
+            <span style="color: #FFA500;">Game Design & Programming</span><br>
+            <span style="color: #FFF;">Claude Code AI</span>
+        </p>
+
+        <p style="font-size: 28px; margin: 25px 0; line-height: 2;">
+            <span style="color: #FFA500;">Creative Director</span><br>
+            <span style="color: #FFF;">Nikolay Igotti</span>
+        </p>
+
+        <p style="font-size: 28px; margin: 25px 0; line-height: 2;">
+            <span style="color: #FFA500;">3D Graphics Engine</span><br>
+            <span style="color: #FFF;">Three.js r128</span>
+        </p>
+
+        <p style="font-size: 28px; margin: 25px 0; line-height: 2;">
+            <span style="color: #FFA500;">Visual Effects</span><br>
+            <span style="color: #FFF;">Procedural Generation</span>
+        </p>
+
+        <div style="height: 120px;"></div>
+
+        <h2 style="font-size: 48px; margin: 50px 0; color: #FFD700;">ОСОБАЯ БЛАГОДАРНОСТЬ</h2>
+
+        <p style="font-size: 28px; margin: 25px 0; color: #FFF;">
+            Всем игрокам, которые дошли до конца
+        </p>
+
+        <p style="font-size: 28px; margin: 25px 0; color: #FFF;">
+            Тем, кто спас мир ценой своей жизни
+        </p>
+
+        <p style="font-size: 28px; margin: 25px 0; color: #FFF;">
+            И тем, кто понял, что настоящая победа<br>
+            иногда означает самопожертвование
+        </p>
+
+        <div style="height: 150px;"></div>
+
+        <h2 style="font-size: 64px; margin: 80px 0; color: #DC143C; text-shadow: 0 0 40px #FF0000;">
+            REST IN PEACE
+        </h2>
+
+        <p style="font-size: 36px; margin: 40px 0; font-style: italic; color: #FFD700;">
+            Dani Rojas<br>
+            <span style="font-size: 24px; color: #AAA;">Hero • Friend • Human</span>
+        </p>
+
+        <p style="font-size: 28px; margin: 60px 0; color: #CCC; font-style: italic;">
+            "Лучше умереть свободным,<br>чем жить монстром"
+        </p>
+
+        <div style="height: 120px;"></div>
+
+        <p style="font-size: 32px; margin: 40px 0; color: #888;">
+            Финальный счёт: ${score}
+        </p>
+
+        <p style="font-size: 28px; margin: 30px 0; color: #888;">
+            Волна: ${wave}
+        </p>
+
+        <div style="height: 150px;"></div>
+
+        <h1 style="font-size: 56px; margin: 80px 0; color: #FFD700;">
+            THE END
+        </h1>
+
+        <p style="font-size: 24px; margin: 40px 0; color: #666;">
+            © 2026 Persy House
+        </p>
+
+        <div style="height: 200px;"></div>
+
+        <button onclick="document.getElementById('creditsContainer').remove(); restartGame();"
+                style="margin: 40px; padding: 25px 50px; font-size: 28px; background: #4CAF50; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);">
+            🔄 Играть снова
+        </button>
+
+        <button onclick="document.getElementById('creditsContainer').remove(); returnToSkinMenu();"
+                style="margin: 40px; padding: 25px 50px; font-size: 28px; background: #f44336; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);">
+            🏠 В меню
+        </button>
+
+        <div style="height: 100vh;"></div>
+    `;
+
+    creditsContainer.appendChild(creditsText);
+    document.body.appendChild(creditsContainer);
+
+    // Добавляем CSS анимацию для прокрутки
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes scrollCredits {
+            from {
+                bottom: -100%;
+            }
+            to {
+                bottom: 100%;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // Запуск салюта для катсцены

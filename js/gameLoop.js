@@ -698,7 +698,7 @@ function updateBullets() {
                     }
 
                     updateCoinsDisplay();
-                    localStorage.setItem('cubeGameCoins', coins);
+                    // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
                     updateScoreDisplay();
                     checkWaveComplete();
                 }
@@ -1172,7 +1172,7 @@ function petAttack(pet, targetPos, targetGroup) {
                 score += targetGroup.userData.isBoss ? 100 : 10;
                 coins += targetGroup.userData.isBoss ? 50 : 5;
                 updateCoinsDisplay();
-                localStorage.setItem('cubeGameCoins', coins);
+                // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
                 zombiesInCurrentWave--;
                 updateScoreDisplay();
                 checkWaveComplete();

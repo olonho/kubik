@@ -28,7 +28,7 @@ function buyAmmo(amount, cost) {
     if (coins >= cost) {
         coins -= cost;
         ammo += amount;
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
         updateCoinsDisplay();
         updateAmmoDisplay();
         document.getElementById('shopCoins').textContent = coins;
@@ -42,7 +42,7 @@ function buyAmmo(amount, cost) {
 function buyWeapon(weaponType, cost) {
     if (coins >= cost) {
         coins -= cost;
-        localStorage.setItem('cubeGameCoins', coins);
+        // localStorage.setItem('cubeGameCoins', coins); // Сохранение отключено
         
         // Добавляем оружие в список разблокированных
         if (!unlockedWeapons.includes(weaponType)) {
