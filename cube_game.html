@@ -128,60 +128,211 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
             pointer-events: none;
             z-index: 1000;
             transform: translate(-50%, -50%);
         }
-        /* CS:GO стиль - зелёные линии с зазором */
-        .crosshair-line {
+
+        /* Внешнее вращающееся кольцо */
+        .crosshair-outer-ring {
             position: absolute;
-            background-color: rgba(0, 255, 100, 1);
-            box-shadow: 0 0 1px rgba(0, 0, 0, 1), 0 0 2px rgba(0, 0, 0, 0.8);
+            width: 60px;
+            height: 60px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            background: linear-gradient(45deg,
+                rgba(0, 255, 255, 0.6),
+                rgba(100, 150, 255, 0.6),
+                rgba(150, 100, 255, 0.6),
+                rgba(0, 255, 255, 0.6)
+            );
+            background-clip: padding-box;
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            padding: 2px;
+            animation: rotateRing 4s linear infinite;
+            box-shadow:
+                0 0 10px rgba(0, 255, 255, 0.5),
+                inset 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        /* Горизонтальная линия */
-        .crosshair-h {
-            width: 14px;
-            height: 2px;
-            top: 50%;
-            transform: translateY(-50%);
+
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-        /* Левая часть */
-        .crosshair-h:nth-child(1) {
-            right: 50%;
-            margin-right: 5px;
-        }
-        /* Правая часть */
-        .crosshair-h:nth-child(2) {
-            left: 50%;
-            margin-left: 5px;
-        }
-        /* Вертикальная линия */
-        .crosshair-v {
-            width: 2px;
-            height: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        /* Верхняя часть */
-        .crosshair-v:nth-child(3) {
-            bottom: 50%;
-            margin-bottom: 5px;
-        }
-        /* Нижняя часть */
-        .crosshair-v:nth-child(4) {
-            top: 50%;
-            margin-top: 5px;
-        }
-        .crosshair-dot {
+
+        /* Внутреннее пульсирующее кольцо */
+        .crosshair-inner-ring {
             position: absolute;
-            width: 2px;
-            height: 2px;
-            background-color: rgba(0, 255, 100, 0.8);
+            width: 40px;
+            height: 40px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            border: 2px solid rgba(0, 255, 200, 0.8);
+            border-radius: 50%;
+            animation: pulseRing 1.5s ease-in-out infinite;
+            box-shadow:
+                0 0 8px rgba(0, 255, 200, 0.6),
+                inset 0 0 8px rgba(0, 255, 200, 0.3);
+        }
+
+        @keyframes pulseRing {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* Угловые скобки */
+        .crosshair-bracket {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(0, 255, 150, 0.9);
+            animation: pulseBracket 1s ease-in-out infinite;
+        }
+
+        .crosshair-bracket::before,
+        .crosshair-bracket::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 255, 150, 0.9);
+            box-shadow: 0 0 5px rgba(0, 255, 150, 0.8);
+        }
+
+        @keyframes pulseBracket {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Верхний левый угол */
+        .crosshair-bracket.top-left {
+            top: 6px;
+            left: 6px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        /* Верхний правый угол */
+        .crosshair-bracket.top-right {
+            top: 6px;
+            right: 6px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        /* Нижний левый угол */
+        .crosshair-bracket.bottom-left {
+            bottom: 6px;
+            left: 6px;
+            border-right: none;
+            border-top: none;
+        }
+
+        /* Нижний правый угол */
+        .crosshair-bracket.bottom-right {
+            bottom: 6px;
+            right: 6px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Центральная точка */
+        .crosshair-center-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 50, 50, 0.9);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow:
+                0 0 8px rgba(255, 50, 50, 1),
+                0 0 12px rgba(255, 50, 50, 0.8),
+                0 0 16px rgba(255, 50, 50, 0.6);
+            animation: glowDot 1s ease-in-out infinite;
+        }
+
+        @keyframes glowDot {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow:
+                    0 0 8px rgba(255, 50, 50, 1),
+                    0 0 12px rgba(255, 50, 50, 0.8),
+                    0 0 16px rgba(255, 50, 50, 0.6);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                box-shadow:
+                    0 0 12px rgba(255, 50, 50, 1),
+                    0 0 18px rgba(255, 50, 50, 0.9),
+                    0 0 24px rgba(255, 50, 50, 0.7);
+            }
+        }
+
+        /* Горизонтальные линии прицела */
+        .crosshair-line-h {
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(0, 255, 200, 0.8) 30%,
+                rgba(0, 255, 200, 1) 50%,
+                rgba(0, 255, 200, 0.8) 70%,
+                transparent
+            );
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 4px rgba(0, 255, 200, 0.6);
+        }
+
+        .crosshair-line-h.left {
+            right: 50%;
+            margin-right: 22px;
+        }
+
+        .crosshair-line-h.right {
+            left: 50%;
+            margin-left: 22px;
+        }
+
+        /* Вертикальные линии прицела */
+        .crosshair-line-v {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(180deg,
+                transparent,
+                rgba(0, 255, 200, 0.8) 30%,
+                rgba(0, 255, 200, 1) 50%,
+                rgba(0, 255, 200, 0.8) 70%,
+                transparent
+            );
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 4px rgba(0, 255, 200, 0.6);
+        }
+
+        .crosshair-line-v.top {
+            bottom: 50%;
+            margin-bottom: 22px;
+        }
+
+        .crosshair-line-v.bottom {
+            top: 50%;
+            margin-top: 22px;
         }
         #weaponDisplay {
             position: absolute;
@@ -482,6 +633,9 @@
     </button>
     <button id="teleportToTrainingBtn" style="display: none; position: absolute; bottom: 260px; left: 20px; padding: 12px 24px; background: linear-gradient(135deg, rgba(0, 255, 255, 0.95), rgba(255, 0, 255, 0.95)); border: 3px solid #00ffff; border-radius: 12px; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 0 0 10px #00ffff, 1px 1px 2px rgba(0,0,0,0.8); box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 4px 15px rgba(0, 255, 255, 0.6); transition: all 0.3s; animation: cyberGlow 2s infinite;">
         💠 Тренировочный полигон
+    </button>
+    <button id="returnFromTrainingBtn" style="display: none; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); padding: 18px 40px; background: linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(69, 160, 73, 0.95)); border: 3px solid #4CAF50; border-radius: 15px; color: #fff; font-size: 22px; font-weight: bold; cursor: pointer; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); box-shadow: 0 6px 20px rgba(76, 175, 80, 0.7); transition: all 0.3s;">
+        🏠 Вернуться в основной мир
     </button>
     <!-- Индикатор "подойдите к собаке" -->
     <div id="petDogIndicator" style="display: none; position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); padding: 15px 30px; background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)); border: 3px solid #FFB6C1; border-radius: 15px; color: white; font-size: 20px; font-weight: bold; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); box-shadow: 0 6px 20px rgba(255, 182, 193, 0.8); animation: pulse 2s infinite;">
@@ -1037,13 +1191,28 @@
         });
     </script>
 
-    <!-- Прицел для вида от первого лица (CS:GO стиль) -->
+    <!-- Прицел для вида от первого лица (футуристичный дизайн) -->
     <div id="crosshair" style="display: none;">
-        <div class="crosshair-line crosshair-h"></div> <!-- Левая горизонтальная -->
-        <div class="crosshair-line crosshair-h"></div> <!-- Правая горизонтальная -->
-        <div class="crosshair-line crosshair-v"></div> <!-- Верхняя вертикальная -->
-        <div class="crosshair-line crosshair-v"></div> <!-- Нижняя вертикальная -->
-        <div class="crosshair-dot"></div> <!-- Центральная точка -->
+        <!-- Внешнее вращающееся кольцо -->
+        <div class="crosshair-outer-ring"></div>
+
+        <!-- Внутреннее пульсирующее кольцо -->
+        <div class="crosshair-inner-ring"></div>
+
+        <!-- Угловые скобки -->
+        <div class="crosshair-bracket top-left"></div>
+        <div class="crosshair-bracket top-right"></div>
+        <div class="crosshair-bracket bottom-left"></div>
+        <div class="crosshair-bracket bottom-right"></div>
+
+        <!-- Линии прицела -->
+        <div class="crosshair-line-h left"></div>
+        <div class="crosshair-line-h right"></div>
+        <div class="crosshair-line-v top"></div>
+        <div class="crosshair-line-v bottom"></div>
+
+        <!-- Центральная точка -->
+        <div class="crosshair-center-dot"></div>
     </div>
 
     <!-- Мобильные элементы управления -->
@@ -1164,14 +1333,14 @@
     <script src="js/enemies.js?t=1769634200"></script>
     <script src="js/pets.js?t=1769634200"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769634200"></script>
+    <script src="js/game.js?t=1769634249"></script>
     <script src="js/shop.js?t=1769634200"></script>
     <script src="js/shopUI.js?t=1769634200"></script>
     <script src="js/petsShop.js?t=1769634200"></script>
     <!-- Игровой цикл и управление -->
     <script src="js/gameLoop.js?t=1769634200"></script>
-    <script src="js/controls.js?t=1769634200"></script>
+    <script src="js/controls.js?t=1769634249"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769634200"></script>
+    <script src="js/init.js?t=1769634249"></script>
 </body>
 </html>
