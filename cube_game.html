@@ -204,6 +204,16 @@
             pointer-events: none;
         }
 
+        /* Стили для кнопок главного меню */
+        #playNormalBtn:hover, #playTrainingBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.8);
+        }
+
+        #playNormalBtn:active, #playTrainingBtn:active {
+            transform: scale(0.98);
+        }
+
         .control-button {
             position: absolute;
             width: 70px;
@@ -483,6 +493,30 @@
                 <button id="petNameCancel" style="padding: 15px 40px; background: linear-gradient(135deg, #888, #666); border: 3px solid #888; border-radius: 12px; color: white; font-size: 22px; font-weight: bold; cursor: pointer; margin: 0 10px; box-shadow: 0 4px 15px rgba(100, 100, 100, 0.5); transition: all 0.3s;">
                     ❌ Отмена
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Главное меню -->
+    <div id="mainMenu" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(10, 10, 30, 0.95), rgba(30, 10, 10, 0.95)); z-index: 500; display: flex; justify-content: center; align-items: center;">
+        <div style="text-align: center; max-width: 600px;">
+            <h1 style="color: #FFD700; font-size: 72px; margin-bottom: 20px; text-shadow: 4px 4px 8px rgba(0,0,0,0.9); font-weight: bold; letter-spacing: 4px;">
+                🏠 PERSY HOUSE
+            </h1>
+            <p style="color: #ccc; font-size: 24px; margin-bottom: 50px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                Защитите свой дом от зомби!
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 25px; align-items: center;">
+                <button id="playNormalBtn" style="width: 400px; padding: 25px 50px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 5px solid #4CAF50; border-radius: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                    🎮 ИГРАТЬ
+                </button>
+                <button id="playTrainingBtn" style="width: 400px; padding: 25px 50px; background: linear-gradient(135deg, #2196F3, #1976D2); border: 5px solid #2196F3; border-radius: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(33, 150, 243, 0.6); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                    🎯 ТРЕНИРОВКА
+                </button>
+            </div>
+            <div style="margin-top: 40px; color: #999; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                <div style="margin-bottom: 10px;">🎮 <strong>Играть</strong> - Обычная игра с волнами зомби</div>
+                <div>🎯 <strong>Тренировка</strong> - Практика без зомби</div>
             </div>
         </div>
     </div>
@@ -843,22 +877,22 @@
 
     <!-- Игровые скрипты (загружаются после DOM) -->
     <!-- Данные (без зависимостей) -->
-    <script src="js/shopData.js?t=1769632026"></script>
+    <script src="js/shopData.js?t=1769632800"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769632026"></script>
-    <script src="js/characters.js?t=1769632026"></script>
-    <script src="js/decorations.js?t=1769632026"></script>
-    <script src="js/turrets.js?t=1769632026"></script>
-    <script src="js/enemies.js?t=1769632026"></script>
-    <script src="js/pets.js?t=1769632026"></script>
+    <script src="js/weapons.js?t=1769632800"></script>
+    <script src="js/characters.js?t=1769632800"></script>
+    <script src="js/decorations.js?t=1769632800"></script>
+    <script src="js/turrets.js?t=1769632800"></script>
+    <script src="js/enemies.js?t=1769632800"></script>
+    <script src="js/pets.js?t=1769632210"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769632026"></script>
-    <script src="js/shop.js?t=1769632026"></script>
-    <script src="js/shopUI.js?t=1769632026"></script>
+    <script src="js/game.js?t=1769632800"></script>
+    <script src="js/shop.js?t=1769632800"></script>
+    <script src="js/shopUI.js?t=1769632800"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769632026"></script>
-    <script src="js/controls.js?t=1769632026"></script>
+    <script src="js/gameLoop.js?t=1769632800"></script>
+    <script src="js/controls.js?t=1769632800"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769632026"></script>
+    <script src="js/init.js?t=1769632800"></script>
 </body>
 </html>

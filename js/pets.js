@@ -996,35 +996,242 @@ function createUnicornPet() {
 }
 
 function createTigerPet() {
-    const petGroup = createWolfPet(); // Используем базу волка
-    petGroup.children.forEach(child => {
-        child.material = new THREE.MeshPhongMaterial({ color: 0xff8c00 });
-    });
+    const petGroup = new THREE.Group();
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xff8c00 });
+    const stripeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+    // Тело
+    const bodyGeometry = new THREE.BoxGeometry(0.5, 0.4, 0.7);
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = 0.4;
+    petGroup.add(body);
+
+    // Черные полосы на теле
+    for (let i = 0; i < 5; i++) {
+        const stripeGeometry = new THREE.BoxGeometry(0.52, 0.06, 0.72);
+        const stripe = new THREE.Mesh(stripeGeometry, stripeMaterial);
+        stripe.position.set(0, 0.5 - i * 0.1, 0);
+        petGroup.add(stripe);
+    }
+
+    // Голова
+    const headGeometry = new THREE.BoxGeometry(0.35, 0.35, 0.4);
+    const head = new THREE.Mesh(headGeometry, bodyMaterial);
+    head.position.set(0, 0.5, 0.5);
+    petGroup.add(head);
+
+    // Полосы на лице
+    const faceStripeGeometry = new THREE.BoxGeometry(0.37, 0.04, 0.42);
+    for (let i = 0; i < 3; i++) {
+        const faceStripe = new THREE.Mesh(faceStripeGeometry, stripeMaterial);
+        faceStripe.position.set(0, 0.55 - i * 0.1, 0.5);
+        petGroup.add(faceStripe);
+    }
+
+    // Уши
+    const earGeometry = new THREE.ConeGeometry(0.1, 0.15, 4);
+    const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+    leftEar.position.set(-0.15, 0.7, 0.5);
+    petGroup.add(leftEar);
+    const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+    rightEar.position.set(0.15, 0.7, 0.5);
+    petGroup.add(rightEar);
+
+    // 🐯 ЛИЦО ТИГРА
+    // Морда
+    const snoutGeometry = new THREE.BoxGeometry(0.22, 0.18, 0.25);
+    const snoutMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Белая морда
+    const snout = new THREE.Mesh(snoutGeometry, snoutMaterial);
+    snout.position.set(0, 0.45, 0.65);
+    petGroup.add(snout);
+
+    // Черный нос
+    const noseGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+    nose.position.set(0, 0.48, 0.77);
+    petGroup.add(nose);
+
+    // Желтые глаза хищника
+    const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00, emissive: 0x444400 });
+    const pupilGeometry = new THREE.SphereGeometry(0.015, 8, 8);
+    const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.12, 0.55, 0.65);
+    petGroup.add(leftEye);
+    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    leftPupil.position.set(-0.12, 0.55, 0.68);
+    petGroup.add(leftPupil);
+
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.12, 0.55, 0.65);
+    petGroup.add(rightEye);
+    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    rightPupil.position.set(0.12, 0.55, 0.68);
+    petGroup.add(rightPupil);
+
+    // Клыки
+    const fangGeometry = new THREE.ConeGeometry(0.02, 0.1, 4);
+    const fangMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+    const topLeftFang = new THREE.Mesh(fangGeometry, fangMaterial);
+    topLeftFang.position.set(-0.08, 0.42, 0.73);
+    topLeftFang.rotation.x = Math.PI;
+    petGroup.add(topLeftFang);
+
+    const topRightFang = new THREE.Mesh(fangGeometry, fangMaterial);
+    topRightFang.position.set(0.08, 0.42, 0.73);
+    topRightFang.rotation.x = Math.PI;
+    petGroup.add(topRightFang);
+
+    // Хвост с полосами
+    const tailGeometry = new THREE.CylinderGeometry(0.06, 0.03, 0.5);
+    const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+    tail.position.set(0, 0.3, -0.4);
+    tail.rotation.x = -Math.PI / 6;
+    petGroup.add(tail);
+
     petGroup.position.set(-1, 0, 3);
     petGroup.userData.attackType = 'melee';
     petGroup.userData.damage = 5;
     petGroup.userData.attackRange = 2.5;
     petGroup.userData.speed = 0.09;
+
+    scene.add(petGroup);
     return petGroup;
 }
 
 function createLionPet() {
-    const petGroup = createBearPet(); // Используем базу медведя
-    petGroup.children.forEach(child => {
-        child.material = new THREE.MeshPhongMaterial({ color: 0xdaa520 });
-    });
-    // Добавляем гриву
-    const maneGeometry = new THREE.SphereGeometry(0.35, 8, 8);
+    const petGroup = new THREE.Group();
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xdaa520 });
     const maneMaterial = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+
+    // Тело (мощное)
+    const bodyGeometry = new THREE.BoxGeometry(0.6, 0.5, 0.8);
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = 0.5;
+    petGroup.add(body);
+
+    // Голова
+    const headGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.45);
+    const head = new THREE.Mesh(headGeometry, bodyMaterial);
+    head.position.set(0, 0.8, 0.5);
+    petGroup.add(head);
+
+    // 🦁 ГРИВА (пышная)
+    const maneGeometry = new THREE.SphereGeometry(0.4, 8, 8);
     const mane = new THREE.Mesh(maneGeometry, maneMaterial);
-    mane.position.set(0, 0.9, 0.4);
+    mane.position.set(0, 0.8, 0.35);
     petGroup.add(mane);
+
+    // Дополнительные пучки гривы
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const puffGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+        const puff = new THREE.Mesh(puffGeometry, maneMaterial);
+        puff.position.set(
+            Math.cos(angle) * 0.35,
+            0.8,
+            0.35 + Math.sin(angle) * 0.35
+        );
+        petGroup.add(puff);
+    }
+
+    // Уши (скрыты в гриве)
+    const earGeometry = new THREE.ConeGeometry(0.08, 0.12, 4);
+    const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
+    leftEar.position.set(-0.18, 1.0, 0.45);
+    petGroup.add(leftEar);
+    const rightEar = new THREE.Mesh(earGeometry, bodyMaterial);
+    rightEar.position.set(0.18, 1.0, 0.45);
+    petGroup.add(rightEar);
+
+    // 🦁 ЛИЦО ЛЬВА
+    // Морда
+    const snoutGeometry = new THREE.BoxGeometry(0.25, 0.2, 0.25);
+    const snout = new THREE.Mesh(snoutGeometry, bodyMaterial);
+    snout.position.set(0, 0.75, 0.67);
+    petGroup.add(snout);
+
+    // Черный нос
+    const noseGeometry = new THREE.SphereGeometry(0.06, 8, 8);
+    const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+    nose.position.set(0, 0.78, 0.8);
+    petGroup.add(nose);
+
+    // Янтарные глаза хищника
+    const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffbf00, emissive: 0x664400 });
+    const pupilGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+    const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.12, 0.85, 0.68);
+    petGroup.add(leftEye);
+    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    leftPupil.position.set(-0.12, 0.85, 0.71);
+    petGroup.add(leftPupil);
+
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.12, 0.85, 0.68);
+    petGroup.add(rightEye);
+    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    rightPupil.position.set(0.12, 0.85, 0.71);
+    petGroup.add(rightPupil);
+
+    // Большие клыки
+    const fangGeometry = new THREE.ConeGeometry(0.025, 0.12, 4);
+    const fangMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+    const topLeftFang = new THREE.Mesh(fangGeometry, fangMaterial);
+    topLeftFang.position.set(-0.09, 0.7, 0.77);
+    topLeftFang.rotation.x = Math.PI;
+    petGroup.add(topLeftFang);
+
+    const topRightFang = new THREE.Mesh(fangGeometry, fangMaterial);
+    topRightFang.position.set(0.09, 0.7, 0.77);
+    topRightFang.rotation.x = Math.PI;
+    petGroup.add(topRightFang);
+
+    // Усы
+    const whiskerGeometry = new THREE.CylinderGeometry(0.006, 0.006, 0.3);
+    const whiskerMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+    for (let i = 0; i < 3; i++) {
+        const whiskerL = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
+        whiskerL.position.set(-0.15, 0.76 - i * 0.02, 0.75);
+        whiskerL.rotation.z = Math.PI / 2 - i * 0.1;
+        petGroup.add(whiskerL);
+
+        const whiskerR = new THREE.Mesh(whiskerGeometry, whiskerMaterial);
+        whiskerR.position.set(0.15, 0.76 - i * 0.02, 0.75);
+        whiskerR.rotation.z = -Math.PI / 2 + i * 0.1;
+        petGroup.add(whiskerR);
+    }
+
+    // Хвост с кисточкой
+    const tailGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+    const tail = new THREE.Mesh(tailGeometry, bodyMaterial);
+    tail.position.set(0, 0.4, -0.5);
+    tail.rotation.x = -Math.PI / 6;
+    petGroup.add(tail);
+
+    const tailTipGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+    const tailTip = new THREE.Mesh(tailTipGeometry, maneMaterial);
+    tailTip.position.set(0, 0.55, -0.75);
+    petGroup.add(tailTip);
 
     petGroup.position.set(-1, 0, -3);
     petGroup.userData.attackType = 'melee';
     petGroup.userData.damage = 7;
     petGroup.userData.attackRange = 2.5;
     petGroup.userData.speed = 0.08;
+
+    scene.add(petGroup);
+    return petGroup;
     petGroup.userData.hp = 25;
     petGroup.userData.maxHp = 25;
     return petGroup;

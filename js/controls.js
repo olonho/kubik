@@ -402,7 +402,20 @@ document.addEventListener('contextmenu', (e) => {
 
 // Инициализируем event listeners после загрузки DOM
 window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('restart').addEventListener('click', restartGame);
+    // Обработчики главного меню
+    document.getElementById('playNormalBtn').addEventListener('click', () => {
+        gameMode = 'normal';
+        document.getElementById('mainMenu').style.display = 'none';
+        initGame();
+    });
+
+    document.getElementById('playTrainingBtn').addEventListener('click', () => {
+        gameMode = 'training';
+        document.getElementById('mainMenu').style.display = 'none';
+        initTrainingMode();
+    });
+
+    document.getElementById('restart').addEventListener('click', restartGame);
     document.getElementById('openShopBtn').addEventListener('click', () => {
         gameActive = false;
         document.getElementById('shopMenu').style.display = 'block';

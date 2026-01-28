@@ -40,6 +40,7 @@ var petPats = 0; // Количество поглаживаний питомца
 var hasCompanion = false; // Есть ли напарник
 var companion = null; // Объект напарника
 var gameActive = true;
+var gameMode = 'normal'; // 'normal' или 'training'
 var playerVelocityY = 0;
 var isJumping = false;
 var keys = {};
@@ -2409,6 +2410,172 @@ function gameOver() {
     document.getElementById('cameraMode').style.display = 'none';
 }
 
+// Функция запуска обычной игры
+function initGame() {
+    console.log('🎮 Запуск обычной игры...');
+    selectSkin('human');
+}
+
+// Функция запуска режима тренировки
+function initTrainingMode() {
+    console.log('🎯 Запуск режима тренировки...');
+    selectSkin('human');
+
+    // Создаём полигон с мишенями после инициализации
+    setTimeout(() => {
+        createTrainingRange();
+    }, 100);
+}
+
+// Создание тренировочного полигона с неподвижными мишенями
+function createTrainingRange() {
+    console.log('🎯 Создание тренировочного полигона...');
+
+    // Показываем специальное сообщение
+    const trainingNotif = document.createElement('div');
+    trainingNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 150, 243, 0.95); padding: 30px 60px; border-radius: 20px; font-size: 28px; font-weight: bold; z-index: 1000; border: 4px solid #2196F3; color: white; text-align: center; box-shadow: 0 8px 30px rgba(33, 150, 243, 0.7);';
+    trainingNotif.innerHTML = '🎯 РЕЖИМ ТРЕНИРОВКИ<br><span style="font-size: 20px;">Практикуйте стрельбу по мишеням!</span>';
+    document.body.appendChild(trainingNotif);
+
+    setTimeout(() => {
+        if (trainingNotif.parentNode) {
+            document.body.removeChild(trainingNotif);
+        }
+    }, 3000);
+
+    // Создаём стены полигона
+    const wallMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513,
+        shininess: 10
+    });
+
+    // Задняя стена
+    const backWallGeometry = new THREE.BoxGeometry(30, 5, 0.5);
+    const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+    backWall.position.set(0, 2.5, -50);
+    backWall.receiveShadow = true;
+    backWall.castShadow = true;
+    scene.add(backWall);
+
+    // Боковые стены
+    const sideWallGeometry = new THREE.BoxGeometry(0.5, 5, 60);
+    const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+    leftWall.position.set(-15, 2.5, -20);
+    leftWall.receiveShadow = true;
+    leftWall.castShadow = true;
+    scene.add(leftWall);
+
+    const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+    rightWall.position.set(15, 2.5, -20);
+    rightWall.receiveShadow = true;
+    rightWall.castShadow = true;
+    scene.add(rightWall);
+
+    // Создаём статичные зомби-мишени (3 ряда по 5 мишеней)
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 5; col++) {
+            const zombie = createTrainingDummy();
+            zombie.position.set(
+                (col - 2) * 5,  // X: -10, -5, 0, 5, 10
+                0,
+                -20 - row * 10   // Z: -20, -30, -40
+            );
+            zombie.userData.type = 'trainingDummy';
+            zombie.userData.hp = 3;
+            zombie.userData.maxHp = 3;
+            scene.add(zombie);
+            obstacles.push(zombie);
+        }
+    }
+
+    console.log('✅ Тренировочный полигон создан с', obstacles.length, 'мишенями');
+}
+
+// Создание неподвижной мишени-зомби
+function createTrainingDummy() {
+    const dummyGroup = new THREE.Group();
+
+    // Используем стандартного зомби, но делаем его ярче для видимости
+    const bodyGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.3);
+    const bodyMaterial = new THREE.MeshPhongMaterial({
+        color: 0x00aa00,  // Зелёный цвет
+        shininess: 30
+    });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.position.y = 0.6;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    dummyGroup.add(body);
+
+    // Голова
+    const headGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+    const headMaterial = new THREE.MeshPhongMaterial({
+        color: 0x22dd22,  // Светло-зелёный
+        shininess: 30
+    });
+    const head = new THREE.Mesh(headGeometry, headMaterial);
+    head.position.y = 1.2;
+    head.castShadow = true;
+    head.receiveShadow = true;
+    dummyGroup.add(head);
+
+    // Глаза (красные, чтобы было видно что это мишень)
+    const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, emissive: 0xff0000 });
+
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.1, 1.25, 0.2);
+    dummyGroup.add(leftEye);
+
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.1, 1.25, 0.2);
+    dummyGroup.add(rightEye);
+
+    // Руки
+    const armGeometry = new THREE.BoxGeometry(0.15, 0.6, 0.15);
+    const leftArm = new THREE.Mesh(armGeometry, bodyMaterial);
+    leftArm.position.set(-0.35, 0.6, 0);
+    leftArm.castShadow = true;
+    dummyGroup.add(leftArm);
+
+    const rightArm = new THREE.Mesh(armGeometry, bodyMaterial);
+    rightArm.position.set(0.35, 0.6, 0);
+    rightArm.castShadow = true;
+    dummyGroup.add(rightArm);
+
+    // Ноги
+    const legGeometry = new THREE.BoxGeometry(0.15, 0.5, 0.15);
+    const leftLeg = new THREE.Mesh(legGeometry, bodyMaterial);
+    leftLeg.position.set(-0.15, 0.25, 0);
+    leftLeg.castShadow = true;
+    dummyGroup.add(leftLeg);
+
+    const rightLeg = new THREE.Mesh(legGeometry, bodyMaterial);
+    rightLeg.position.set(0.15, 0.25, 0);
+    rightLeg.castShadow = true;
+    dummyGroup.add(rightLeg);
+
+    // Индикатор HP над головой
+    const hpBarBg = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.6, 0.1),
+        new THREE.MeshBasicMaterial({ color: 0x000000 })
+    );
+    hpBarBg.position.set(0, 1.6, 0);
+    hpBarBg.lookAt(camera.position);
+    dummyGroup.add(hpBarBg);
+
+    const hpBar = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.56, 0.08),
+        new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+    );
+    hpBar.position.set(0, 1.6, 0.01);
+    hpBar.lookAt(camera.position);
+    dummyGroup.add(hpBar);
+    dummyGroup.userData.hpBar = hpBar;
+
+    return dummyGroup;
+}
+
 function restartGame() {
     obstacles.forEach(obstacle => scene.remove(obstacle));
     obstacles = [];
@@ -2436,8 +2603,10 @@ function restartGame() {
     player.rotation.set(0, -Math.PI / 2, 0);
     playerVelocityY = 0;
     isJumping = false;
-    gameActive = true;
-    startNewWave();
+    gameActive = false;
+
+    // Возвращаемся в главное меню
+    document.getElementById('mainMenu').style.display = 'flex';
 }
 
 function returnToSkinMenu() {
