@@ -2612,11 +2612,18 @@ function initGame() {
 // Функция запуска режима тренировки
 function initTrainingMode() {
     console.log('🎯 Запуск режима тренировки...');
+
+    // Скрываем вступительную книгу "Дневник выжившего"
+    const introScene = document.getElementById('introScene');
+    if (introScene) {
+        introScene.style.display = 'none';
+    }
+
     selectSkin('human');
 
-    // Изменяем окружение на КИБЕРПРОСТРАНСТВО
+    // Создаём полигон с мишенями после инициализации
     setTimeout(() => {
-        createCyberTrainingSpace();
+        createTrainingRange();
     }, 100);
 }
 

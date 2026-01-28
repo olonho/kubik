@@ -728,7 +728,67 @@
         </div>
     </div>
 
+    <!-- МАГАЗИН ПИТОМЦЕВ (отдельный из главного меню) -->
+    <div id="petsShopMenu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 0, 20, 0.98) 100%); z-index: 600; overflow-y: auto;">
+        <div style="max-width: 1600px; margin: 30px auto; padding: 40px 20px;">
+            <h2 style="color: #FF6B6B; font-size: 64px; text-align: center; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255, 107, 107, 0.9), 4px 4px 8px rgba(0, 0, 0, 0.9); font-weight: bold;">🐾 МАГАЗИН ПИТОМЦЕВ 🐾</h2>
+
+            <div style="color: white; font-size: 28px; text-align: center; margin-bottom: 30px; background: linear-gradient(135deg, rgba(255, 107, 107, 0.25), rgba(238, 90, 111, 0.25)); padding: 20px 40px; border-radius: 20px; border: 3px solid rgba(255, 107, 107, 0.6); display: inline-block; position: relative; left: 50%; transform: translateX(-50%); box-shadow: 0 0 25px rgba(255, 107, 107, 0.4);">
+                💰 Ваши монеты: <span id="petsShopCoins" style="color: gold; font-weight: bold; text-shadow: 0 0 15px rgba(255, 215, 0, 0.9);">0</span>
+            </div>
+
+            <p style="text-align: center; color: #ccc; font-size: 22px; margin-bottom: 40px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);">
+                Покупайте питомцев, давайте им имена и они будут сражаться рядом с вами!
+            </p>
+
+            <!-- Список доступных питомцев -->
+            <div style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(238, 90, 111, 0.15)); padding: 40px; border-radius: 30px; border: 3px solid rgba(255, 107, 107, 0.5); margin-bottom: 40px; box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);">
+                <h3 style="color: #FF6B6B; font-size: 46px; margin: 0 0 35px 0; text-align: center; text-shadow: 0 0 20px rgba(255, 107, 107, 0.9), 3px 3px 6px rgba(0, 0, 0, 0.9); font-weight: bold;">🛒 ДОСТУПНЫЕ ПИТОМЦЫ</h3>
+                <div id="petsShopAvailable" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Ваши питомцы -->
+            <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(69, 160, 73, 0.15)); padding: 40px; border-radius: 30px; border: 3px solid rgba(76, 175, 80, 0.5); margin-bottom: 40px; box-shadow: 0 0 40px rgba(76, 175, 80, 0.3);">
+                <h3 style="color: #4CAF50; font-size: 46px; margin: 0 0 35px 0; text-align: center; text-shadow: 0 0 20px rgba(76, 175, 80, 0.9), 3px 3px 6px rgba(0, 0, 0, 0.9); font-weight: bold;">❤️ ВАШИ ПИТОМЦЫ</h3>
+                <div id="petsShopOwned" style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; min-height: 150px;"></div>
+            </div>
+
+            <!-- Кнопки -->
+            <div style="text-align: center; margin-top: 50px; padding: 20px;">
+                <button id="backToMainMenuBtn" style="padding: 20px 60px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #4CAF50; border-radius: 18px; color: white; font-size: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">
+                    🏠 Назад в главное меню
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог ввода имени питомца -->
+    <div id="petNameDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 700; justify-content: center; align-items: center;">
+        <div style="background: linear-gradient(135deg, rgba(40, 40, 60, 0.98), rgba(20, 20, 40, 0.98)); padding: 50px; border-radius: 30px; border: 4px solid rgba(255, 215, 0, 0.6); max-width: 600px; text-align: center; box-shadow: 0 0 60px rgba(255, 215, 0, 0.5);">
+            <h3 style="color: #FFD700; font-size: 42px; margin-bottom: 25px; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 3px 3px 6px rgba(0, 0, 0, 0.9);">
+                🐾 Дайте имя своему питомцу!
+            </h3>
+            <div style="margin-bottom: 20px;">
+                <div id="petNamePreview" style="font-size: 60px; margin-bottom: 20px;">🐶</div>
+                <p id="petNameType" style="color: #ccc; font-size: 24px; margin-bottom: 30px;">Собака</p>
+            </div>
+            <input type="text" id="petNameInput" maxlength="20" placeholder="Введите имя питомца..." style="width: 100%; padding: 18px; font-size: 24px; border: 3px solid rgba(255, 215, 0, 0.5); border-radius: 15px; background: rgba(0, 0, 0, 0.7); color: white; text-align: center; margin-bottom: 30px; box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5); transition: all 0.3s;">
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button id="petNameConfirm" style="padding: 18px 50px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 3px solid #4CAF50; border-radius: 15px; color: white; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">
+                    ✅ Подтвердить
+                </button>
+                <button id="petNameCancel" style="padding: 18px 50px; background: linear-gradient(135deg, #666, #555); border: 3px solid #666; border-radius: 15px; color: white; font-size: 26px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 20px rgba(100, 100, 100, 0.5); transition: all 0.3s; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);">
+                    ❌ Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
     <style>
+        #backToMainMenuBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.8);
+        }
         #continueWeaponsShopBtn:hover {
             transform: scale(1.05);
             box-shadow: 0 8px 25px rgba(76, 175, 80, 0.7);
@@ -1078,22 +1138,22 @@
 
     <!-- Игровые скрипты (загружаются после DOM) -->
     <!-- Данные (без зависимостей) -->
-    <script src="js/shopData.js?t=1769633600"></script>
+    <script src="js/shopData.js?t=1769633800"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769633600"></script>
-    <script src="js/characters.js?t=1769633600"></script>
-    <script src="js/decorations.js?t=1769633600"></script>
-    <script src="js/turrets.js?t=1769633600"></script>
-    <script src="js/enemies.js?t=1769633600"></script>
-    <script src="js/pets.js?t=1769633600"></script>
+    <script src="js/weapons.js?t=1769633800"></script>
+    <script src="js/characters.js?t=1769633800"></script>
+    <script src="js/decorations.js?t=1769633800"></script>
+    <script src="js/turrets.js?t=1769633800"></script>
+    <script src="js/enemies.js?t=1769633800"></script>
+    <script src="js/pets.js?t=1769633800"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769633600"></script>
-    <script src="js/shop.js?t=1769633600"></script>
-    <script src="js/shopUI.js?t=1769633600"></script>
+    <script src="js/game.js?t=1769633800"></script>
+    <script src="js/shop.js?t=1769633800"></script>
+    <script src="js/shopUI.js?t=1769633800"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769633600"></script>
-    <script src="js/controls.js?t=1769633600"></script>
+    <script src="js/gameLoop.js?t=1769633800"></script>
+    <script src="js/controls.js?t=1769633800"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769633600"></script>
+    <script src="js/init.js?t=1769633800"></script>
 </body>
 </html>
