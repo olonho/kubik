@@ -34,12 +34,12 @@ function selectSkin(skin) {
     // Загружаем сохранённые параметры игры или используем дефолтные
     score = parseInt(localStorage.getItem('cubeGameScore')) || 0;
 
-    // ВСЕГДА СТАРТУЕМ С 18 ВОЛНЫ (игнорируем сохранение)
-    wave = 18;
+    // Стартуем с 1 волны
+    wave = parseInt(localStorage.getItem('cubeGameWave')) || 1;
 
     lives = parseInt(localStorage.getItem('cubeGameLives')) || 3;
     ammo = parseInt(localStorage.getItem('cubeGameAmmo')) || maxAmmo;
-    coins = parseInt(localStorage.getItem('cubeGameCoins')) || 50000;
+    coins = parseInt(localStorage.getItem('cubeGameCoins')) || 5000;
     wood = parseInt(localStorage.getItem('cubeGameWood')) || 0;
 
     // Если начинаем с 18 волны, устанавливаем соответствующую сложность
@@ -60,6 +60,8 @@ function selectSkin(skin) {
     document.getElementById('openItemsShopBtn').style.display = 'block';
     document.getElementById('openWeaponsShopBtn').style.display = 'block';
     document.getElementById('woodDisplay').style.display = 'block';
+    document.getElementById('hungerDisplay').style.display = 'block';
+    document.getElementById('thirstDisplay').style.display = 'block';
     document.getElementById('buildHouseBtn').style.display = 'block';
     document.getElementById('buildBedBtn').style.display = 'block';
 
@@ -69,6 +71,8 @@ function selectSkin(skin) {
     // Затем обновляем дисплеи (функции определены в game.js)
     if (typeof updateCoinsDisplay === 'function') updateCoinsDisplay();
     if (typeof updateWoodDisplay === 'function') updateWoodDisplay();
+    if (typeof updateHungerDisplay === 'function') updateHungerDisplay();
+    if (typeof updateThirstDisplay === 'function') updateThirstDisplay();
 
     // Показываем кнопку поглаживания (собака всегда есть)
     document.getElementById('petDogBtn').style.display = 'block';
@@ -509,12 +513,15 @@ function init() {
 
     // Создаём игрока - человека Dani Rojas
     player = createHuman();
+    console.log('👤 Игрок создан (человек Dani Rojas):', player);
 
     player.position.set(0, 0.5, 0);
     player.rotation.y = -Math.PI / 2; // Смотрит вперед
     lastPlayerDirection = -Math.PI / 2; // Инициализируем направление
     player.castShadow = true;
+    player.userData.isPlayer = true; // Маркер что это игрок
     scene.add(player);
+    console.log('👤 Игрок добавлен в сцену на позиции:', player.position);
 
     // Создаем оружие
     currentWeapon = createWeapon(selectedWeapon);
@@ -612,6 +619,145 @@ function init() {
         createPet('dog', dogName);
         console.log('🐾 Собака создана с именем:', dogName);
     }
+
+    // 🎁 СТАРТОВЫЙ ПАКЕТ: Создаем всех питомцев и все турели
+    console.log('🎁 Создаем стартовый пакет: все турели и всех питомцев!');
+
+    // Добавляем всех питомцев в список владения (для магазина)
+    ownedPets = ['dog', 'cat', 'wolf', 'bear', 'eagle', 'panda', 'fox', 'dragon', 'unicorn', 'robot', 'tiger', 'lion'];
+    localStorage.setItem('cubeGameOwnedPets', JSON.stringify(ownedPets));
+
+    // Добавляем все оружие в список владения
+    ownedWeapons = ['machinegun', 'shotgun', 'sniper', 'crossbow', 'flamethrower', 'railgun', 'minigun', 'grenade', 'plasma', 'rocket'];
+    localStorage.setItem('cubeGameOwnedWeapons', JSON.stringify(ownedWeapons));
+
+    // Создаем всех питомцев (кроме собаки - она уже есть)
+    const allPets = ['cat', 'wolf', 'bear', 'eagle', 'panda', 'fox', 'dragon', 'unicorn', 'robot', 'tiger', 'lion'];
+    allPets.forEach(petType => {
+        createPet(petType, petType.charAt(0).toUpperCase() + petType.slice(1));
+        console.log('🐾 Создан питомец:', petType);
+    });
+
+    // Создаем все турели
+    console.log('⚡ Создаем все турели...');
+
+    // Базовая турель
+    hasTurret = true;
+    createTurret();
+
+    // Огневая турель
+    hasFireTurret = true;
+    createFireTurret();
+
+    // Лазерная турель
+    hasLaserTurret = true;
+    createLaserTurret();
+
+    // Ракетная турель
+    hasRocketTurret = true;
+    createRocketTurret();
+
+    // Морозная турель
+    hasFreezeTurret = true;
+    createFreezeTurret();
+
+    // Электрическая турель
+    hasElectricTurret = true;
+    createElectricTurret();
+
+    // Ядовитая турель
+    hasPoisonTurret = true;
+    createPoisonTurret();
+
+    // Взрывная турель
+    hasExplosiveTurret = true;
+    createExplosiveTurret();
+
+    // Звуковая турель
+    hasSonicTurret = true;
+    createSonicTurret();
+
+    // Плазменная турель
+    hasPlasmaTurret = true;
+    createPlasmaTurret();
+
+    // Тесла турель
+    hasTeslaTurret = true;
+    createTeslaTurret();
+
+    // Гравитационная турель
+    hasGravityTurret = true;
+    createGravityTurret();
+
+    // Рельсотрон турель
+    hasRailgunTurret = true;
+    createRailgunTurret();
+
+    // Минигат турель
+    hasMinigunTurret = true;
+    createMinigunTurret();
+
+    // Огнемёт турель
+    hasFlamethrowerTurret = true;
+    createFlamethrowerTurret();
+
+    // Снайпер турель
+    hasSniperTurret = true;
+    createSniperTurret();
+
+    // Дробовик турель
+    hasShotgunTurret = true;
+    createShotgunTurret();
+
+    // Пушка турель
+    hasCannonTurret = true;
+    createCannonTurret();
+
+    // Ядерная турель
+    hasNuclearTurret = true;
+    createNuclearTurret();
+
+    // Радужная турель
+    hasRainbowTurret = true;
+    createRainbowTurret();
+
+    // Лечащая турель
+    hasHealingTurret = true;
+    createHealingTurret();
+
+    // Щитовая турель
+    hasShieldTurret = true;
+    createShieldTurret();
+
+    // Квантовая турель
+    hasQuantumTurret = true;
+    createQuantumTurret();
+
+    // Чёрная дыра турель
+    hasBlackholeTurret = true;
+    createBlackholeTurret();
+
+    // Временная турель
+    hasTimeTurret = true;
+    createTimeTurret();
+
+    // Энергетическая турель
+    hasEnergyTurret = true;
+    createEnergyTurret();
+
+    // Метеор турель
+    hasMeteorTurret = true;
+    createMeteorTurret();
+
+    // Штормовая турель
+    hasStormTurret = true;
+    createStormTurret();
+
+    // Антиматерия турель
+    hasAntimatterTurret = true;
+    createAntimatterTurret();
+
+    console.log('✅ Стартовый пакет создан! Турелей:', turrets.length, 'Питомцев:', pets.length);
 
     // Запускаем первую волну
     console.log('🌊 Запускаем первую волну...');
