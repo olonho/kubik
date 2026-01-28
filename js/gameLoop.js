@@ -82,9 +82,12 @@ function changeWeapon(weaponType) {
 function updatePlayer() {
     if (!gameActive) return;
 
+    // Эффективная скорость (замедляется при прицеливании)
+    const effectiveSpeed = isAiming ? playerSpeed * 0.5 : playerSpeed;
+
     // Движение влево-вправо
     if (keys['ArrowLeft']) {
-        const newX = player.position.x - playerSpeed;
+        const newX = player.position.x - effectiveSpeed;
         // Разные границы для дома и улицы (широкие границы, основная проверка в checkCollisionInHouse)
         const leftBound = isInsideHouse ? -3 : -15; // Увеличена в 3 раза
 
@@ -98,7 +101,7 @@ function updatePlayer() {
         lastPlayerDirection = -Math.PI; // Влево
     }
     if (keys['ArrowRight']) {
-        const newX = player.position.x + playerSpeed;
+        const newX = player.position.x + effectiveSpeed;
         // Разные границы для дома и улицы
         const rightBound = isInsideHouse ? 3 : 15; // Увеличена в 3 раза
 
@@ -114,7 +117,7 @@ function updatePlayer() {
 
     // Движение вперёд-назад (в пределах базы)
     if (keys['ArrowUp']) {
-        const newZ = player.position.z - playerSpeed;
+        const newZ = player.position.z - effectiveSpeed;
         // Разные границы для дома и улицы
         const forwardBound = isInsideHouse ? -2.5 : -120; // Увеличена в 3 раза
 
@@ -128,7 +131,7 @@ function updatePlayer() {
         lastPlayerDirection = -Math.PI / 2; // Вперед
     }
     if (keys['ArrowDown']) {
-        const newZ = player.position.z + playerSpeed;
+        const newZ = player.position.z + effectiveSpeed;
         // Разные границы для дома и улицы
         const backBound = isInsideHouse ? 2.5 : 15; // Увеличена в 3 раза
 
@@ -309,6 +312,47 @@ function updatePlayer() {
             if (distance < 3) { // Если ближе 3 метров
                 petDog();
             }
+        }
+    }
+
+    // Прицеливание на клавишу K
+    if (keys['KeyK']) {
+        keys['KeyK'] = false;
+        isAiming = !isAiming;
+
+        // Плавное изменение FOV для зума
+        const targetFov = isAiming ? aimFov : normalFov;
+        const fovStep = (targetFov - camera.fov) / 10;
+
+        let currentStep = 0;
+        const fovInterval = setInterval(() => {
+            currentStep++;
+            camera.fov += fovStep;
+            camera.updateProjectionMatrix();
+
+            if (currentStep >= 10) {
+                camera.fov = targetFov;
+                camera.updateProjectionMatrix();
+                clearInterval(fovInterval);
+            }
+        }, 16); // ~60fps
+
+        // Показываем уведомление
+        const notification = document.createElement('div');
+        notification.style.cssText = 'position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; z-index: 999; border: 2px solid #ff6347;';
+        notification.textContent = isAiming ? '🔍 Прицел включен' : '👁️ Прицел выключен';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 1500);
+
+        // Показываем/скрываем визуальный прицел
+        const aimOverlay = document.getElementById('aimOverlay');
+        if (aimOverlay) {
+            aimOverlay.style.display = isAiming ? 'block' : 'none';
         }
     }
 

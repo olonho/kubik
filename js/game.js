@@ -69,6 +69,10 @@ var ownedWeapons = JSON.parse(localStorage.getItem('cubeGameOwnedWeapons')) || [
 var turrets = [];
 // Управление камерой через тач
 var cameraYaw = 0; // Горизонтальный поворот камеры (влево-вправо)
+// Прицеливание
+var isAiming = false; // Прицеливание включено или нет
+var normalFov = 75; // Обычный FOV
+var aimFov = 40; // FOV при прицеливании (больше зум)
 var cameraPitch = 0; // Вертикальный поворот камеры (вверх-вниз)
 var touchStartX = 0;
 var touchStartY = 0;

@@ -397,7 +397,7 @@
     </script>
 
     <div id="score" style="display: none;">Счёт: 0 | Уровень: 1 | Жизни: ❤️❤️❤️</div>
-    <div id="instructions" style="display: none;">🎮 DualShock 4: Левый стик | R2: Стрелять | X: Прыжок | △: Магазин<br>⌨️ Клавиатура: ↑↓←→ | W: Стрелять | Пробел: Прыжок | ENTER: Камера | B: Магазин<br>💡 <span style="color: #FFD700;">Нажмите ENTER чтобы увидеть себя (Dani Rojas) и свою собаку</span></div>
+    <div id="instructions" style="display: none;">🎮 DualShock 4: Левый стик | R2: Стрелять | X: Прыжок | △: Магазин<br>⌨️ Клавиатура: ↑↓←→ | W: Стрелять | K: Прицел | Пробел: Прыжок | ENTER: Камера | B: Магазин<br>💡 <span style="color: #FFD700;">Нажмите ENTER чтобы увидеть себя (Dani Rojas) и свою собаку</span></div>
     <div id="weaponDisplay" style="display: none;">
         Оружие: 🔫 Пистолет
     </div>
@@ -449,6 +449,25 @@
     <!-- Индикатор "подойдите к собаке" -->
     <div id="petDogIndicator" style="display: none; position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); padding: 15px 30px; background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)); border: 3px solid #FFB6C1; border-radius: 15px; color: white; font-size: 20px; font-weight: bold; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); box-shadow: 0 6px 20px rgba(255, 182, 193, 0.8); animation: pulse 2s infinite;">
         🐶 Нажмите <kbd style="background: rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 5px; margin: 0 5px; font-size: 22px;">A</kbd> чтобы погладить (<span id="petPatsCount">0</span>/5)
+    </div>
+    <!-- Визуальный оверлей прицела (при прицеливании) -->
+    <div id="aimOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 90;">
+        <!-- Затемнение по краям -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);"></div>
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);"></div>
+        <div style="position: absolute; top: 0; left: 0; width: 120px; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.5), transparent);"></div>
+        <div style="position: absolute; top: 0; right: 0; width: 120px; height: 100%; background: linear-gradient(to left, rgba(0,0,0,0.5), transparent);"></div>
+        <!-- Перекрестие в центре -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+            <!-- Горизонтальная линия -->
+            <div style="position: absolute; width: 40px; height: 2px; background: rgba(255, 255, 255, 0.8); top: -1px; left: -45px;"></div>
+            <div style="position: absolute; width: 40px; height: 2px; background: rgba(255, 255, 255, 0.8); top: -1px; left: 5px;"></div>
+            <!-- Вертикальная линия -->
+            <div style="position: absolute; width: 2px; height: 40px; background: rgba(255, 255, 255, 0.8); top: -45px; left: -1px;"></div>
+            <div style="position: absolute; width: 2px; height: 40px; background: rgba(255, 255, 255, 0.8); top: 5px; left: -1px;"></div>
+            <!-- Центральная точка -->
+            <div style="position: absolute; width: 4px; height: 4px; background: rgba(255, 50, 50, 0.9); border-radius: 50%; top: -2px; left: -2px;"></div>
+        </div>
     </div>
     <!-- Диалог для ввода имени питомца -->
     <div id="petNameDialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 500; justify-content: center; align-items: center;">
@@ -824,22 +843,22 @@
 
     <!-- Игровые скрипты (загружаются после DOM) -->
     <!-- Данные (без зависимостей) -->
-    <script src="js/shopData.js?t=1769631313"></script>
+    <script src="js/shopData.js?t=1769632026"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769631313"></script>
-    <script src="js/characters.js?t=1769631313"></script>
-    <script src="js/decorations.js?t=1769631313"></script>
-    <script src="js/turrets.js?t=1769631313"></script>
-    <script src="js/enemies.js?t=1769631313"></script>
-    <script src="js/pets.js?t=1769631313"></script>
+    <script src="js/weapons.js?t=1769632026"></script>
+    <script src="js/characters.js?t=1769632026"></script>
+    <script src="js/decorations.js?t=1769632026"></script>
+    <script src="js/turrets.js?t=1769632026"></script>
+    <script src="js/enemies.js?t=1769632026"></script>
+    <script src="js/pets.js?t=1769632026"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769631313"></script>
-    <script src="js/shop.js?t=1769631313"></script>
-    <script src="js/shopUI.js?t=1769631313"></script>
+    <script src="js/game.js?t=1769632026"></script>
+    <script src="js/shop.js?t=1769632026"></script>
+    <script src="js/shopUI.js?t=1769632026"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769631313"></script>
-    <script src="js/controls.js?t=1769631313"></script>
+    <script src="js/gameLoop.js?t=1769632026"></script>
+    <script src="js/controls.js?t=1769632026"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769631313"></script>
+    <script src="js/init.js?t=1769632026"></script>
 </body>
 </html>
