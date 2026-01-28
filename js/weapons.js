@@ -53,19 +53,35 @@ function createRedDotSight() {
     sightGroup.add(lens);
 
     // КРАСНАЯ ТОЧКА В ЦЕНТРЕ (светящаяся) - точно по центру круга
-    const dotGeometry = new THREE.CircleGeometry(0.002, 16);
+    const dotGeometry = new THREE.CircleGeometry(0.006, 16); // Увеличен размер с 0.002 до 0.006
     const dotMaterial = new THREE.MeshBasicMaterial({
         color: 0xff0000,
         emissive: 0xff0000,
-        emissiveIntensity: 3.0,
+        emissiveIntensity: 5.0, // Увеличена яркость с 3.0 до 5.0
         transparent: true,
-        opacity: 1.0
+        opacity: 1.0,
+        side: THREE.DoubleSide // Видна с обеих сторон
     });
     const redDot = new THREE.Mesh(dotGeometry, dotMaterial);
     redDot.position.set(0, 0.005, 0.001); // Чуть впереди линзы
     redDot.rotation.y = Math.PI / 2;
     redDot.name = 'redDotCenter'; // Имя для поиска
     sightGroup.add(redDot);
+
+    // Добавляем свечение вокруг красной точки для лучшей видимости
+    const glowGeometry = new THREE.CircleGeometry(0.012, 16);
+    const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        emissive: 0xff0000,
+        emissiveIntensity: 2.0,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    glow.position.set(0, 0.005, 0.0005); // Сзади красной точки
+    glow.rotation.y = Math.PI / 2;
+    sightGroup.add(glow);
 
     // Крепление снизу (picatinny rail mount)
     const mountGeometry = new THREE.BoxGeometry(0.05, 0.015, 0.025);

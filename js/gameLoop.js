@@ -35,14 +35,58 @@ function changeWeapon(weaponType) {
             console.log('FPS руки добавлены в fpsScene');
         }
 
-        // Вид от первого лица - оружие БЕЗ РУК, ближе к центру и выше
-        currentWeapon.position.set(0.2, -0.15, -0.6); // Ближе к центру, выше, перед камерой
-        // Поворачиваем оружие так чтобы ствол смотрел вперед (-Z)
-        currentWeapon.rotation.x = 0;
-        currentWeapon.rotation.y = -Math.PI / 2 - Math.PI / 20; // -90° + небольшой поворот
-        currentWeapon.rotation.z = Math.PI / 20; // Небольшой наклон
-        currentWeapon.scale.set(0.9, 0.9, 0.9); // Нормальный размер
+        // Финальная позиция оружия
+        const finalPosX = 0.2;
+        const finalPosY = -0.15;
+        const finalPosZ = -0.6;
+        const finalRotX = 0;
+        const finalRotY = -Math.PI / 2 - Math.PI / 20;
+        const finalRotZ = Math.PI / 20;
+
+        // АНИМАЦИЯ ДОСТАВАНИЯ ОРУЖИЯ (deploy animation) как в CS:GO
+        // Начальная позиция - снизу и справа
+        currentWeapon.position.set(0.5, -0.8, -0.4);
+        currentWeapon.rotation.x = -0.5;
+        currentWeapon.rotation.y = finalRotY + 0.5;
+        currentWeapon.rotation.z = finalRotZ + 0.3;
+        currentWeapon.scale.set(0.9, 0.9, 0.9);
         fpsHands.add(currentWeapon);
+
+        // Плавная анимация доставания (500ms)
+        const deployDuration = 500;
+        const startTime = Date.now();
+
+        const animateDeploy = () => {
+            if (!currentWeapon) return;
+
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / deployDuration, 1);
+
+            // Ease-out quad для плавности
+            const eased = 1 - Math.pow(1 - progress, 2);
+
+            // Интерполяция позиции
+            currentWeapon.position.x = 0.5 + (finalPosX - 0.5) * eased;
+            currentWeapon.position.y = -0.8 + (finalPosY + 0.8) * eased;
+            currentWeapon.position.z = -0.4 + (finalPosZ + 0.4) * eased;
+
+            // Интерполяция вращения
+            currentWeapon.rotation.x = -0.5 + (finalRotX + 0.5) * eased;
+            currentWeapon.rotation.y = (finalRotY + 0.5) + -0.5 * eased;
+            currentWeapon.rotation.z = (finalRotZ + 0.3) + -0.3 * eased;
+
+            if (progress < 1) {
+                requestAnimationFrame(animateDeploy);
+            } else {
+                // Финальная позиция
+                currentWeapon.position.set(finalPosX, finalPosY, finalPosZ);
+                currentWeapon.rotation.x = finalRotX;
+                currentWeapon.rotation.y = finalRotY;
+                currentWeapon.rotation.z = finalRotZ;
+            }
+        };
+        animateDeploy();
+
     } else {
         // Вид от третьего лица - оружие к игроку
         currentWeapon.position.set(0.15, 0.2, -0.4);
@@ -57,6 +101,7 @@ function changeWeapon(weaponType) {
         pistol: { name: '🔫 Пистолет', cooldown: 300, ammo: 30 },
         rifle: { name: '🎯 Винтовка (x3)', cooldown: 800, ammo: 30 },
         ak47: { name: '🔫⚡ АК-47 (Калаш)', cooldown: 150, ammo: 30 },
+        awp: { name: '🎯💚 AWP (CS:GO)', cooldown: 1500, ammo: 10 },
         machinegun: { name: '🔫💨 Пулемёт', cooldown: 100, ammo: 80 },
         shotgun: { name: '💥🔫 Дробовик', cooldown: 600, ammo: 25 },
         laser: { name: '⚡🔫 Лазерная Пушка', cooldown: 100, ammo: 9999 },
@@ -511,32 +556,36 @@ function shoot() {
     let spreadX = 0;
     let spreadY = 0;
 
+    // В режиме тренировки значительно уменьшаем разброс
+    const trainingMultiplier = (gameMode === 'training') ? 0.2 : 1.0;
+
     if (selectedWeapon === 'pistol') {
         // Пистолет - минимальный разброс
-        spreadX = (Math.random() - 0.5) * 0.01;
-        spreadY = (Math.random() - 0.5) * 0.01;
+        spreadX = (Math.random() - 0.5) * 0.005 * trainingMultiplier;
+        spreadY = (Math.random() - 0.5) * 0.005 * trainingMultiplier;
     } else if (selectedWeapon === 'rifle') {
         // Винтовка - средний разброс
-        spreadX = (Math.random() - 0.5) * 0.02;
-        spreadY = (Math.random() - 0.5) * 0.02;
+        spreadX = (Math.random() - 0.5) * 0.008 * trainingMultiplier;
+        spreadY = (Math.random() - 0.5) * 0.008 * trainingMultiplier;
     } else if (selectedWeapon === 'ak47') {
         // AK-47 - большой разброс как в CS:GO
-        spreadX = (Math.random() - 0.5) * 0.04;
-        spreadY = (Math.random() - 0.5) * 0.03 + 0.015; // Уходит вверх
+        spreadX = (Math.random() - 0.5) * 0.02 * trainingMultiplier;
+        spreadY = ((Math.random() - 0.5) * 0.015 + 0.008) * trainingMultiplier; // Уходит вверх
     } else if (selectedWeapon === 'shotgun') {
         // Дробовик - огромный разброс
-        spreadX = (Math.random() - 0.5) * 0.08;
-        spreadY = (Math.random() - 0.5) * 0.08;
+        spreadX = (Math.random() - 0.5) * 0.08 * trainingMultiplier;
+        spreadY = (Math.random() - 0.5) * 0.08 * trainingMultiplier;
     } else if (selectedWeapon === 'sniper' || selectedWeapon === 'awp') {
-        // Снайперка/AWP - нет разброса при прицеливании
-        if (!isAiming) {
-            spreadX = (Math.random() - 0.5) * 0.05;
-            spreadY = (Math.random() - 0.5) * 0.05;
+        // Снайперка/AWP - почти нет разброса
+        if (!isAiming && gameMode !== 'training') {
+            spreadX = (Math.random() - 0.5) * 0.01;
+            spreadY = (Math.random() - 0.5) * 0.01;
         }
+        // В тренировке или при прицеливании - нулевой разброс
     } else if (selectedWeapon === 'machinegun') {
         // Пулемёт - большой разброс при длительной стрельбе
-        spreadX = (Math.random() - 0.5) * 0.05;
-        spreadY = (Math.random() - 0.5) * 0.04 + 0.02;
+        spreadX = (Math.random() - 0.5) * 0.03 * trainingMultiplier;
+        spreadY = ((Math.random() - 0.5) * 0.02 + 0.01) * trainingMultiplier;
     }
 
     // Применяем разброс к направлению
@@ -826,13 +875,17 @@ function updateBullets() {
                 }
 
                 // Статистика для тренировки
-                if (gameMode === 'training' && obstacleGroup.userData.type === 'trainingBot') {
-                    trainingStats.hits++;
-                    if (isHeadshot) {
-                        trainingStats.headshots++;
-                        showNotification('🎯 ХЕДШОТ!', 'success');
+                if (gameMode === 'training' && (obstacleGroup.userData.type === 'trainingBot' || obstacleGroup.userData.type === 'trainingDummy')) {
+                    if (typeof trainingStats !== 'undefined') {
+                        trainingStats.hits++;
+                        if (isHeadshot) {
+                            trainingStats.headshots++;
+                            showNotification('🎯 ХЕДШОТ!', 'success');
+                        }
+                        if (typeof updateTrainingStatsUI === 'function') {
+                            updateTrainingStatsUI();
+                        }
                     }
-                    updateTrainingStatsUI();
                 }
 
                 // Отнимаем HP
@@ -877,6 +930,7 @@ function updateBullets() {
                         // Увеличиваем счетчик уничтоженных целей
                         if (typeof trainingTargetsDestroyed !== 'undefined') {
                             trainingTargetsDestroyed++;
+                            updateScoreDisplay(); // Обновляем счетчик на экране
                         }
 
                         // Спавним новую цель
@@ -957,7 +1011,13 @@ function updateBullets() {
 
 function updateScoreDisplay() {
     const heartsDisplay = '❤️'.repeat(lives);
-    document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | 🌊 Волна: ' + wave + ' (' + zombiesInCurrentWave + '/' + zombiesPerWave + ' зомби) | Жизни: ' + heartsDisplay;
+
+    // В режиме тренировки показываем счетчик целей
+    if (gameMode === 'training') {
+        document.getElementById('score').textContent = '🎯 ТРЕНИРОВКА | Уничтожено целей: ' + trainingTargetsDestroyed;
+    } else {
+        document.getElementById('score').textContent = 'Счёт: ' + score + ' | Рекорд: ' + highScore + ' | 🌊 Волна: ' + wave + ' (' + zombiesInCurrentWave + '/' + zombiesPerWave + ' зомби) | Жизни: ' + heartsDisplay;
+    }
 }
 
 function loseLife() {

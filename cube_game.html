@@ -128,8 +128,8 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             pointer-events: none;
             z-index: 1000;
             transform: translate(-50%, -50%);
@@ -138,12 +138,11 @@
         /* Внешнее тонкое кольцо */
         .crosshair-outer-ring {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
             border-radius: 50%;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-            opacity: 0.3;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
         @keyframes rotateRing {
@@ -170,9 +169,8 @@
         /* Крестик - линии */
         .crosshair-bracket {
             position: absolute;
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
-            opacity: 0.3;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
         }
 
         .crosshair-bracket::before,
@@ -190,8 +188,8 @@
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 1px;
-            height: 6px;
+            width: 2px;
+            height: 8px;
             border: none;
         }
 
@@ -200,8 +198,8 @@
             top: 50%;
             right: 0;
             transform: translateY(-50%);
-            width: 6px;
-            height: 1px;
+            width: 8px;
+            height: 2px;
             border: none;
         }
 
@@ -210,8 +208,8 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 1px;
-            height: 6px;
+            width: 2px;
+            height: 8px;
             border: none;
         }
 
@@ -220,23 +218,22 @@
             top: 50%;
             left: 0;
             transform: translateY(-50%);
-            width: 6px;
-            height: 1px;
+            width: 8px;
+            height: 2px;
             border: none;
         }
 
         /* Центральная точка */
         .crosshair-center-dot {
             position: absolute;
-            width: 3px;
-            height: 3px;
-            background: rgba(255, 50, 50, 0.4);
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 0, 0, 1);
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 2px rgba(255, 50, 50, 0.3);
-            opacity: 0.4;
+            box-shadow: 0 0 6px rgba(255, 0, 0, 1), 0 0 3px rgba(0, 0, 0, 1);
             animation: none;
         }
 
@@ -1302,19 +1299,19 @@
     <!-- Данные (без зависимостей) -->
     <script src="js/shopData.js?t=1769634200"></script>
     <!-- Создатели 3D моделей (только THREE.js) -->
-    <script src="js/weapons.js?t=1769635020"></script>
+    <script src="js/weapons.js?t=1769635658"></script>
     <script src="js/characters.js?t=1769634200"></script>
     <script src="js/decorations.js?t=1769634200"></script>
     <script src="js/turrets.js?t=1769634200"></script>
     <script src="js/enemies.js?t=1769634200"></script>
     <script src="js/pets.js?t=1769634200"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769634249"></script>
+    <script src="js/game.js?t=1769635471"></script>
     <script src="js/shop.js?t=1769634200"></script>
     <script src="js/shopUI.js?t=1769634200"></script>
     <script src="js/petsShop.js?t=1769634200"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1738192800"></script>
+    <script src="js/gameLoop.js?t=1769635658"></script>
     <script src="js/controls.js?t=1769634249"></script>
     <!-- Инициализация (последняя) -->
     <script src="js/init.js?t=1769634249"></script>

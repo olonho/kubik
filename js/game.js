@@ -3639,6 +3639,11 @@ function returnFromTraining() {
         isOnTrainingMap = false;
         savedGameState = null;
 
+        // Разблокируем движение
+        trainingMovementLocked = false;
+        spawnRandomTarget = null;
+        trainingTargetsDestroyed = 0;
+
         // Показываем кнопку телепортации обратно
         const teleportBtn = document.getElementById('teleportToTrainingBtn');
         if (teleportBtn) {
