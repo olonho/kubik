@@ -60,7 +60,7 @@ function selectSkin(skin) {
         'score', 'instructions', 'crosshair', 'coinsDisplay',
         'openShopBtn', 'openItemsShopBtn', 'openWeaponsShopBtn',
         'woodDisplay', 'hungerDisplay', 'thirstDisplay',
-        'buildHouseBtn', 'buildBedBtn'
+        'buildHouseBtn', 'buildBedBtn', 'buildSecondFloorBtn'
     ];
 
     uiElements.forEach(id => {
@@ -198,30 +198,31 @@ function init() {
     // Создаём renderer только если его еще нет
     if (!renderer) {
         renderer = new THREE.WebGLRenderer({
-            antialias: true,
+            antialias: window.devicePixelRatio < 2, // Антиалиасинг только на низких DPI
             powerPreference: "high-performance",
             alpha: false,
             stencil: false,
             depth: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Оптимизация
 
-        // Ультра качественные тени
+        // ОПТИМИЗАЦИЯ: Ограничиваем pixel ratio для лучшего FPS
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+        // ОПТИМИЗАЦИЯ: Упрощённые тени для производительности
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.shadowMap.autoUpdate = true;
+        renderer.shadowMap.type = THREE.BasicShadowMap; // Быстрее чем PCFSoftShadowMap
+        renderer.shadowMap.autoUpdate = false; // Обновляем вручную только когда нужно
 
-        // МАКСИМАЛЬНОЕ КАЧЕСТВО РЕНДЕРИНГА (ARC RAIDERS УРОВЕНЬ)
+        // Базовый рендеринг для производительности
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.3; // Яркая картинка как в UE5
-        renderer.physicallyCorrectLights = true; // Физически правильное освещение
+        renderer.toneMappingExposure = 1.2;
 
-        console.log('🎬 Renderer настроен на UE5 качество');
+        console.log('🎬 Renderer настроен на оптимизированный режим');
 
         document.body.appendChild(renderer.domElement);
-        console.log('✅ Renderer с ультра настройками создан');
+        console.log('✅ Renderer создан с оптимизацией FPS');
     }
 
     // Постобработка ОТКЛЮЧЕНА (вызывает черный экран)
@@ -232,64 +233,39 @@ function init() {
     // Атмосферный туман (дальний план)
     scene.fog = new THREE.FogExp2(0xb8d4f0, 0.015);
 
-    // МНОГОСЛОЙНОЕ ОСВЕЩЕНИЕ (ARC RAIDERS / UE5 УРОВЕНЬ)
+    // ОПТИМИЗИРОВАННОЕ ОСВЕЩЕНИЕ (меньше источников = больше FPS)
 
-    // 1. Hemisphere Light - имитация неба и отражения от земли (ярче)
-    const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0x4a7c59, 1.3);
-    scene.add(hemisphereLight);
-
-    // 2. Ambient Light - базовое освещение сцены (ярче)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // 1. Ambient Light - базовое освещение сцены
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    // 3. Главное солнце (key light) - очень яркое направленное освещение
-    const sunLight = new THREE.DirectionalLight(0xfff5e1, 2.0);
+    // 2. Главное солнце (единственный directional light с тенями)
+    const sunLight = new THREE.DirectionalLight(0xfff5e1, 1.5);
     sunLight.position.set(30, 40, 20);
     sunLight.castShadow = true;
 
-    // Ультра качественные тени
-    sunLight.shadow.mapSize.width = 4096;
-    sunLight.shadow.mapSize.height = 4096;
+    // ОПТИМИЗАЦИЯ: Уменьшенное разрешение теней для лучшего FPS
+    sunLight.shadow.mapSize.width = 2048; // Вместо 4096
+    sunLight.shadow.mapSize.height = 2048;
     sunLight.shadow.camera.near = 1;
-    sunLight.shadow.camera.far = 100;
-    sunLight.shadow.camera.left = -30;
-    sunLight.shadow.camera.right = 30;
-    sunLight.shadow.camera.top = 30;
-    sunLight.shadow.camera.bottom = -30;
-    sunLight.shadow.bias = -0.00001;
-    sunLight.shadow.radius = 2; // Мягкие тени
+    sunLight.shadow.camera.far = 80;
+    sunLight.shadow.camera.left = -25;
+    sunLight.shadow.camera.right = 25;
+    sunLight.shadow.camera.top = 25;
+    sunLight.shadow.camera.bottom = -25;
+    sunLight.shadow.bias = -0.0001;
 
     scene.add(sunLight);
 
-    // 4. Fill Light - заполняющий свет для мягких теней (ярче)
-    const fillLight = new THREE.DirectionalLight(0xb3d9ff, 0.9);
-    fillLight.position.set(-10, 15, -10);
-    scene.add(fillLight);
+    console.log('💡 Оптимизированное освещение настроено (2 источника вместо 7)');
 
-    // 5. Rim Light - контурный свет для объема (ярче)
-    const rimLight = new THREE.DirectionalLight(0xffd7a3, 0.7);
-    rimLight.position.set(-5, 10, 15);
-    scene.add(rimLight);
+    // ОПТИМИЗАЦИЯ: Упрощённая земля с меньшим количеством полигонов
+    const groundGeometry = new THREE.PlaneGeometry(40, 300, 50, 50); // Было 200x200, стало 50x50
 
-    // 6. Sky Light - дополнительный свет сверху (ярче)
-    const skyLight = new THREE.DirectionalLight(0xd4e6f1, 0.5);
-    skyLight.position.set(0, 30, 0);
-    scene.add(skyLight);
-
-    // 7. Дополнительный контровой свет (как в UE5)
-    const backLight = new THREE.DirectionalLight(0xffe4b5, 0.6);
-    backLight.position.set(0, 20, -15);
-    scene.add(backLight);
-
-    console.log('💡 Многослойное освещение UE5 уровня настроено (7 источников)');
-
-    // Ультра реалистичная земля с процедурной текстурой (увеличена в 3 раза)
-    const groundGeometry = new THREE.PlaneGeometry(40, 300, 200, 200);
-
-    // Создаем высококачественную процедурную текстуру травы
+    // ОПТИМИЗАЦИЯ: Уменьшенное разрешение текстуры
     const grassCanvas = document.createElement('canvas');
-    grassCanvas.width = 1024;
-    grassCanvas.height = 1024;
+    grassCanvas.width = 512; // Было 1024
+    grassCanvas.height = 512;
     const ctx = grassCanvas.getContext('2d');
 
     // Базовый цвет травы (несколько оттенков зеленого)
@@ -299,10 +275,10 @@ function init() {
     ctx.fillStyle = grassColors[0];
     ctx.fillRect(0, 0, 1024, 1024);
 
-    // Добавляем вариацию цвета (большие пятна)
-    for (let i = 0; i < 50; i++) {
-        const x = Math.random() * 1024;
-        const y = Math.random() * 1024;
+    // ОПТИМИЗАЦИЯ: Меньше пятен
+    for (let i = 0; i < 25; i++) { // Было 50
+        const x = Math.random() * 512; // Было 1024
+        const y = Math.random() * 512;
         const size = 50 + Math.random() * 100;
         const color = grassColors[Math.floor(Math.random() * grassColors.length)];
 
@@ -313,19 +289,19 @@ function init() {
         ctx.fillRect(x - size, y - size, size * 2, size * 2);
     }
 
-    // Добавляем детальный шум (травинки)
-    for (let i = 0; i < 30000; i++) {
-        const x = Math.random() * 1024;
-        const y = Math.random() * 1024;
+    // ОПТИМИЗАЦИЯ: Меньше деталей
+    for (let i = 0; i < 5000; i++) { // Было 30000
+        const x = Math.random() * 512; // Было 1024
+        const y = Math.random() * 512;
         const brightness = 0.7 + Math.random() * 0.6;
         ctx.fillStyle = `rgba(${40 * brightness}, ${100 * brightness}, ${40 * brightness}, ${0.3 + Math.random() * 0.3})`;
         ctx.fillRect(x, y, 1 + Math.random(), 1 + Math.random());
     }
 
-    // Добавляем грязные пятна для реализма
-    for (let i = 0; i < 30; i++) {
-        const x = Math.random() * 1024;
-        const y = Math.random() * 1024;
+    // ОПТИМИЗАЦИЯ: Меньше грязных пятен
+    for (let i = 0; i < 15; i++) { // Было 30
+        const x = Math.random() * 512; // Было 1024
+        const y = Math.random() * 512;
         const size = 20 + Math.random() * 40;
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
         gradient.addColorStop(0, 'rgba(101, 67, 33, 0.3)');
@@ -338,7 +314,7 @@ function init() {
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.repeat.set(10, 10);
-    grassTexture.anisotropy = 16; // Максимальная фильтрация для четкости
+    grassTexture.anisotropy = 4; // ОПТИМИЗАЦИЯ: Снижено с 16 до 4
 
     const groundMaterial = new THREE.MeshStandardMaterial({
         map: grassTexture,

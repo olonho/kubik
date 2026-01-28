@@ -3,7 +3,8 @@
 function createTree() {
     const treeGroup = new THREE.Group();
 
-    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 2, 12);
+    // ОПТИМИЗАЦИЯ: Меньше сегментов для цилиндра (было 12, стало 6)
+    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 2, 6);
     const trunkMaterial = new THREE.MeshStandardMaterial({
         color: 0x8B4513,
         roughness: 0.9,
@@ -12,10 +13,11 @@ function createTree() {
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
     trunk.position.y = 1;
     trunk.castShadow = true;
-    trunk.receiveShadow = true;
+    trunk.receiveShadow = false; // ОПТИМИЗАЦИЯ: Отключены получаемые тени
     treeGroup.add(trunk);
 
-    const crownGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+    // ОПТИМИЗАЦИЯ: Меньше сегментов для сферы (было 16x16, стало 8x8)
+    const crownGeometry = new THREE.SphereGeometry(1.2, 8, 8);
     const crownMaterial = new THREE.MeshStandardMaterial({
         color: 0x228B22,
         roughness: 0.8,
@@ -24,7 +26,7 @@ function createTree() {
     const crown = new THREE.Mesh(crownGeometry, crownMaterial);
     crown.position.y = 2.5;
     crown.castShadow = true;
-    crown.receiveShadow = true;
+    crown.receiveShadow = false; // ОПТИМИЗАЦИЯ
     crown.scale.set(1, 1.3, 1);
     treeGroup.add(crown);
 
@@ -50,19 +52,21 @@ function createRock() {
 
 function createCloud() {
     const cloudGroup = new THREE.Group();
-    const cloudMaterial = new THREE.MeshPhongMaterial({
+    // ОПТИМИЗАЦИЯ: Используем MeshBasicMaterial вместо Phong (быстрее)
+    const cloudMaterial = new THREE.MeshBasicMaterial({
         color: 0xFFFFFF,
         transparent: true,
         opacity: 0.8
     });
-    
+
+    // ОПТИМИЗАЦИЯ: Меньше сегментов (было 8x8, стало 4x4)
     for (let i = 0; i < 3; i++) {
-        const geometry = new THREE.SphereGeometry(0.5 + Math.random() * 0.3, 8, 8);
+        const geometry = new THREE.SphereGeometry(0.5 + Math.random() * 0.3, 4, 4);
         const sphere = new THREE.Mesh(geometry, cloudMaterial);
         sphere.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 1);
         cloudGroup.add(sphere);
     }
-    
+
     return cloudGroup;
 }
 
@@ -1101,39 +1105,40 @@ function createHouseInterior() {
 }
 
 function createTrees() {
-    // Деревья по центру поля для удобной рубки (вдоль дороги) - больше деревьев!
-    for (let i = 0; i < 150; i++) {
+    // ОПТИМИЗАЦИЯ: Уменьшено количество деревьев для лучшего FPS (было 150, стало 50)
+    for (let i = 0; i < 50; i++) {
         const tree = createTree();
         // Слева от центра (-2 до -1)
-        tree.position.set(-1.5 + Math.random() * 0.5, 0, -i * 5 - 5);
+        tree.position.set(-1.5 + Math.random() * 0.5, 0, -i * 15 - 5);
         tree.userData.isTree = true;
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
-    for (let i = 0; i < 150; i++) {
+    // ОПТИМИЗАЦИЯ: (было 150, стало 50)
+    for (let i = 0; i < 50; i++) {
         const tree = createTree();
         // Справа от центра (1 до 2)
-        tree.position.set(1.5 - Math.random() * 0.5, 0, -i * 5 - 5);
+        tree.position.set(1.5 - Math.random() * 0.5, 0, -i * 15 - 5);
         tree.userData.isTree = true;
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
 
-    // Дополнительные деревья в центре для разнообразия - больше и шире!
-    for (let i = 0; i < 100; i++) {
+    // ОПТИМИЗАЦИЯ: (было 100, стало 30)
+    for (let i = 0; i < 30; i++) {
         const tree = createTree();
         // Центральная зона от -4 до 4 (шире!)
-        tree.position.set((Math.random() - 0.5) * 8, 0, -i * 8 - Math.random() * 10);
+        tree.position.set((Math.random() - 0.5) * 8, 0, -i * 20 - Math.random() * 10);
         tree.userData.isTree = true;
         tree.userData.canChop = true;
         scene.add(tree);
         decorations.push(tree);
     }
 
-    // Добавляем деревья по всему полю, но с приоритетом к центру - еще больше!
-    for (let i = 0; i < 400; i++) {
+    // ОПТИМИЗАЦИЯ: Сильно уменьшено (было 400, стало 100)
+    for (let i = 0; i < 100; i++) {
         const tree = createTree();
 
         // Случайная позиция X с приоритетом к центру (от -15 до 15 для новой карты)
@@ -1160,14 +1165,14 @@ function createTrees() {
         decorations.push(tree);
     }
 
-    // Добавляем группы деревьев (леса) - больше лесов!
-    for (let i = 0; i < 20; i++) {
+    // ОПТИМИЗАЦИЯ: Меньше групп деревьев (было 20, стало 8)
+    for (let i = 0; i < 8; i++) {
         // Центр группы деревьев (шире по X для новой карты)
         const centerX = (Math.random() > 0.5 ? 1 : -1) * (8 + Math.random() * 7);
         const centerZ = -Math.random() * 600 - 20;
 
-        // Создаем группу из 10-20 деревьев вокруг центра (больше!)
-        const treesInGroup = 10 + Math.floor(Math.random() * 11);
+        // ОПТИМИЗАЦИЯ: Меньше деревьев в группе (было 10-20, стало 5-10)
+        const treesInGroup = 5 + Math.floor(Math.random() * 6);
         for (let j = 0; j < treesInGroup; j++) {
             const tree = createTree();
 
@@ -1187,20 +1192,20 @@ function createTrees() {
             decorations.push(tree);
         }
     }
-    
-    // Камни вдоль краев карты - больше камней!
-    for (let i = 0; i < 50; i++) {
+
+    // ОПТИМИЗАЦИЯ: Меньше камней (было 50, стало 20)
+    for (let i = 0; i < 20; i++) {
         const rock = createRock();
         const side = Math.random() > 0.5 ? -12 : 12; // Дальше по краям
-        rock.position.set(side + (Math.random() - 0.5) * 3, 0, -i * 6 - 10);
+        rock.position.set(side + (Math.random() - 0.5) * 3, 0, -i * 15 - 10);
         scene.add(rock);
         decorations.push(rock);
     }
 
-    // Облака в небе - больше облаков для большой карты!
-    for (let i = 0; i < 40; i++) {
+    // ОПТИМИЗАЦИЯ: Меньше облаков (было 40, стало 15)
+    for (let i = 0; i < 15; i++) {
         const cloud = createCloud();
-        cloud.position.set((Math.random() - 0.5) * 40, 8 + Math.random() * 4, -i * 8 - 20);
+        cloud.position.set((Math.random() - 0.5) * 40, 8 + Math.random() * 4, -i * 20 - 20);
         scene.add(cloud);
         decorations.push(cloud);
     }

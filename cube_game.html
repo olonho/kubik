@@ -522,28 +522,66 @@
     </div>
 
     <!-- Главное меню -->
-    <div id="mainMenu" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(10, 10, 30, 0.95), rgba(30, 10, 10, 0.95)); z-index: 500; display: flex; justify-content: center; align-items: center;">
-        <div style="text-align: center; max-width: 600px;">
-            <h1 style="color: #FFD700; font-size: 72px; margin-bottom: 20px; text-shadow: 4px 4px 8px rgba(0,0,0,0.9); font-weight: bold; letter-spacing: 4px;">
-                🏠 PERSY HOUSE
-            </h1>
-            <p style="color: #ccc; font-size: 24px; margin-bottom: 50px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
-                Защитите свой дом от зомби!
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 25px; align-items: center;">
-                <button id="playNormalBtn" style="width: 400px; padding: 25px 50px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 5px solid #4CAF50; border-radius: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-                    🎮 ИГРАТЬ
+    <!-- Фоновая музыка -->
+    <audio id="menuMusic" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_2c4e06d3d8.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="mainMenu" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 500; overflow: hidden;">
+        <!-- Анимированный фон со звездами -->
+        <canvas id="menuCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></canvas>
+
+        <!-- Градиентный оверлей -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 0%, rgba(10, 10, 30, 0.8) 100%); z-index: 2;"></div>
+
+        <!-- Контент меню -->
+        <div style="position: relative; z-index: 3; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;">
+            <div style="text-align: center; max-width: 700px; padding: 60px 40px; background: rgba(0, 0, 0, 0.7); border-radius: 30px; border: 3px solid rgba(255, 215, 0, 0.5); box-shadow: 0 0 60px rgba(255, 215, 0, 0.3); backdrop-filter: blur(10px);">
+                <!-- Заголовок -->
+                <h1 style="color: #FFD700; font-size: 82px; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 4px 4px 8px rgba(0,0,0,0.9); font-weight: bold; letter-spacing: 6px; animation: titleGlow 2s ease-in-out infinite;">
+                    🏠 PERSY HOUSE
+                </h1>
+                <p style="color: #FFD700; font-size: 18px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 3px; opacity: 0.9;">
+                    PREMIUM EDITION
+                </p>
+                <p style="color: #ccc; font-size: 26px; margin-bottom: 55px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+                    Защитите свой дом от зомби!
+                </p>
+
+                <!-- Кнопки -->
+                <div style="display: flex; flex-direction: column; gap: 25px; align-items: center;">
+                    <button id="playNormalBtn" style="width: 450px; padding: 28px 50px; background: linear-gradient(135deg, #4CAF50, #45a049); border: 5px solid #4CAF50; border-radius: 20px; color: white; font-size: 36px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6), 0 0 30px rgba(76, 175, 80, 0.4); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); position: relative; overflow: hidden;">
+                        <span style="position: relative; z-index: 2;">🎮 ИГРАТЬ</span>
+                    </button>
+                    <button id="playTrainingBtn" style="width: 450px; padding: 28px 50px; background: linear-gradient(135deg, #2196F3, #1976D2); border: 5px solid #2196F3; border-radius: 20px; color: white; font-size: 36px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(33, 150, 243, 0.6), 0 0 30px rgba(33, 150, 243, 0.4); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                        🎯 ТРЕНИРОВКА
+                    </button>
+                    <button id="petsShopBtn" style="width: 450px; padding: 28px 50px; background: linear-gradient(135deg, #FF6B6B, #EE5A6F); border: 5px solid #FF6B6B; border-radius: 20px; color: white; font-size: 36px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6), 0 0 30px rgba(255, 107, 107, 0.4); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                        🐾 МАГАЗИН ПИТОМЦЕВ
+                    </button>
+                </div>
+
+                <!-- Описание -->
+                <div style="margin-top: 45px; color: #aaa; font-size: 19px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); line-height: 1.8;">
+                    <div style="margin-bottom: 12px;">🎮 <strong style="color: #4CAF50;">Играть</strong> - Обычная игра с волнами зомби</div>
+                    <div style="margin-bottom: 12px;">🎯 <strong style="color: #2196F3;">Тренировка</strong> - Практика без зомби</div>
+                    <div>🐾 <strong style="color: #FF6B6B;">Питомцы</strong> - Покупайте и называйте животных</div>
+                </div>
+
+                <!-- Кнопка звука -->
+                <button id="toggleMusicBtn" style="margin-top: 35px; padding: 12px 30px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px; color: white; font-size: 20px; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(5px);">
+                    🔊 Музыка: ВКЛ
                 </button>
-                <button id="playTrainingBtn" style="width: 400px; padding: 25px 50px; background: linear-gradient(135deg, #2196F3, #1976D2); border: 5px solid #2196F3; border-radius: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 25px rgba(33, 150, 243, 0.6); text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-                    🎯 ТРЕНИРОВКА
-                </button>
-            </div>
-            <div style="margin-top: 40px; color: #999; font-size: 18px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
-                <div style="margin-bottom: 10px;">🎮 <strong>Играть</strong> - Обычная игра с волнами зомби</div>
-                <div>🎯 <strong>Тренировка</strong> - Практика без зомби</div>
             </div>
         </div>
     </div>
+
+    <style>
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 4px 4px 8px rgba(0,0,0,0.9); }
+            50% { text-shadow: 0 0 40px rgba(255, 215, 0, 1), 4px 4px 8px rgba(0,0,0,0.9), 0 0 60px rgba(255, 215, 0, 0.6); }
+        }
+    </style>
 
     <div id="gameOver">
         <div>Игра окончена!</div>
@@ -783,6 +821,143 @@
         // Данные магазина (shopItems) в js/shopData.js
         // Функции создания персонажей в js/characters.js
         // Функции создания турелей в js/turrets.js
+
+        // ========== АНИМАЦИЯ ЗВЕЗДНОГО ФОНА ==========
+        (function() {
+            const canvas = document.getElementById('menuCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+            let stars = [];
+            const starCount = 200;
+
+            // Создаем звезды
+            class Star {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.z = Math.random() * 1000;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.brightness = Math.random() * 0.5 + 0.5;
+                }
+
+                update() {
+                    this.z -= 2;
+                    if (this.z <= 0) {
+                        this.reset();
+                        this.z = 1000;
+                    }
+                }
+
+                draw() {
+                    const x = (this.x - width / 2) * (1000 / this.z) + width / 2;
+                    const y = (this.y - height / 2) * (1000 / this.z) + height / 2;
+                    const size = this.size * (1000 / this.z);
+                    const alpha = this.brightness * (1 - this.z / 1000);
+
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Добавляем свечение для ярких звезд
+                    if (this.brightness > 0.8 && this.z < 500) {
+                        ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.3})`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, size * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // Инициализация звезд
+            for (let i = 0; i < starCount; i++) {
+                stars.push(new Star());
+            }
+
+            // Анимация
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(0, 0, width, height);
+
+                stars.forEach(star => {
+                    star.update();
+                    star.draw();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            // Обработка изменения размера окна
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+        })();
+
+        // ========== УПРАВЛЕНИЕ МУЗЫКОЙ ==========
+        const menuMusic = document.getElementById('menuMusic');
+        const toggleMusicBtn = document.getElementById('toggleMusicBtn');
+        let musicEnabled = true;
+
+        // Попытка автозапуска музыки (может быть заблокировано браузером)
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (menuMusic && musicEnabled) {
+                    menuMusic.volume = 0.3; // 30% громкости
+                    menuMusic.play().catch(err => {
+                        console.log('Автозапуск музыки заблокирован:', err);
+                    });
+                }
+            }, 500);
+        });
+
+        // Запуск музыки при первом клике на странице
+        let firstInteraction = true;
+        document.addEventListener('click', () => {
+            if (firstInteraction && menuMusic && musicEnabled) {
+                menuMusic.volume = 0.3;
+                menuMusic.play().catch(err => console.log('Ошибка воспроизведения:', err));
+                firstInteraction = false;
+            }
+        }, { once: true });
+
+        // Кнопка вкл/выкл музыки
+        if (toggleMusicBtn && menuMusic) {
+            toggleMusicBtn.addEventListener('click', () => {
+                musicEnabled = !musicEnabled;
+                if (musicEnabled) {
+                    menuMusic.volume = 0.3;
+                    menuMusic.play().catch(err => console.log('Ошибка воспроизведения:', err));
+                    toggleMusicBtn.textContent = '🔊 Музыка: ВКЛ';
+                } else {
+                    menuMusic.pause();
+                    toggleMusicBtn.textContent = '🔇 Музыка: ВЫКЛ';
+                }
+            });
+        }
+
+        // Останавливаем музыку при выходе из главного меню
+        function stopMenuMusic() {
+            if (menuMusic) {
+                menuMusic.pause();
+                menuMusic.currentTime = 0;
+            }
+        }
+
+        // ========== КНОПКА МАГАЗИНА ПИТОМЦЕВ ==========
+        document.getElementById('petsShopBtn').addEventListener('click', () => {
+            // TODO: Открыть магазин питомцев
+            alert('Магазин питомцев в разработке! Скоро здесь можно будет покупать и называть животных! 🐾');
+        });
     </script>
 
     <!-- Прицел для вида от первого лица (CS:GO стиль) -->
@@ -912,13 +1087,13 @@
     <script src="js/enemies.js?t=1769633100"></script>
     <script src="js/pets.js?t=1769632210"></script>
     <!-- Основная игровая логика -->
-    <script src="js/game.js?t=1769633100"></script>
+    <script src="js/game.js?t=1769632858"></script>
     <script src="js/shop.js?t=1769633100"></script>
     <script src="js/shopUI.js?t=1769633100"></script>
     <!-- Игровой цикл и управление -->
-    <script src="js/gameLoop.js?t=1769633100"></script>
-    <script src="js/controls.js?t=1769633100"></script>
+    <script src="js/gameLoop.js?t=1769632858"></script>
+    <script src="js/controls.js?t=1769632858"></script>
     <!-- Инициализация (последняя) -->
-    <script src="js/init.js?t=1769633100"></script>
+    <script src="js/init.js?t=1769632858"></script>
 </body>
 </html>

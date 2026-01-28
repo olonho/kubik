@@ -805,11 +805,14 @@ function updateObstacles() {
     // Не спавним и не двигаем зомби если игрок внутри дома
     if (isInsideHouse) return;
 
-    // Создаём зомби если волна активна
-    if (waveActive && zombiesInCurrentWave > 0) {
-        if (Math.random() < 0.02) { // 2% шанс каждый кадр
+    // Создаём зомби постоянно пока не вызван финальный босс
+    if (!finalBossSpawned && gameActive) {
+        // Вероятность спавна увеличивается со временем
+        const spawnChance = Math.min(0.01 + (zombiesKilled / 10000), 0.04); // От 1% до 4%
+
+        if (Math.random() < spawnChance) {
             createZombie();
-            zombiesInCurrentWave--;
+            zombiesInCurrentWave++; // Увеличиваем счетчик для отображения
         }
     }
 
