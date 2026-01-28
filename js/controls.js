@@ -406,12 +406,18 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('playNormalBtn').addEventListener('click', () => {
         gameMode = 'normal';
         document.getElementById('mainMenu').style.display = 'none';
+        if (typeof window.stopMenuMusic === 'function') {
+            window.stopMenuMusic(); // Останавливаем фоновую музыку
+        }
         initGame();
     });
 
     document.getElementById('playTrainingBtn').addEventListener('click', () => {
         gameMode = 'training';
         document.getElementById('mainMenu').style.display = 'none';
+        if (typeof window.stopMenuMusic === 'function') {
+            window.stopMenuMusic(); // Останавливаем фоновую музыку
+        }
         initTrainingMode();
     });
 

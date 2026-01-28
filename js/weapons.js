@@ -1,5 +1,104 @@
 // Создание оружия
 
+// Функция создания Red Dot Sight (коллиматорный прицел)
+function createRedDotSight() {
+    const sightGroup = new THREE.Group();
+
+    // Материалы
+    const blackMetal = new THREE.MeshStandardMaterial({
+        color: 0x0a0a0a,
+        roughness: 0.3,
+        metalness: 0.9
+    });
+
+    // Корпус прицела (основание)
+    const bodyGeometry = new THREE.BoxGeometry(0.08, 0.04, 0.06);
+    const body = new THREE.Mesh(bodyGeometry, blackMetal);
+    body.position.set(0, 0, 0);
+    sightGroup.add(body);
+
+    // Передняя рамка
+    const frontFrameGeometry = new THREE.BoxGeometry(0.002, 0.05, 0.06);
+    const frontFrame = new THREE.Mesh(frontFrameGeometry, blackMetal);
+    frontFrame.position.set(0.04, 0.005, 0);
+    sightGroup.add(frontFrame);
+
+    // Задняя рамка
+    const backFrame = new THREE.Mesh(frontFrameGeometry, blackMetal);
+    backFrame.position.set(-0.04, 0.005, 0);
+    sightGroup.add(backFrame);
+
+    // Верхняя рамка
+    const topFrameGeometry = new THREE.BoxGeometry(0.08, 0.002, 0.06);
+    const topFrame = new THREE.Mesh(topFrameGeometry, blackMetal);
+    topFrame.position.set(0, 0.03, 0);
+    sightGroup.add(topFrame);
+
+    // Нижняя рамка
+    const bottomFrame = new THREE.Mesh(topFrameGeometry, blackMetal);
+    bottomFrame.position.set(0, -0.02, 0);
+    sightGroup.add(bottomFrame);
+
+    // Стеклянная линза (полупрозрачная)
+    const lensGeometry = new THREE.PlaneGeometry(0.075, 0.055);
+    const lensMaterial = new THREE.MeshBasicMaterial({
+        color: 0x1a3050,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.DoubleSide
+    });
+    const lens = new THREE.Mesh(lensGeometry, lensMaterial);
+    lens.position.set(0, 0.005, 0);
+    lens.rotation.y = Math.PI / 2;
+    sightGroup.add(lens);
+
+    // КРАСНАЯ ТОЧКА В ЦЕНТРЕ (светящаяся)
+    const dotGeometry = new THREE.CircleGeometry(0.003, 16);
+    const dotMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        emissive: 0xff0000,
+        emissiveIntensity: 2.0,
+        transparent: true,
+        opacity: 0.9
+    });
+    const redDot = new THREE.Mesh(dotGeometry, dotMaterial);
+    redDot.position.set(0, 0.005, 0.001); // Чуть впереди линзы
+    redDot.rotation.y = Math.PI / 2;
+    sightGroup.add(redDot);
+
+    // Крепление снизу (picatinny rail mount)
+    const mountGeometry = new THREE.BoxGeometry(0.05, 0.015, 0.025);
+    const mount = new THREE.Mesh(mountGeometry, blackMetal);
+    mount.position.set(0, -0.0275, 0);
+    sightGroup.add(mount);
+
+    // Винты крепления (2 шт)
+    const screwGeometry = new THREE.CylinderGeometry(0.004, 0.004, 0.018, 8);
+    const screwMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3a3a3a,
+        roughness: 0.4,
+        metalness: 0.8
+    });
+
+    const screw1 = new THREE.Mesh(screwGeometry, screwMaterial);
+    screw1.rotation.x = Math.PI / 2;
+    screw1.position.set(0.02, -0.0275, 0.015);
+    sightGroup.add(screw1);
+
+    const screw2 = new THREE.Mesh(screwGeometry, screwMaterial);
+    screw2.rotation.x = Math.PI / 2;
+    screw2.position.set(-0.02, -0.0275, 0.015);
+    sightGroup.add(screw2);
+
+    // Кнопка регулировки яркости (сверху)
+    const buttonGeometry = new THREE.CylinderGeometry(0.006, 0.006, 0.008, 8);
+    const button = new THREE.Mesh(buttonGeometry, screwMaterial);
+    button.position.set(-0.025, 0.032, 0);
+    sightGroup.add(button);
+
+    return sightGroup;
+}
+
 function createPistol() {
     const pistolGroup = new THREE.Group();
 
@@ -178,6 +277,12 @@ function createPistol() {
     rail.position.set(0.25, -0.065, 0);
     pistolGroup.add(rail);
 
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.15, 0.055, 0); // Сверху на затворе
+    redDot.scale.set(1.2, 1.2, 1.2); // Немного увеличиваем
+    pistolGroup.add(redDot);
+
     pistolGroup.scale.set(2.5, 2.5, 2.5);
     return pistolGroup;
 }
@@ -231,12 +336,12 @@ function createRifle() {
     lensFront.rotation.y = Math.PI / 2;
     rifleGroup.add(lensFront);
     
-    const sightGeometry = new THREE.BoxGeometry(0.02, 0.05, 0.02);
-    const sightMaterial = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
-    const sight = new THREE.Mesh(sightGeometry, sightMaterial);
-    sight.position.set(0.3, 0.04, 0);
-    rifleGroup.add(sight);
-    
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.1, 0.1, 0); // Сверху на корпусе
+    redDot.scale.set(1.5, 1.5, 1.5); // Немного больше для винтовки
+    rifleGroup.add(redDot);
+
     rifleGroup.scale.set(1.8, 1.8, 1.8);
     return rifleGroup;
 }
@@ -403,6 +508,12 @@ function createAK47() {
     selector.position.set(-0.1, 0.01, 0.04);
     selector.rotation.z = -0.5;
     ak47Group.add(selector);
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.15, 0.1, 0); // Сверху на корпусе
+    redDot.scale.set(1.5, 1.5, 1.5);
+    ak47Group.add(redDot);
 
     ak47Group.scale.set(2, 2, 2);
     return ak47Group;
@@ -722,7 +833,13 @@ function createShotgun() {
     bolt.position.set(-0.15, 0.08, 0);
     bolt.castShadow = true;
     sgGroup.add(bolt);
-    
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.1, 0.12, 0); // Сверху на затворе
+    redDot.scale.set(1.6, 1.6, 1.6);
+    sgGroup.add(redDot);
+
     sgGroup.scale.set(1.9, 1.9, 1.9);
     return sgGroup;
 }
@@ -735,6 +852,13 @@ function createSniper() {
     const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), new THREE.MeshPhongMaterial({ color: 0x222222 }));
     scope.position.set(0.1, 0.1, 0);
     group.add(scope);
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел) рядом с оптическим прицелом
+    const redDot = createRedDotSight();
+    redDot.position.set(-0.1, 0.13, 0); // Сверху сзади от оптики
+    redDot.scale.set(1.3, 1.3, 1.3);
+    group.add(redDot);
+
     group.scale.set(2.0, 2.0, 2.0);
     return group;
 }
@@ -796,6 +920,13 @@ function createMachinegun() {
     magazine.position.set(-0.05, -0.17, 0);
     magazine.castShadow = true;
     mgGroup.add(magazine);
+
+    // ДОБАВЛЯЕМ RED DOT SIGHT (коллиматорный прицел)
+    const redDot = createRedDotSight();
+    redDot.position.set(0.1, 0.11, 0); // Сверху на корпусе
+    redDot.scale.set(1.6, 1.6, 1.6);
+    mgGroup.add(redDot);
+
     mgGroup.scale.set(1.8, 1.8, 1.8);
     return mgGroup;
 }

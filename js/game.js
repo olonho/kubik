@@ -2614,20 +2614,106 @@ function initTrainingMode() {
     console.log('🎯 Запуск режима тренировки...');
     selectSkin('human');
 
-    // Создаём полигон с мишенями после инициализации
+    // Изменяем окружение на КИБЕРПРОСТРАНСТВО
     setTimeout(() => {
-        createTrainingRange();
+        createCyberTrainingSpace();
     }, 100);
 }
 
-// Создание тренировочного полигона с неподвижными мишенями
-function createTrainingRange() {
-    console.log('🎯 Создание тренировочного полигона...');
+// Создание КИБЕРПРОСТРАНСТВЕННОГО тренировочного полигона
+function createCyberTrainingSpace() {
+    console.log('💠 Создание киберпространства для тренировки...');
+
+    // ========== ОКРУЖЕНИЕ ==========
+    // Меняем фон на космический черный
+    scene.background = new THREE.Color(0x000510);
+
+    // Добавляем космический туман
+    scene.fog = new THREE.Fog(0x000510, 1, 100);
+
+    // Удаляем старый ground если есть
+    if (ground) {
+        scene.remove(ground);
+    }
+
+    // НЕОНОВЫЙ ПОЛ - электронная сетка
+    const gridSize = 100;
+    const gridDivisions = 50;
+    const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0x00ffff, 0x0088ff);
+    gridHelper.material.opacity = 0.8;
+    gridHelper.material.transparent = true;
+    gridHelper.position.y = 0;
+    scene.add(gridHelper);
+
+    // Светящийся пол под сеткой
+    const floorGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+    const floorMaterial = new THREE.MeshStandardMaterial({
+        color: 0x001133,
+        emissive: 0x002255,
+        emissiveIntensity: 0.5,
+        roughness: 0.8,
+        metalness: 0.2,
+        transparent: true,
+        opacity: 0.9
+    });
+    const cyberFloor = new THREE.Mesh(floorGeometry, floorMaterial);
+    cyberFloor.rotation.x = -Math.PI / 2;
+    cyberFloor.position.y = -0.05;
+    cyberFloor.receiveShadow = true;
+    scene.add(cyberFloor);
+
+    // ========== ОСВЕЩЕНИЕ ==========
+    // Убираем старое освещение и добавляем неоновое
+    while(scene.children.find(child => child.isDirectionalLight || child.isAmbientLight || child.isHemisphereLight)) {
+        const light = scene.children.find(child => child.isDirectionalLight || child.isAmbientLight || child.isHemisphereLight);
+        scene.remove(light);
+    }
+
+    // Ambient light - темное киберпространство
+    const ambientLight = new THREE.AmbientLight(0x4444ff, 0.3);
+    scene.add(ambientLight);
+
+    // Неоновые точечные источники света (синие и фиолетовые)
+    const neonLights = [
+        { pos: [-20, 8, -20], color: 0x00ffff, intensity: 2 },
+        { pos: [20, 8, -20], color: 0xff00ff, intensity: 2 },
+        { pos: [-20, 8, 20], color: 0xff00ff, intensity: 2 },
+        { pos: [20, 8, 20], color: 0x00ffff, intensity: 2 },
+        { pos: [0, 10, -30], color: 0x00ff88, intensity: 3 }
+    ];
+
+    neonLights.forEach(lightData => {
+        const light = new THREE.PointLight(lightData.color, lightData.intensity, 50);
+        light.position.set(...lightData.pos);
+        scene.add(light);
+
+        // Добавляем визуальный источник света (светящаяся сфера)
+        const sphereGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const sphereMaterial = new THREE.MeshBasicMaterial({
+            color: lightData.color,
+            transparent: true,
+            opacity: 0.8
+        });
+        const lightSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        lightSphere.position.set(...lightData.pos);
+        scene.add(lightSphere);
+
+        // Добавляем свечение (большая полупрозрачная сфера)
+        const glowGeometry = new THREE.SphereGeometry(1.5, 16, 16);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: lightData.color,
+            transparent: true,
+            opacity: 0.2
+        });
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        glow.position.set(...lightData.pos);
+        scene.add(glow);
+    });
 
     // Показываем специальное сообщение
     const trainingNotif = document.createElement('div');
-    trainingNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(33, 150, 243, 0.95); padding: 30px 60px; border-radius: 20px; font-size: 28px; font-weight: bold; z-index: 1000; border: 4px solid #2196F3; color: white; text-align: center; box-shadow: 0 8px 30px rgba(33, 150, 243, 0.7);';
-    trainingNotif.innerHTML = '🎯 РЕЖИМ ТРЕНИРОВКИ<br><span style="font-size: 20px;">Практикуйте стрельбу по мишеням!</span>';
+    trainingNotif.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2)); padding: 40px 70px; border-radius: 25px; font-size: 36px; font-weight: bold; z-index: 1000; border: 4px solid #00ffff; color: #00ffff; text-align: center; box-shadow: 0 0 50px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 255, 255, 0.2); backdrop-filter: blur(10px); text-shadow: 0 0 20px #00ffff;';
+    trainingNotif.innerHTML = '💠 КИБЕРПРОСТРАНСТВО<br><span style="font-size: 24px; color: #ff00ff;">Добро пожаловать в виртуальный полигон</span>';
     document.body.appendChild(trainingNotif);
 
     setTimeout(() => {
@@ -2636,55 +2722,208 @@ function createTrainingRange() {
         }
     }, 3000);
 
-    // Создаём стены полигона
-    const wallMaterial = new THREE.MeshPhongMaterial({
-        color: 0x8B4513,
-        shininess: 10
+    // ========== НЕОНОВЫЕ СТЕНЫ ==========
+    // Материал для светящихся стен
+    const wallMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00ffff,
+        emissive: 0x00ffff,
+        emissiveIntensity: 0.8,
+        transparent: true,
+        opacity: 0.4,
+        metalness: 0.8,
+        roughness: 0.2
     });
 
-    // Задняя стена
-    const backWallGeometry = new THREE.BoxGeometry(30, 5, 0.5);
+    // Задняя стена с неоновой рамкой
+    const backWallGeometry = new THREE.BoxGeometry(40, 8, 0.5);
     const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
-    backWall.position.set(0, 2.5, -50);
-    backWall.receiveShadow = true;
-    backWall.castShadow = true;
+    backWall.position.set(0, 4, -50);
     scene.add(backWall);
 
+    // Неоновая рамка задней стены
+    const frameGeometry = new THREE.EdgesGeometry(backWallGeometry);
+    const frameMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 3 });
+    const backWallFrame = new THREE.LineSegments(frameGeometry, frameMaterial);
+    backWallFrame.position.copy(backWall.position);
+    scene.add(backWallFrame);
+
     // Боковые стены
-    const sideWallGeometry = new THREE.BoxGeometry(0.5, 5, 60);
+    const sideWallGeometry = new THREE.BoxGeometry(0.5, 8, 70);
     const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
-    leftWall.position.set(-15, 2.5, -20);
-    leftWall.receiveShadow = true;
-    leftWall.castShadow = true;
+    leftWall.position.set(-20, 4, -15);
     scene.add(leftWall);
 
+    const leftWallFrame = new THREE.LineSegments(
+        new THREE.EdgesGeometry(sideWallGeometry),
+        frameMaterial
+    );
+    leftWallFrame.position.copy(leftWall.position);
+    scene.add(leftWallFrame);
+
     const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
-    rightWall.position.set(15, 2.5, -20);
-    rightWall.receiveShadow = true;
-    rightWall.castShadow = true;
+    rightWall.position.set(20, 4, -15);
     scene.add(rightWall);
 
-    // Создаём статичные зомби-мишени (3 ряда по 5 мишеней)
+    const rightWallFrame = new THREE.LineSegments(
+        new THREE.EdgesGeometry(sideWallGeometry),
+        frameMaterial
+    );
+    rightWallFrame.position.copy(rightWall.position);
+    scene.add(rightWallFrame);
+
+    // Добавляем вертикальные неоновые столбы
+    const pillarGeometry = new THREE.CylinderGeometry(0.3, 0.3, 8, 8);
+    const pillarMaterial = new THREE.MeshStandardMaterial({
+        color: 0xff00ff,
+        emissive: 0xff00ff,
+        emissiveIntensity: 1,
+        transparent: true,
+        opacity: 0.6
+    });
+
+    const pillarPositions = [
+        [-20, 4, -50], [20, 4, -50],
+        [-20, 4, 20], [20, 4, 20]
+    ];
+
+    pillarPositions.forEach(pos => {
+        const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+        pillar.position.set(...pos);
+        scene.add(pillar);
+    });
+
+    // ========== ГОЛОГРАММНЫЕ МИШЕНИ ==========
+    // Создаём голограммные мишени (3 ряда по 5)
     for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 5; col++) {
-            const zombie = createTrainingDummy();
-            zombie.position.set(
-                (col - 2) * 5,  // X: -10, -5, 0, 5, 10
+            const hologram = createHologramTarget();
+            hologram.position.set(
+                (col - 2) * 6,  // X: -12, -6, 0, 6, 12
                 0,
                 -20 - row * 10   // Z: -20, -30, -40
             );
-            zombie.userData.type = 'trainingDummy';
-            zombie.userData.hp = 3;
-            zombie.userData.maxHp = 3;
-            scene.add(zombie);
-            obstacles.push(zombie);
+            hologram.userData.type = 'trainingDummy';
+            hologram.userData.hp = 3;
+            hologram.userData.maxHp = 3;
+            hologram.userData.row = row;
+            hologram.userData.col = col;
+            scene.add(hologram);
+            obstacles.push(hologram);
         }
     }
 
-    console.log('✅ Тренировочный полигон создан с', obstacles.length, 'мишенями');
+    // Анимация голограмм (пульсация)
+    const animateHolograms = () => {
+        if (gameMode !== 'training') return;
+
+        obstacles.forEach(obj => {
+            if (obj.userData.type === 'trainingDummy' && obj.userData.hologramMaterial) {
+                const time = Date.now() * 0.001;
+                obj.userData.hologramMaterial.emissiveIntensity = 0.6 + Math.sin(time * 2 + obj.userData.row + obj.userData.col) * 0.3;
+                obj.rotation.y = Math.sin(time * 0.5) * 0.1;
+            }
+        });
+
+        requestAnimationFrame(animateHolograms);
+    };
+    animateHolograms();
+
+    console.log('✅ Киберпространство создано с', obstacles.length, 'голограммными мишенями');
 }
 
-// Создание неподвижной мишени-зомби
+// Создание голограммной мишени для киберпространства
+function createHologramTarget() {
+    const hologramGroup = new THREE.Group();
+
+    // Голограммный материал (светящийся, полупрозрачный)
+    const hologramMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00ff88,
+        emissive: 0x00ff88,
+        emissiveIntensity: 0.8,
+        transparent: true,
+        opacity: 0.5,
+        metalness: 0.9,
+        roughness: 0.1,
+        wireframe: false
+    });
+
+    // Сохраняем материал для анимации
+    hologramGroup.userData.hologramMaterial = hologramMaterial;
+
+    // Тело голограммы
+    const bodyGeometry = new THREE.BoxGeometry(0.6, 1.0, 0.3);
+    const body = new THREE.Mesh(bodyGeometry, hologramMaterial);
+    body.position.y = 0.7;
+    hologramGroup.add(body);
+
+    // Wireframe контур тела
+    const bodyWireframe = new THREE.EdgesGeometry(bodyGeometry);
+    const bodyWireframeMesh = new THREE.LineSegments(
+        bodyWireframe,
+        new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 })
+    );
+    bodyWireframeMesh.position.copy(body.position);
+    hologramGroup.add(bodyWireframeMesh);
+
+    // Голова голограммы
+    const headGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const head = new THREE.Mesh(headGeometry, hologramMaterial);
+    head.position.y = 1.45;
+    hologramGroup.add(head);
+
+    // Wireframe контур головы
+    const headWireframe = new THREE.EdgesGeometry(headGeometry);
+    const headWireframeMesh = new THREE.LineSegments(
+        headWireframe,
+        new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 })
+    );
+    headWireframeMesh.position.copy(head.position);
+    hologramGroup.add(headWireframeMesh);
+
+    // Светящееся "ядро" в центре
+    const coreGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+    const coreMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff00ff,
+        transparent: true,
+        opacity: 0.9
+    });
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    core.position.y = 1.0;
+    hologramGroup.add(core);
+
+    // Светящееся кольцо вокруг
+    const ringGeometry = new THREE.TorusGeometry(0.4, 0.05, 8, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.7
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.position.y = 1.0;
+    ring.rotation.x = Math.PI / 2;
+    hologramGroup.add(ring);
+
+    // Цифровой ID над головой
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#00ffff';
+    ctx.font = 'bold 32px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('TARGET', 64, 40);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(1, 0.5, 1);
+    sprite.position.y = 2.2;
+    hologramGroup.add(sprite);
+
+    // Создание неподвижной мишени-зомби (старая функция, оставляем для совместимости)
+    return hologramGroup;
+}
+
 function createTrainingDummy() {
     const dummyGroup = new THREE.Group();
 
