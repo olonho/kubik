@@ -871,6 +871,11 @@ function loseLife() {
 }
 
 function startNewWave() {
+    // Инициализация level если не определена (фикс для старого кеша)
+    if (typeof level === 'undefined') {
+        window.level = Math.floor(wave / 1);
+    }
+
     wave++;
 
     // Увеличиваем количество зомби с каждой волной (меньше зомби для комфортной игры)

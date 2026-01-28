@@ -106,6 +106,49 @@ function createDogPet() {
     head.position.set(0, 0.4, 0.4);
     petGroup.add(head);
 
+    // 🐕 ДЕТАЛЬНОЕ ЛИЦО СОБАКИ
+    // Морда (вытянутая вперед)
+    const snoutGeometry = new THREE.BoxGeometry(0.2, 0.15, 0.2);
+    const snout = new THREE.Mesh(snoutGeometry, bodyMaterial);
+    snout.position.set(0, 0.35, 0.55);
+    petGroup.add(snout);
+
+    // Нос (черный, влажный)
+    const noseGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+    const noseMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+    nose.position.set(0, 0.38, 0.65);
+    petGroup.add(nose);
+
+    // Глаза (выразительные с белками)
+    const eyeGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const eyeWhiteGeometry = new THREE.SphereGeometry(0.055, 8, 8);
+    const eyeWhiteMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+    // Левый глаз
+    const leftEyeWhite = new THREE.Mesh(eyeWhiteGeometry, eyeWhiteMaterial);
+    leftEyeWhite.position.set(-0.1, 0.45, 0.52);
+    petGroup.add(leftEyeWhite);
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.1, 0.45, 0.55);
+    petGroup.add(leftEye);
+
+    // Правый глаз
+    const rightEyeWhite = new THREE.Mesh(eyeWhiteGeometry, eyeWhiteMaterial);
+    rightEyeWhite.position.set(0.1, 0.45, 0.52);
+    petGroup.add(rightEyeWhite);
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.1, 0.45, 0.55);
+    petGroup.add(rightEye);
+
+    // Язык (розовый, высунутый)
+    const tongueGeometry = new THREE.BoxGeometry(0.08, 0.02, 0.12);
+    const tongueMaterial = new THREE.MeshPhongMaterial({ color: 0xff69b4 });
+    const tongue = new THREE.Mesh(tongueGeometry, tongueMaterial);
+    tongue.position.set(0, 0.3, 0.62);
+    petGroup.add(tongue);
+
     // Уши
     const earGeometry = new THREE.ConeGeometry(0.08, 0.15, 4);
     const leftEar = new THREE.Mesh(earGeometry, bodyMaterial);
