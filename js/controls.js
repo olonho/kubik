@@ -403,7 +403,6 @@ document.addEventListener('contextmenu', (e) => {
 // Инициализируем event listeners после загрузки DOM
 window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('restart').addEventListener('click', restartGame);
-    document.getElementById('changeSkin').addEventListener('click', returnToSkinMenu);
     document.getElementById('openShopBtn').addEventListener('click', () => {
         gameActive = false;
         document.getElementById('shopMenu').style.display = 'block';
@@ -499,10 +498,8 @@ window.addEventListener('DOMContentLoaded', () => {
         buildBed();
     });
 
-    // Обработчик кнопки поглаживания собаки
-    document.getElementById('petDogBtn').addEventListener('click', () => {
-        petDog();
-    });
+    // Обработчик клавиши A для поглаживания собаки (когда рядом)
+    // Обрабатывается в updatePlayer() где проверяется близость к собаке
 });
 
 // init() будет вызван после выбора скина (определён в init.js)

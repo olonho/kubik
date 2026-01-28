@@ -177,8 +177,7 @@ function petDog() {
             }
         }, 4000);
 
-        // Скрываем кнопку поглаживания
-        document.getElementById('petDogBtn').style.display = 'none';
+        // Индикатор поглаживания автоматически скроется когда напарник появился
     }
 }
 

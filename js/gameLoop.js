@@ -298,6 +298,20 @@ function updatePlayer() {
         keys['KeyB'] = false;
         openShop();
     }
+
+    // Поглаживание собаки на клавишу A (когда рядом)
+    if (keys['KeyA']) {
+        keys['KeyA'] = false;
+        // Проверяем близость к собаке
+        const dog = pets.find(pet => pet.userData.type === 'dog');
+        if (dog && player) {
+            const distance = player.position.distanceTo(dog.position);
+            if (distance < 3) { // Если ближе 3 метров
+                petDog();
+            }
+        }
+    }
+
     // Стрельба на клавишу W
     if ((keys['KeyW'] || keys['KeyW'.toLowerCase()]) && canShoot && !isBurstFiring) {
         if (selectedWeapon === 'rifle') {
@@ -1702,6 +1716,31 @@ function animate() {
             if (bedIndicator && bedIndicator.parentNode) {
                 document.body.removeChild(bedIndicator);
                 bedIndicator = null;
+            }
+        }
+
+        // Проверяем близость к собаке и показываем подсказку (если напарник еще не появился)
+        if (!hasCompanion && pets && pets.length > 0) {
+            const dog = pets.find(pet => pet.userData.type === 'dog');
+            if (dog && player) {
+                const distance = player.position.distanceTo(dog.position);
+                const petIndicator = document.getElementById('petDogIndicator');
+
+                if (distance < 3) { // Если ближе 3 метров
+                    if (petIndicator) {
+                        petIndicator.style.display = 'block';
+                    }
+                } else {
+                    if (petIndicator) {
+                        petIndicator.style.display = 'none';
+                    }
+                }
+            }
+        } else {
+            // Скрываем индикатор если напарник уже появился
+            const petIndicator = document.getElementById('petDogIndicator');
+            if (petIndicator) {
+                petIndicator.style.display = 'none';
             }
         }
 

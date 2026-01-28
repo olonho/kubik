@@ -5,26 +5,35 @@
 
 console.log('✅ init.js загружен');
 
-// Функция запуска игры из вступительной катсцены
-function startGameFromIntro() {
-    console.log('🎬 Запуск игры из вступительной катсцены...');
+// Ждём полной загрузки DOM
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOM полностью загружен');
 
-    // Скрываем вступительную сцену
-    const introScene = document.getElementById('introScene');
-    if (introScene) {
-        introScene.style.transition = 'opacity 1.5s';
-        introScene.style.opacity = '0';
+    // Функция запуска игры из вступительной катсцены
+    window.startGameFromIntro = function() {
+        console.log('🎬 Запуск игры из вступительной катсцены...');
+        console.log('Проверка элементов DOM:');
+        console.log('- buildBedBtn:', document.getElementById('buildBedBtn'));
+        console.log('- score:', document.getElementById('score'));
+
+        // Скрываем вступительную сцену
+        const introScene = document.getElementById('introScene');
+        if (introScene) {
+            introScene.style.transition = 'opacity 1.5s';
+            introScene.style.opacity = '0';
+            setTimeout(() => {
+                introScene.style.display = 'none';
+            }, 1500);
+        }
+
+        // Даём небольшую задержку для полной загрузки DOM перед запуском игры
         setTimeout(() => {
-            introScene.style.display = 'none';
-        }, 1500);
-    }
+            selectSkin('human');
+        }, 100);
+    };
 
-    // Запускаем игру с человеческим персонажем
-    selectSkin('human');
-}
-
-// Делаем функцию глобальной
-window.startGameFromIntro = startGameFromIntro;
+    console.log('✅ startGameFromIntro функция готова');
+});
 
 function selectSkin(skin) {
     console.log('=== selectSkin вызвана, скин:', skin);
@@ -46,18 +55,22 @@ function selectSkin(skin) {
     cameraMode = 'firstPerson'; // Начинаем с вида от первого лица
 
     console.log('📂 Загружены данные: score=', score, 'wave=', wave, 'lives=', lives, 'coins=', coins, 'wood=', wood);
-    document.getElementById('score').style.display = 'block';
-    document.getElementById('instructions').style.display = 'block';
-    document.getElementById('crosshair').style.display = 'block';
-    document.getElementById('coinsDisplay').style.display = 'block';
-    document.getElementById('openShopBtn').style.display = 'block';
-    document.getElementById('openItemsShopBtn').style.display = 'block';
-    document.getElementById('openWeaponsShopBtn').style.display = 'block';
-    document.getElementById('woodDisplay').style.display = 'block';
-    document.getElementById('hungerDisplay').style.display = 'block';
-    document.getElementById('thirstDisplay').style.display = 'block';
-    document.getElementById('buildHouseBtn').style.display = 'block';
-    document.getElementById('buildBedBtn').style.display = 'block';
+    // Показываем UI элементы (с проверкой на существование)
+    const uiElements = [
+        'score', 'instructions', 'crosshair', 'coinsDisplay',
+        'openShopBtn', 'openItemsShopBtn', 'openWeaponsShopBtn',
+        'woodDisplay', 'hungerDisplay', 'thirstDisplay',
+        'buildHouseBtn', 'buildBedBtn'
+    ];
+
+    uiElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'block';
+        } else {
+            console.warn('⚠️ Элемент не найден:', id);
+        }
+    });
 
     // Вызываем init сначала чтобы инициализировать игру
     init();
@@ -68,8 +81,7 @@ function selectSkin(skin) {
     if (typeof updateHungerDisplay === 'function') updateHungerDisplay();
     if (typeof updateThirstDisplay === 'function') updateThirstDisplay();
 
-    // Показываем кнопку поглаживания (собака всегда есть)
-    document.getElementById('petDogBtn').style.display = 'block';
+    // Индикатор поглаживания показывается автоматически когда игрок подходит к собаке
 }
 
 // Делаем функцию selectSkin глобальной сразу после определения
