@@ -1314,6 +1314,42 @@ function updatePets() {
                     const moveZ = dz * pet.userData.speed * 0.1;
                     pet.position.x += moveX;
                     pet.position.z += moveZ;
+
+                    // Скрываем индикатор "Нажми А" когда далеко
+                    if (pet.userData.petIndicator) {
+                        pet.userData.petIndicator.visible = false;
+                    }
+                } else if (distance < 3 && pet.userData.type === 'dog' && !hasCompanion) {
+                    // Близко к игроку - показываем индикатор "Нажми А"
+                    if (!pet.userData.petIndicator) {
+                        // Создаём индикатор
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 256;
+                        canvas.height = 64;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffeb3b';
+                        ctx.strokeStyle = '#000000';
+                        ctx.lineWidth = 4;
+                        ctx.font = 'bold 32px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.strokeText('🖐️ Нажми A', 128, 40);
+                        ctx.fillText('🖐️ Нажми A', 128, 40);
+
+                        const texture = new THREE.CanvasTexture(canvas);
+                        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                        const sprite = new THREE.Sprite(spriteMaterial);
+                        sprite.scale.set(2, 0.5, 1);
+                        sprite.position.y = 1.5;
+                        pet.add(sprite);
+                        pet.userData.petIndicator = sprite;
+                    } else {
+                        pet.userData.petIndicator.visible = true;
+                    }
+                } else {
+                    // Слишком далеко - скрываем индикатор
+                    if (pet.userData.petIndicator) {
+                        pet.userData.petIndicator.visible = false;
+                    }
                 }
             }
         }

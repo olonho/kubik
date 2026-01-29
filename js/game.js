@@ -183,6 +183,136 @@ function petDog() {
     petPats++;
     document.getElementById('petPatsCount').textContent = petPats;
 
+    // АНИМАЦИЯ СОБАКИ - прыжок и виляние хвостом
+    const dog = pets.find(pet => pet.userData.type === 'dog');
+    if (dog) {
+        // Сохраняем оригинальную позицию
+        const originalY = dog.position.y;
+
+        // Анимация прыжка (3 прыжка подряд)
+        let jumpCount = 0;
+        const jumpAnimation = () => {
+            if (jumpCount >= 3) return;
+
+            const jumpDuration = 400;
+            const jumpHeight = 0.5;
+            const startTime = Date.now();
+
+            const animateJump = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / jumpDuration;
+
+                if (progress < 1) {
+                    // Парабола для прыжка
+                    const jumpProgress = Math.sin(progress * Math.PI);
+                    dog.position.y = originalY + jumpProgress * jumpHeight;
+                    requestAnimationFrame(animateJump);
+                } else {
+                    dog.position.y = originalY;
+                    jumpCount++;
+                    if (jumpCount < 3) {
+                        setTimeout(jumpAnimation, 100);
+                    }
+                }
+            };
+            animateJump();
+        };
+        jumpAnimation();
+
+        // Виляние хвостом (если есть хвост в модели)
+        if (dog.userData.tail) {
+            const tail = dog.userData.tail;
+            const originalRotZ = tail.rotation.z;
+            let wagCount = 0;
+            const wagSpeed = 100;
+
+            const wagTail = () => {
+                if (wagCount >= 10) {
+                    tail.rotation.z = originalRotZ;
+                    return;
+                }
+
+                tail.rotation.z = originalRotZ + Math.sin(Date.now() * 0.03) * 0.5;
+                wagCount++;
+                setTimeout(wagTail, wagSpeed);
+            };
+            wagTail();
+        }
+
+        // Вращение собаки (радостное кружение)
+        const originalRotY = dog.rotation.y;
+        const spinDuration = 600;
+        const startTime = Date.now();
+
+        const animateSpin = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / spinDuration, 1);
+
+            if (progress < 1) {
+                dog.rotation.y = originalRotY + progress * Math.PI * 2;
+                requestAnimationFrame(animateSpin);
+            } else {
+                dog.rotation.y = originalRotY;
+            }
+        };
+        animateSpin();
+
+        // Сердечки над собакой (particle effect)
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                const heartGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+                const heartCanvas = document.createElement('canvas');
+                heartCanvas.width = 64;
+                heartCanvas.height = 64;
+                const ctx = heartCanvas.getContext('2d');
+                ctx.font = '48px Arial';
+                ctx.fillText('💕', 8, 48);
+
+                const heartTexture = new THREE.CanvasTexture(heartCanvas);
+                const heartMaterial = new THREE.MeshBasicMaterial({
+                    map: heartTexture,
+                    transparent: true,
+                    opacity: 1
+                });
+                const heart = new THREE.Mesh(heartGeometry, heartMaterial);
+
+                // Позиция над собакой
+                heart.position.copy(dog.position);
+                heart.position.y += 1.5;
+                heart.position.x += (Math.random() - 0.5) * 0.5;
+                heart.position.z += (Math.random() - 0.5) * 0.5;
+
+                // Скорость подъёма
+                heart.userData.velocity = {
+                    y: 0.02 + Math.random() * 0.01,
+                    rotation: (Math.random() - 0.5) * 0.1
+                };
+                heart.userData.lifetime = 60; // 1 секунда
+
+                scene.add(heart);
+
+                // Анимация подъёма и исчезновения
+                const animateHeart = () => {
+                    if (!heart.parent || heart.userData.lifetime <= 0) {
+                        scene.remove(heart);
+                        return;
+                    }
+
+                    heart.position.y += heart.userData.velocity.y;
+                    heart.rotation.z += heart.userData.velocity.rotation;
+                    heart.material.opacity = heart.userData.lifetime / 60;
+                    heart.userData.lifetime--;
+
+                    // Всегда смотрит на камеру (billboard)
+                    heart.quaternion.copy(camera.quaternion);
+
+                    requestAnimationFrame(animateHeart);
+                };
+                animateHeart();
+            }, i * 200);
+        }
+    }
+
     // Уведомление о поглаживании
     const notification = document.createElement('div');
     notification.style.cssText = 'position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 182, 193, 0.95); color: #fff; padding: 20px 40px; border-radius: 15px; font-size: 24px; font-weight: bold; z-index: 999; border: 3px solid #FFB6C1; box-shadow: 0 0 20px rgba(255, 182, 193, 0.8);';

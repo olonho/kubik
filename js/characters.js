@@ -395,6 +395,9 @@ function createDog() {
     tail.castShadow = true;
     dogGroup.add(tail);
 
+    // Сохраняем ссылку на хвост для анимации
+    dogGroup.userData.tail = tail;
+
     return dogGroup;
 }
 
