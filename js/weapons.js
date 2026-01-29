@@ -426,11 +426,20 @@ function createAK47() {
     cover.position.set(-0.04, 0.05, 0);
     ak47Group.add(cover);
 
-    // Рукоятка взведения (справа)
+    // Затвор (bolt) - будет двигаться при выстреле
+    const boltGeometry = new THREE.BoxGeometry(0.12, 0.04, 0.06);
+    const bolt = new THREE.Mesh(boltGeometry, darkMetalMaterial);
+    bolt.position.set(-0.08, 0.01, 0);
+    bolt.castShadow = true;
+    ak47Group.add(bolt);
+    ak47Group.userData.bolt = bolt; // Для анимации выстрела
+
+    // Рукоятка взведения (справа) - связана с затвором
     const chargingHandleGeometry = new THREE.BoxGeometry(0.04, 0.015, 0.02);
     const chargingHandle = new THREE.Mesh(chargingHandleGeometry, metalMaterial);
     chargingHandle.position.set(0.03, 0.03, 0.055);
     ak47Group.add(chargingHandle);
+    ak47Group.userData.chargingHandle = chargingHandle; // Для анимации
 
     // Прицельная планка
     const sightRailGeometry = new THREE.BoxGeometry(0.15, 0.015, 0.015);

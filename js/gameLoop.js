@@ -556,36 +556,32 @@ function shoot() {
     let spreadX = 0;
     let spreadY = 0;
 
-    // В режиме тренировки значительно уменьшаем разброс
-    const trainingMultiplier = (gameMode === 'training') ? 0.2 : 1.0;
-
     if (selectedWeapon === 'pistol') {
         // Пистолет - минимальный разброс
-        spreadX = (Math.random() - 0.5) * 0.005 * trainingMultiplier;
-        spreadY = (Math.random() - 0.5) * 0.005 * trainingMultiplier;
+        spreadX = (Math.random() - 0.5) * 0.01;
+        spreadY = (Math.random() - 0.5) * 0.01;
     } else if (selectedWeapon === 'rifle') {
         // Винтовка - средний разброс
-        spreadX = (Math.random() - 0.5) * 0.008 * trainingMultiplier;
-        spreadY = (Math.random() - 0.5) * 0.008 * trainingMultiplier;
+        spreadX = (Math.random() - 0.5) * 0.02;
+        spreadY = (Math.random() - 0.5) * 0.02;
     } else if (selectedWeapon === 'ak47') {
         // AK-47 - большой разброс как в CS:GO
-        spreadX = (Math.random() - 0.5) * 0.02 * trainingMultiplier;
-        spreadY = ((Math.random() - 0.5) * 0.015 + 0.008) * trainingMultiplier; // Уходит вверх
+        spreadX = (Math.random() - 0.5) * 0.04;
+        spreadY = (Math.random() - 0.5) * 0.03 + 0.015; // Уходит вверх
     } else if (selectedWeapon === 'shotgun') {
         // Дробовик - огромный разброс
-        spreadX = (Math.random() - 0.5) * 0.08 * trainingMultiplier;
-        spreadY = (Math.random() - 0.5) * 0.08 * trainingMultiplier;
+        spreadX = (Math.random() - 0.5) * 0.08;
+        spreadY = (Math.random() - 0.5) * 0.08;
     } else if (selectedWeapon === 'sniper' || selectedWeapon === 'awp') {
-        // Снайперка/AWP - почти нет разброса
-        if (!isAiming && gameMode !== 'training') {
-            spreadX = (Math.random() - 0.5) * 0.01;
-            spreadY = (Math.random() - 0.5) * 0.01;
+        // Снайперка/AWP - нет разброса при прицеливании
+        if (!isAiming) {
+            spreadX = (Math.random() - 0.5) * 0.05;
+            spreadY = (Math.random() - 0.5) * 0.05;
         }
-        // В тренировке или при прицеливании - нулевой разброс
     } else if (selectedWeapon === 'machinegun') {
         // Пулемёт - большой разброс при длительной стрельбе
-        spreadX = (Math.random() - 0.5) * 0.03 * trainingMultiplier;
-        spreadY = ((Math.random() - 0.5) * 0.02 + 0.01) * trainingMultiplier;
+        spreadX = (Math.random() - 0.5) * 0.05;
+        spreadY = (Math.random() - 0.5) * 0.04 + 0.02;
     }
 
     // Применяем разброс к направлению
@@ -595,6 +591,106 @@ function shoot() {
 
     bullet.userData.direction = direction;
     bullet.userData.weaponType = selectedWeapon; // Сохраняем тип оружия для расчета урона
+
+    // АНИМАЦИЯ ЗАТВОРА И ЭФФЕКТЫ ВЫСТРЕЛА (как в CS:GO)
+    if (cameraMode === 'firstPerson' && currentWeapon) {
+        // Вспышка выстрела (muzzle flash)
+        const muzzleFlash = new THREE.PointLight(0xffaa00, 3, 2);
+        muzzleFlash.position.set(0.6, -0.1, -0.6);
+        fpsHands.add(muzzleFlash);
+        setTimeout(() => fpsHands.remove(muzzleFlash), 50);
+
+        // Анимация затвора для AK-47
+        if (selectedWeapon === 'ak47' && currentWeapon.userData.bolt && currentWeapon.userData.chargingHandle) {
+            const bolt = currentWeapon.userData.bolt;
+            const handle = currentWeapon.userData.chargingHandle;
+
+            const originalBoltX = bolt.position.x;
+            const originalHandleX = handle.position.x;
+
+            // Затвор уходит назад
+            bolt.position.x -= 0.08;
+            handle.position.x -= 0.08;
+
+            // Вылет гильзы
+            const shellGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.04, 8);
+            const shellMaterial = new THREE.MeshPhongMaterial({ color: 0xccaa44 });
+            const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+
+            // Позиция вылета гильзы (справа и вверх от оружия)
+            const shellWorldPos = new THREE.Vector3();
+            currentWeapon.getWorldPosition(shellWorldPos);
+            shell.position.copy(camera.position);
+            shell.position.x += 0.2;
+            shell.position.y += 0.1;
+
+            // Скорость вылета гильзы
+            shell.userData.velocity = new THREE.Vector3(
+                0.02 + Math.random() * 0.01,  // Вправо
+                0.03 + Math.random() * 0.02,  // Вверх
+                -0.01 - Math.random() * 0.01  // Назад
+            );
+            shell.userData.rotationSpeed = new THREE.Vector3(
+                Math.random() * 0.3,
+                Math.random() * 0.3,
+                Math.random() * 0.3
+            );
+            shell.userData.lifetime = 60; // 1 секунда
+            shell.castShadow = true;
+
+            scene.add(shell);
+            bullets.push(shell); // Используем массив bullets для обработки физики
+
+            // Возврат затвора
+            setTimeout(() => {
+                if (bolt && handle) {
+                    const returnDuration = 100;
+                    const returnStart = Date.now();
+
+                    const animateBoltReturn = () => {
+                        if (!bolt || !handle) return;
+
+                        const elapsed = Date.now() - returnStart;
+                        const progress = Math.min(elapsed / returnDuration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 2);
+
+                        bolt.position.x = originalBoltX - 0.08 + 0.08 * eased;
+                        handle.position.x = originalHandleX - 0.08 + 0.08 * eased;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animateBoltReturn);
+                        }
+                    };
+                    animateBoltReturn();
+                }
+            }, 50);
+        }
+
+        // Анимация затвора для других оружий (упрощённая)
+        else if ((selectedWeapon === 'pistol' || selectedWeapon === 'rifle' || selectedWeapon === 'sniper' || selectedWeapon === 'awp')
+                 && currentWeapon.children.length > 0) {
+            // Находим первый mesh оружия и делаем короткое движение назад
+            const weaponPart = currentWeapon.children.find(child => child.isMesh);
+            if (weaponPart) {
+                const originalX = weaponPart.position.x;
+                weaponPart.position.x -= 0.05;
+                setTimeout(() => {
+                    if (weaponPart) {
+                        const returnDuration = 80;
+                        const returnStart = Date.now();
+                        const animateReturn = () => {
+                            if (!weaponPart) return;
+                            const elapsed = Date.now() - returnStart;
+                            const progress = Math.min(elapsed / returnDuration, 1);
+                            weaponPart.position.x = originalX - 0.05 + 0.05 * progress;
+                            if (progress < 1) requestAnimationFrame(animateReturn);
+                        };
+                        animateReturn();
+                    }
+                }, 30);
+            }
+        }
+    }
 
     bullet.castShadow = true;
     scene.add(bullet);
